@@ -19,9 +19,9 @@ export function firstForksQuery(owner: string, names: string[]): string {
  * @example contributionsQuery(2024)
  */
 export function contributionsQuery(year: number): string {
-  return `query($login: String!) {
+  return `query($username: String!) {
   ${RATE_LIMIT_FIELDS}
-  user(login: $login) {
+  user(login: $username) {
     year: contributionsCollection(from: "${year}-01-01T00:00:00Z", to: "${year}-12-31T23:59:59Z") {
       contributionCalendar { weeks { contributionDays { date contributionCount } } }
       commitContributionsByRepository(maxRepositories: 100) {

@@ -8,7 +8,7 @@ export interface Logger {
 
 /**
  * Escreve JSON por linha num destino injetado (stdout por padrão).
- * @example new JsonLogger().log('info', 'collection.done', { login, ms: 812 })
+ * @example new JsonLogger().log('info', 'collection.done', { username, ms: 812 })
  */
 export class JsonLogger implements Logger {
   constructor(

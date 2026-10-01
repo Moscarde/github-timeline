@@ -4,7 +4,7 @@ import type { RestRepo, RestUser } from '../../src/github/mappers.js';
 /** API do GitHub em memória: responde REST e GraphQL a partir de dados configurados. */
 export class FakeGithubTransport implements GithubTransport {
   readonly users = new Map<string, RestUser>();
-  /** Repositórios por login; servidos em páginas de `per_page`. */
+  /** Repositórios por username; servidos em páginas de `per_page`. */
   readonly repos = new Map<string, RestRepo[]>();
   readonly firstForks = new Map<string, string>();
   readonly dailyContributions = new Map<
@@ -17,13 +17,22 @@ export class FakeGithubTransport implements GithubTransport {
     language: string | null;
     commits: number;
   }> = [];
+  /** Repositórios de cada organização, já na ordem de stars da busca. */
+  readonly orgRepos = new Map<string, string[]>();
+  readonly contributors = new Map<
+    string,
+    Array<{ login: string; avatar_url: string; type: string; contributions: number }>
+  >();
   readonly calls: string[] = [];
 
   async getJson(path: string): Promise<unknown> {
     this.calls.push(`GET ${path.split('?')[0]}`);
     const url = new URL(path, 'https://api.test');
-    const [, , login = '', resource] = url.pathname.split('/');
-    const key = decodeURIComponent(login).toLowerCase();
+    if (url.pathname === '/search/repositories') return this.searchRepos(url.searchParams);
+    if (url.pathname.endsWith('/contributors'))
+      return this.contributors.get(url.pathname.split('/').slice(2, 4).join('/')) ?? [];
+    const [, , username = '', resource] = url.pathname.split('/');
+    const key = decodeURIComponent(username).toLowerCase();
     if (resource === 'repos') return this.reposPage(key, url.searchParams);
     return this.users.get(key) ?? null;
   }
@@ -37,10 +46,15 @@ export class FakeGithubTransport implements GithubTransport {
     return this.forksPage(query);
   }
 
-  private reposPage(login: string, params: URLSearchParams): RestRepo[] {
+  private searchRepos(params: URLSearchParams) {
+    const org = (params.get('q') ?? '').replace(/^org:/, '').toLowerCase();
+    return { items: (this.orgRepos.get(org) ?? []).map((full_name) => ({ full_name })) };
+  }
+
+  private reposPage(username: string, params: URLSearchParams): RestRepo[] {
     const perPage = Number(params.get('per_page'));
     const page = Number(params.get('page'));
-    return (this.repos.get(login) ?? []).slice((page - 1) * perPage, page * perPage);
+    return (this.repos.get(username) ?? []).slice((page - 1) * perPage, page * perPage);
   }
 
   private forksPage(query: string): Record<string, unknown> {

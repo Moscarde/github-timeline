@@ -73,3 +73,18 @@ export function joinPt(items: string[]): string {
 export function yearOf(iso: string): number {
   return new Date(iso).getUTCFullYear();
 }
+
+const MINUTE_MS = 60 * 1000;
+
+/**
+ * Idade relativa em pt-BR, para avisos de snapshot antigo.
+ * @example formatAge(new Date('2026-09-30T09:00Z'), new Date('2026-09-30T12:00Z')) // "há 3 horas"
+ */
+export function formatAge(since: Date, now: Date): string {
+  const minutes = Math.max(0, Math.floor((now.getTime() - since.getTime()) / MINUTE_MS));
+  if (minutes < 1) return 'agora há pouco';
+  if (minutes < 60) return `há ${plural(minutes, 'minuto', 'minutos')}`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `há ${plural(hours, 'hora', 'horas')}`;
+  return `há ${plural(Math.floor(hours / 24), 'dia', 'dias')}`;
+}

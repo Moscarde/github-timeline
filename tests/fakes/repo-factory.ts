@@ -33,7 +33,7 @@ export function repoIn(year: number, overrides: Partial<Repo> = {}): Repo {
 
 export function makeAccount(overrides: Partial<GithubAccount> = {}): GithubAccount {
   return {
-    login: 'someone',
+    username: 'someone',
     name: 'Someone',
     avatarUrl: 'https://avatars.githubusercontent.com/u/1?v=4',
     bio: null,

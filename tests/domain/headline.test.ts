@@ -16,6 +16,8 @@ describe('buildHeadline', () => {
     expect(headline.form).toBe('estrela');
     expect(headline.full).toBe('16 anos. 2 repositórios. 250,7k ★ em linux.');
     expect(headline.short).toBe('16 anos de código. 250,7k ★ em linux.');
+    expect(headline.opening).toBe('16 anos. 2 repositórios.');
+    expect(headline.shortOpening).toBe('16 anos de código.');
   });
 
   it('não é estrela quando o repo tem menos de 40% das stars', () => {

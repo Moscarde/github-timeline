@@ -1,9 +1,10 @@
-import { loginKey } from '../domain/login.js';
+import { usernameKey } from '../domain/username.js';
 import { deriveSnapshot, SNAPSHOT_VERSION, type ProfileSnapshot } from '../domain/snapshot.js';
 import type { ProfileCollector } from '../github/collector.js';
 import { GithubError } from '../github/errors.js';
 import type { QuotaTracker } from '../github/quota.js';
 import type { Logger } from '../lib/logger.js';
+import { Semaphore } from '../lib/semaphore.js';
 import type { SnapshotStore } from '../storage/snapshot-store.js';
 import type { ProgressHub } from './progress-hub.js';
 
@@ -20,78 +21,100 @@ export interface ProfileServiceDeps {
   logger: Logger;
   now: () => Date;
   ttlMs?: number;
+  /** Coletas simultâneas entre todos os usernames; as demais esperam a vez (§8). */
+  maxConcurrentCollections?: number;
 }
 
 const DEFAULT_TTL_MS = 12 * 60 * 60 * 1000;
+const DEFAULT_CONCURRENT_COLLECTIONS = 3;
 
 /**
- * Serve snapshots com stale-while-revalidate e garante uma coleta por login por vez (§3, §8).
+ * Serve snapshots com stale-while-revalidate e garante uma coleta por username por vez (§3, §8).
  * @example const lookup = await service.getProfile('torvalds');
  */
 export class ProfileService {
   private readonly inFlight = new Map<string, Promise<ProfileSnapshot | null>>();
 
-  constructor(private readonly deps: ProfileServiceDeps) {}
+  /**
+   * Cada coleta já abre até 10 requisições paralelas; sem um teto global, muitos perfis novos
+   * ao mesmo tempo acionam o limite secundário do GitHub antes de a cota baixar.
+   */
+  private readonly slots: Semaphore;
 
-  async getProfile(login: string): Promise<ProfileLookup> {
-    const stored = this.deps.store.find(login);
+  constructor(private readonly deps: ProfileServiceDeps) {
+    this.slots = new Semaphore(deps.maxConcurrentCollections ?? DEFAULT_CONCURRENT_COLLECTIONS);
+  }
+
+  async getProfile(username: string): Promise<ProfileLookup> {
+    const stored = this.deps.store.find(username);
     if (stored && this.isFresh(stored.snapshot, stored.expiresAt)) {
       return { status: 'ok', snapshot: stored.snapshot, stale: false };
     }
     if (stored) {
-      if (!this.deps.quota.isLow()) this.refreshInBackground(login);
+      if (!this.deps.quota.isLow()) this.refreshInBackground(username);
       return { status: 'ok', snapshot: stored.snapshot, stale: true };
     }
-    return this.collectNow(login);
+    return this.collectNow(username);
   }
 
   /** Snapshot salvo, sem disparar coleta: usado por badge e card. */
-  findStored(login: string): ProfileSnapshot | null {
-    return this.deps.store.find(login)?.snapshot ?? null;
+  findStored(username: string): ProfileSnapshot | null {
+    return this.deps.store.find(username)?.snapshot ?? null;
   }
 
-  /** Coleta em andamento para o login, se houver. */
-  isCollecting(login: string): boolean {
-    return this.inFlight.has(loginKey(login));
+  /** Coleta em andamento para o username, se houver. */
+  isCollecting(username: string): boolean {
+    return this.inFlight.has(usernameKey(username));
   }
 
-  private async collectNow(login: string): Promise<ProfileLookup> {
+  private async collectNow(username: string): Promise<ProfileLookup> {
     if (this.deps.quota.isLow()) {
       return { status: 'unavailable', reason: 'cota baixa', resetAt: this.quotaReset() };
     }
     try {
-      const snapshot = await this.refresh(login);
+      const snapshot = await this.refresh(username);
       return snapshot ? { status: 'ok', snapshot, stale: false } : { status: 'not_found' };
     } catch (error) {
       return toUnavailable(error);
     }
   }
 
-  private refreshInBackground(login: string): void {
-    this.refresh(login).catch((error: unknown) => {
-      this.deps.logger.log('warn', 'collection.background_failed', { login, error: String(error) });
+  private refreshInBackground(username: string): void {
+    this.refresh(username).catch((error: unknown) => {
+      this.deps.logger.log('warn', 'collection.background_failed', {
+        username,
+        error: String(error),
+      });
     });
   }
 
-  /** Deduplica por login: chamadas simultâneas compartilham a mesma promessa. */
-  private refresh(login: string): Promise<ProfileSnapshot | null> {
-    const key = loginKey(login);
+  /** Deduplica por username: chamadas simultâneas compartilham a mesma promessa. */
+  private refresh(username: string): Promise<ProfileSnapshot | null> {
+    const key = usernameKey(username);
     const running = this.inFlight.get(key);
     if (running) return running;
-    const task = this.runCollection(login).finally(() => this.inFlight.delete(key));
+    if (this.slots.isFull) {
+      this.deps.logger.log('info', 'collection.queued', {
+        username,
+        waiting: this.slots.waiting + 1,
+      });
+    }
+    const task = this.slots
+      .run(() => this.runCollection(username))
+      .finally(() => this.inFlight.delete(key));
     this.inFlight.set(key, task);
     return task;
   }
 
-  private async runCollection(login: string): Promise<ProfileSnapshot | null> {
+  private async runCollection(username: string): Promise<ProfileSnapshot | null> {
     const started = Date.now();
     const { collector, progress } = this.deps;
     try {
-      const collected = await collector.collect(login, (step) =>
-        progress.publish(login, { type: 'progress', ...step }),
+      const collected = await collector.collect(username, (step) =>
+        progress.publish(username, { type: 'progress', ...step }),
       );
-      if (!collected) return this.finishNotFound(login);
-      progress.publish(login, {
+      if (!collected) return this.finishNotFound(username);
+      progress.publish(username, {
         type: 'progress',
         stage: 'conquistas',
         account: collected.account,
@@ -99,16 +122,16 @@ export class ProfileService {
       const snapshot = deriveSnapshot(collected, this.deps.now());
       this.save(snapshot);
       this.deps.logger.log('info', 'collection.done', {
-        login,
+        username,
         ms: Date.now() - started,
         repos: collected.repos.length,
       });
-      progress.publish(login, { type: 'done' });
+      progress.publish(username, { type: 'done' });
       return snapshot;
     } catch (error) {
-      progress.publish(login, { type: 'failed', reason: String(error) });
+      progress.publish(username, { type: 'failed', reason: String(error) });
       this.deps.logger.log('error', 'collection.failed', {
-        login,
+        username,
         ms: Date.now() - started,
         error: String(error),
       });
@@ -116,8 +139,8 @@ export class ProfileService {
     }
   }
 
-  private finishNotFound(login: string): null {
-    this.deps.progress.publish(login, { type: 'not_found' });
+  private finishNotFound(username: string): null {
+    this.deps.progress.publish(username, { type: 'not_found' });
     return null;
   }
 

@@ -1,31 +1,42 @@
 import type { FC } from 'hono/jsx';
+import type { ProfileStats } from '../../domain/snapshot.js';
+import { BadgePreview } from '../badge-preview.js';
+import { badgeValue } from '../../brand/badge.js';
 import type { ShareLinks } from '../share-links.js';
 
-/** Chamada final para compartilhar: URL canônica e badge copiáveis. */
-export const ShareCta: FC<{ share: ShareLinks }> = ({ share }) => (
-  <section class="share-cta" aria-labelledby="compartilhar">
-    <h2 id="compartilhar">Compartilhe esta timeline</h2>
-    <CopyField id="url-perfil" label="Link" value={share.page} />
-    <div class="badge-preview">
-      <img src={share.badge} alt="Badge da Timeline" height="28" />
+/** Chamada final "Mostre sua trajetória": link canônico copiável e prévia do badge. */
+export const ShareCta: FC<{ share: ShareLinks; stats: ProfileStats }> = ({ share, stats }) => (
+  <section class="share-cta wrap" aria-labelledby="compartilhar">
+    <div class="share-cta-box">
+      <div class="share-cta-copy">
+        <h2 id="compartilhar">Mostre sua trajetória</h2>
+        <p class="muted">
+          Card pronto para redes, no tema que você está usando, e badge para o README.
+        </p>
+        <div class="share-cta-row">
+          <span class="mono url-box" data-share-url>
+            {share.page.replace(/^https?:\/\//, '').replace(/\?.*$/, '')}
+          </span>
+          <CopyLinkButton url={share.page} />
+          <button class="btn" type="button" data-copy-text={share.badgeMarkdown}>
+            Copiar badge
+          </button>
+        </div>
+      </div>
+      <BadgePreview value={badgeValue(stats)} />
     </div>
-    <CopyField id="badge-md" label="Badge para README" value={share.badgeMarkdown} />
   </section>
 );
 
-/** Campo somente leitura com botão de copiar; sem JS, o texto continua selecionável. */
-export const CopyField: FC<{ id: string; label: string; value: string }> = ({
-  id,
-  label,
-  value,
-}) => (
-  <div class="copy-field">
-    <label for={id}>{label}</label>
-    <div class="copy-row">
-      <input id={id} class="mono" value={value} readonly />
-      <button class="btn" type="button" data-copy={id}>
-        Copiar
-      </button>
-    </div>
-  </div>
+/** "Copiar link": copia a URL com o tema ativo; o rótulo vira "Link copiado ✓". */
+export const CopyLinkButton: FC<{ url: string }> = ({ url }) => (
+  <button
+    class="btn-p"
+    type="button"
+    data-copy-text={url}
+    data-share-link
+    data-copied-label="Link copiado ✓"
+  >
+    Copiar link
+  </button>
 );

@@ -38,6 +38,7 @@ describe('loadConfig', () => {
       githubToken: 't',
       port: 8080,
       databasePath: 'timeline.db',
+      visitSalt: null,
     });
   });
 });
@@ -48,18 +49,18 @@ describe('JsonLogger', () => {
     new JsonLogger(
       (line) => lines.push(line),
       () => new Date('2026-01-01T00:00:00Z'),
-    ).log('info', 'x.y', { login: 'dev' });
+    ).log('info', 'x.y', { username: 'dev' });
     expect(JSON.parse(lines[0] ?? '')).toEqual({
       time: '2026-01-01T00:00:00.000Z',
       level: 'info',
       event: 'x.y',
-      login: 'dev',
+      username: 'dev',
     });
   });
 });
 
 describe('ProgressHub', () => {
-  it('entrega por login, sem diferenciar maiúsculas, e permite cancelar', () => {
+  it('entrega por username, sem diferenciar maiúsculas, e permite cancelar', () => {
     const hub = new ProgressHub();
     const received: ProgressEvent[] = [];
     const stop = hub.subscribe('Dev', (event) => received.push(event));

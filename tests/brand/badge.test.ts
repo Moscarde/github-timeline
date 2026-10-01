@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { badgeLabel, renderBadge } from '../../src/brand/badge.js';
+import { badgeLabel, badgeValue, renderBadge } from '../../src/brand/badge.js';
 import { deriveSnapshot } from '../../src/domain/snapshot.js';
 import { makeAccount, repoIn } from '../fakes/repo-factory.js';
 
@@ -16,18 +16,21 @@ const snapshotWith = (years: number[]) =>
 
 describe('badge', () => {
   it('formata intervalo e plural', () => {
-    expect(badgeLabel(snapshotWith([2014, 2020]))).toBe('Timeline · 2014–2020 · 2 repos');
-    expect(badgeLabel(snapshotWith([2020]))).toBe('Timeline · 2020 · 1 repo');
+    expect(badgeValue(snapshotWith([2014, 2020]).stats)).toBe('2014–2020 · 2 repos');
+    expect(badgeLabel(snapshotWith([2020]))).toBe('github timeline: 2020 · 1 repo');
   });
 
-  it('usa a paleta do tema e inclui o símbolo', () => {
-    const dark = renderBadge(snapshotWith([2020]), 'escuro');
-    expect(dark).toContain('fill="#0F172A"');
-    expect(dark).toContain('stroke="#22C55E"');
-    expect(renderBadge(snapshotWith([2020]), 'claro')).toContain('fill="#FFFFFF"');
+  it('desenha os dois segmentos do template', () => {
+    const svg = renderBadge(snapshotWith([2020]));
+    expect(svg).toContain('fill="#30363d"');
+    expect(svg).toContain('fill="#238636"');
+    expect(svg).toContain('>github timeline</text>');
+    expect(svg).toContain('>2020 · 1 repo</text>');
   });
 
   it('gera badge cinza sem snapshot', () => {
-    expect(renderBadge(null, 'escuro')).toContain('Timeline · não encontrado');
+    const svg = renderBadge(null);
+    expect(svg).toContain('não encontrado');
+    expect(svg).toContain('fill="#6e7781"');
   });
 });

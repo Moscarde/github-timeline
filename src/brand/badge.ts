@@ -1,54 +1,69 @@
-import type { ProfileSnapshot } from '../domain/snapshot.js';
+import type { ProfileSnapshot, ProfileStats } from '../domain/snapshot.js';
 import { escapeMarkup } from '../lib/escape.js';
-import type { Theme } from '../lib/theme.js';
-import { BRAND, SYMBOL_VIEWBOX, symbolPaths } from './symbol.js';
 
-interface BadgePalette {
-  background: string;
-  border: string;
-  text: string;
-  ink: string;
-}
+const LABEL = 'github timeline';
+const NOT_FOUND = 'não encontrado';
+const HEIGHT = 22;
+const PADDING = 8;
+/** JetBrains Mono tem avanço de 0,6em; `textLength` segura a largura se a fonte faltar. */
+const CHAR_WIDTH = 7.2;
+const FONT_FAMILY = "'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
 
-const PALETTES: Record<Theme | 'cinza', BadgePalette> = {
-  claro: { background: BRAND.white, border: BRAND.line, text: BRAND.navy, ink: BRAND.navy },
-  escuro: { background: BRAND.navy, border: BRAND.slate, text: BRAND.light, ink: BRAND.white },
-  cinza: { background: BRAND.line, border: BRAND.slate2, text: BRAND.slate, ink: BRAND.slate },
-};
-
-const HEIGHT = 28;
-const SYMBOL_WIDTH = 44;
-/** Largura média de um caractere a 12px nas fontes de sistema; o texto fica com folga. */
-const CHAR_WIDTH = 6.9;
-const PADDING = 10;
+const COLORS = {
+  label: { fill: '#30363d', text: '#e6edf3' },
+  value: { fill: '#238636', text: '#ffffff' },
+  missing: { fill: '#6e7781', text: '#ffffff' },
+} as const;
 
 /**
- * Texto do badge (§5.2): "Timeline · AAAA–AAAA · N repos".
- * @example badgeLabel(snapshot) // "Timeline · 2014–2026 · 97 repos"
+ * Valor do badge (§5.2): intervalo de anos e repositórios.
+ * @example badgeValue(stats) // "2014–2026 · 97 repos"
  */
-export function badgeLabel(snapshot: ProfileSnapshot): string {
-  const { firstYear, lastYear, repos } = snapshot.stats;
+export function badgeValue(stats: ProfileStats): string {
+  const { firstYear, lastYear, repos } = stats;
   const span = firstYear === lastYear ? `${firstYear ?? '—'}` : `${firstYear}–${lastYear}`;
-  return `Timeline · ${span} · ${repos} ${repos === 1 ? 'repo' : 'repos'}`;
+  return `${span} · ${repos} ${repos === 1 ? 'repo' : 'repos'}`;
 }
 
 /**
- * SVG do badge. Sem snapshot, devolve o badge cinza "não encontrado".
- * @example renderBadge(snapshot, 'claro')
+ * Texto completo do badge, usado no `aria-label` e no `<title>`.
+ * @example badgeLabel(snapshot) // "github timeline: 2014–2026 · 97 repos"
  */
-export function renderBadge(snapshot: ProfileSnapshot | null, theme: Theme): string {
-  const label = snapshot ? badgeLabel(snapshot) : 'Timeline · não encontrado';
-  return badgeSvg(label, PALETTES[snapshot ? theme : 'cinza']);
+export function badgeLabel(snapshot: ProfileSnapshot | null): string {
+  return `${LABEL}: ${snapshot ? badgeValue(snapshot.stats) : NOT_FOUND}`;
 }
 
-function badgeSvg(label: string, palette: BadgePalette): string {
-  const textX = PADDING + SYMBOL_WIDTH + 6;
-  const width = Math.ceil(textX + label.length * CHAR_WIDTH + PADDING);
-  const text = escapeMarkup(label);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${HEIGHT}" viewBox="0 0 ${width} ${HEIGHT}" role="img" aria-label="${text}">
-<title>${text}</title>
-<rect x="0.5" y="0.5" width="${width - 1}" height="${HEIGHT - 1}" rx="7" fill="${palette.background}" stroke="${palette.border}"/>
-<svg x="${PADDING}" y="7" width="${SYMBOL_WIDTH}" height="14" viewBox="${SYMBOL_VIEWBOX}">${symbolPaths(palette.ink)}</svg>
-<text x="${textX}" y="18.5" fill="${palette.text}" font-family="'Mona Sans',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" font-weight="600">${text}</text>
+/**
+ * SVG do badge em dois segmentos. Sem snapshot, o segmento da direita fica cinza com
+ * "não encontrado".
+ * @example renderBadge(snapshot)
+ */
+export function renderBadge(snapshot: ProfileSnapshot | null): string {
+  const value = snapshot ? badgeValue(snapshot.stats) : NOT_FOUND;
+  const leftWidth = segmentWidth(LABEL);
+  const rightWidth = segmentWidth(value);
+  const width = leftWidth + rightWidth;
+  const right = snapshot ? COLORS.value : COLORS.missing;
+  const title = escapeMarkup(badgeLabel(snapshot));
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${HEIGHT}" viewBox="0 0 ${width} ${HEIGHT}" role="img" aria-label="${title}">
+<title>${title}</title>
+<clipPath id="r"><rect width="${width}" height="${HEIGHT}" rx="4"/></clipPath>
+<g clip-path="url(#r)">
+<rect width="${leftWidth}" height="${HEIGHT}" fill="${COLORS.label.fill}"/>
+<rect x="${leftWidth}" width="${rightWidth}" height="${HEIGHT}" fill="${right.fill}"/>
+</g>
+<g font-family="${FONT_FAMILY}" font-size="12" font-weight="500">
+${segmentText(LABEL, 0, COLORS.label.text)}
+${segmentText(value, leftWidth, right.text)}
+</g>
 </svg>`;
+}
+
+function segmentWidth(text: string): number {
+  return Math.ceil(text.length * CHAR_WIDTH + PADDING * 2);
+}
+
+function segmentText(text: string, x: number, color: string): string {
+  const length = (text.length * CHAR_WIDTH).toFixed(1);
+  return `<text x="${x + PADDING}" y="15" fill="${color}" textLength="${length}" lengthAdjust="spacingAndGlyphs">${escapeMarkup(text)}</text>`;
 }

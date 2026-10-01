@@ -1,16 +1,22 @@
 import { Hono } from 'hono';
 import type { CardVariant } from '../../card/card-layout.js';
-import { isValidLogin } from '../../domain/login.js';
+import { isValidUsername } from '../../domain/username.js';
 import { parseTheme } from '../../lib/theme.js';
+import { mayCollect } from '../collect-guard.js';
 import type { AppDeps } from '../context.js';
 
-/** `/u/<login>/card.png` (§5.1): padrão escuro e variante `headline`. */
+/** `/u/<username>/card.png` (§5.1): padrão escuro e variante `headline`. */
 export function cardRoutes(deps: AppDeps): Hono {
   const app = new Hono();
-  app.get('/u/:login/card.png', async (c) => {
-    const login = c.req.param('login');
-    if (!isValidLogin(login)) return c.text(`login inválido: recebido "${login}"`, 400);
-    const lookup = await deps.profiles.getProfile(login);
+  app.get('/u/:username/card.png', async (c) => {
+    const username = c.req.param('username');
+    if (!isValidUsername(username)) return c.text(`username inválido: recebido "${username}"`, 400);
+    const gate = mayCollect(c, deps, username);
+    if (!gate.allowed) {
+      c.header('Retry-After', String(gate.retryInSeconds));
+      return c.text('muitas coletas novas deste IP; tente mais tarde', 429);
+    }
+    const lookup = await deps.profiles.getProfile(username);
     if (lookup.status !== 'ok')
       return c.text(
         'card indisponível para este perfil',

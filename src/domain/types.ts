@@ -1,9 +1,9 @@
-/** Tipo de conta devolvido por `GET /users/{login}`. */
+/** Tipo de conta devolvido por `GET /users/{username}`. */
 export type AccountType = 'User' | 'Organization';
 
 /** Perfil público, já normalizado a partir da API REST. */
 export interface GithubAccount {
-  login: string;
+  username: string;
   name: string | null;
   avatarUrl: string;
   bio: string | null;
@@ -42,12 +42,21 @@ export interface OrgContribution {
 /** Contribuições públicas por ano: 12 posições, de janeiro a dezembro. */
 export type MonthlyContributions = Record<number, number[]>;
 
+/** Pessoa que contribui nos repositórios públicos de uma organização (§6). */
+export interface OrgPerson {
+  username: string;
+  avatarUrl: string;
+  contributions: number;
+}
+
 /** Resultado bruto da coleta (§3), antes da derivação. */
 export interface CollectedProfile {
   account: GithubAccount;
   repos: Repo[];
   months: MonthlyContributions;
   orgContributions: OrgContribution[];
+  /** Só em organizações: maiores contribuidores dos repositórios mais estrelados. */
+  people?: OrgPerson[];
 }
 
 /** Contagem de ocorrências, ordenada da maior para a menor. */

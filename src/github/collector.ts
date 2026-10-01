@@ -3,6 +3,7 @@ import type { CollectedProfile, GithubAccount } from '../domain/types.js';
 import type { GithubTransport } from './client.js';
 import { fetchContributionHistory } from './contributions.js';
 import { toAccount, type RestUser } from './mappers.js';
+import { fetchOrganizationPeople } from './organizations.js';
 import { fetchOwnedRepos } from './repositories.js';
 
 /** Etapas mostradas no painel de progresso (§6). */
@@ -17,8 +18,8 @@ export type ProgressListener = (progress: CollectionProgress) => void;
 
 /** Coleta os dados brutos de um perfil (§3). */
 export interface ProfileCollector {
-  /** Devolve `null` quando o login não existe. */
-  collect(login: string, onProgress?: ProgressListener): Promise<CollectedProfile | null>;
+  /** Devolve `null` quando o username não existe. */
+  collect(username: string, onProgress?: ProgressListener): Promise<CollectedProfile | null>;
 }
 
 /**
@@ -33,15 +34,16 @@ export class GithubProfileCollector implements ProfileCollector {
   ) {}
 
   async collect(
-    login: string,
+    username: string,
     onProgress: ProgressListener = () => {},
   ): Promise<CollectedProfile | null> {
-    const raw = await this.transport.getJson(`/users/${encodeURIComponent(login)}`);
+    const raw = await this.transport.getJson(`/users/${encodeURIComponent(username)}`);
     if (raw === null) return null;
     const account = toAccount(raw);
     onProgress({ stage: 'perfil', account });
     if (account.type === 'Organization') {
-      return { account, repos: [], months: {}, orgContributions: [] };
+      const people = await fetchOrganizationPeople(this.transport, account.username);
+      return { account, repos: [], months: {}, orgContributions: [], people };
     }
     const [repos, history] = await Promise.all([
       this.reposOf(account, publicRepoCount(raw), onProgress),
@@ -51,14 +53,14 @@ export class GithubProfileCollector implements ProfileCollector {
   }
 
   private async reposOf(account: GithubAccount, publicRepos: number, onProgress: ProgressListener) {
-    const repos = await fetchOwnedRepos(this.transport, account.login, publicRepos);
+    const repos = await fetchOwnedRepos(this.transport, account.username, publicRepos);
     onProgress({ stage: 'repositorios', account });
     return repos;
   }
 
   private async contributionsOf(account: GithubAccount, onProgress: ProgressListener) {
     const years = yearRange(yearOf(account.createdAt), this.now().getUTCFullYear());
-    const history = await fetchContributionHistory(this.transport, account.login, years);
+    const history = await fetchContributionHistory(this.transport, account.username, years);
     onProgress({ stage: 'contribuicoes', account });
     return history;
   }

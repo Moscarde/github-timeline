@@ -1,4 +1,4 @@
-import { loginKey } from '../../src/domain/login.js';
+import { usernameKey } from '../../src/domain/username.js';
 import type { ProfileSnapshot } from '../../src/domain/snapshot.js';
 import type { SnapshotStore, StoredSnapshot } from '../../src/storage/snapshot-store.js';
 
@@ -6,11 +6,11 @@ import type { SnapshotStore, StoredSnapshot } from '../../src/storage/snapshot-s
 export class InMemorySnapshotStore implements SnapshotStore {
   readonly rows = new Map<string, StoredSnapshot>();
 
-  find(login: string): StoredSnapshot | null {
-    return this.rows.get(loginKey(login)) ?? null;
+  find(username: string): StoredSnapshot | null {
+    return this.rows.get(usernameKey(username)) ?? null;
   }
 
   save(snapshot: ProfileSnapshot, expiresAt: Date): void {
-    this.rows.set(loginKey(snapshot.account.login), { snapshot, expiresAt });
+    this.rows.set(usernameKey(snapshot.account.username), { snapshot, expiresAt });
   }
 }

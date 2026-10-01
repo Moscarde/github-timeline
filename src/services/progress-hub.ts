@@ -1,4 +1,4 @@
-import { loginKey } from '../domain/login.js';
+import { usernameKey } from '../domain/username.js';
 import type { CollectionProgress } from '../github/collector.js';
 
 /** Evento publicado para quem acompanha uma coleta via SSE. */
@@ -11,22 +11,22 @@ export type ProgressEvent =
 export type ProgressSubscriber = (event: ProgressEvent) => void;
 
 /**
- * Distribui o progresso de coletas por login para as conexões SSE abertas.
+ * Distribui o progresso de coletas por username para as conexões SSE abertas.
  * @example const stop = hub.subscribe('torvalds', (event) => send(event));
  */
 export class ProgressHub {
   private readonly subscribers = new Map<string, Set<ProgressSubscriber>>();
 
-  subscribe(login: string, subscriber: ProgressSubscriber): () => void {
-    const key = loginKey(login);
+  subscribe(username: string, subscriber: ProgressSubscriber): () => void {
+    const key = usernameKey(username);
     const set = this.subscribers.get(key) ?? new Set<ProgressSubscriber>();
     set.add(subscriber);
     this.subscribers.set(key, set);
     return () => this.unsubscribe(key, subscriber);
   }
 
-  publish(login: string, event: ProgressEvent): void {
-    for (const subscriber of this.subscribers.get(loginKey(login)) ?? []) subscriber(event);
+  publish(username: string, event: ProgressEvent): void {
+    for (const subscriber of this.subscribers.get(usernameKey(username)) ?? []) subscriber(event);
   }
 
   private unsubscribe(key: string, subscriber: ProgressSubscriber): void {

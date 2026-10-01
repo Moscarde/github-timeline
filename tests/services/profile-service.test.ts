@@ -12,22 +12,25 @@ import { ScriptedCollector } from '../fakes/scripted-collector.js';
 
 const NOW = new Date('2026-09-30T12:00:00Z');
 
-function collectedFor(login: string): CollectedProfile {
+function collectedFor(username: string): CollectedProfile {
   return {
-    account: makeAccount({ login }),
+    account: makeAccount({ username }),
     repos: [repoIn(2020, { language: 'Go' })],
     months: {},
     orgContributions: [],
   };
 }
 
-function setup() {
+function setup(maxConcurrentCollections?: number) {
   const collector = new ScriptedCollector();
   const store = new InMemorySnapshotStore();
   const quota = new QuotaTracker();
   const progress = new ProgressHub();
   const logger = new MemoryLogger();
-  const service = new ProfileService({ collector, store, quota, progress, logger, now: () => NOW });
+  const service = new ProfileService({
+    ...{ collector, store, quota, progress, logger, now: () => NOW },
+    maxConcurrentCollections,
+  });
   return { collector, store, quota, progress, logger, service };
 }
 
@@ -71,7 +74,7 @@ describe('ProfileService', () => {
     expect(await service.getProfile('dev')).toMatchObject({ stale: true });
   });
 
-  it('faz uma coleta por login por vez', async () => {
+  it('faz uma coleta por username por vez', async () => {
     const { collector, service } = setup();
     collector.profiles.set('dev', collectedFor('dev'));
     collector.hold();
@@ -82,7 +85,7 @@ describe('ProfileService', () => {
     expect(collector.calls).toBe(1);
   });
 
-  it('devolve not_found para login inexistente', async () => {
+  it('devolve not_found para username inexistente', async () => {
     const { service } = setup();
     expect(await service.getProfile('ghost')).toEqual({ status: 'not_found' });
   });
@@ -105,5 +108,20 @@ describe('ProfileService', () => {
       reason: 'cota baixa',
     });
     expect(collector.calls).toBe(0);
+  });
+
+  it('limita coletas simultâneas entre usernames diferentes', async () => {
+    const { collector, logger, service } = setup(1);
+    collector.profiles.set('ana', collectedFor('ana'));
+    collector.profiles.set('bia', collectedFor('bia'));
+    collector.hold();
+    const first = service.getProfile('ana');
+    const second = service.getProfile('bia');
+    await Promise.resolve();
+    expect(collector.calls).toBe(1);
+    expect(logger.events()).toContain('collection.queued');
+    collector.open();
+    await Promise.all([first, second]);
+    expect(collector.calls).toBe(2);
   });
 });

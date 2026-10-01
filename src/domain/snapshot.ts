@@ -1,16 +1,27 @@
 import { buildAchievements, recordYear, type Achievement } from './achievements.js';
 import { FRAMEWORK_CATALOG_VERSION } from './frameworks.js';
 import { buildHeadline, type Headline } from './headline.js';
-import { languageShares, ownRepos, type LanguageShare } from './languages.js';
+import {
+  distinctLanguageCount,
+  languageShares,
+  ownRepos,
+  type LanguageShare,
+} from './languages.js';
 import { yearOf } from './format.js';
 import { buildTimeline, type Era } from './timeline.js';
-import type { CollectedProfile, GithubAccount, MonthlyContributions, Repo } from './types.js';
+import type {
+  CollectedProfile,
+  GithubAccount,
+  MonthlyContributions,
+  OrgPerson,
+  Repo,
+} from './types.js';
 
 /**
  * Versão do formato derivado. Sobe quando uma regra ou o catálogo de frameworks muda;
  * snapshots de versão antiga são tratados como vencidos e recalculados.
  */
-export const SNAPSHOT_VERSION = 3 * 100 + FRAMEWORK_CATALOG_VERSION;
+export const SNAPSHOT_VERSION = 5 * 100 + FRAMEWORK_CATALOG_VERSION;
 
 const LANGUAGE_BAR_SIZE = 6;
 
@@ -22,6 +33,8 @@ export interface ProfileStats {
   ownRepos: number;
   forks: number;
   ownStars: number;
+  /** Linguagens primárias distintas nos repositórios próprios. */
+  languageCount: number;
   topRepo: { name: string; stars: number } | null;
   recordYear: number | null;
 }
@@ -37,6 +50,8 @@ export interface ProfileSnapshot {
   achievements: Achievement[];
   timeline: Era[];
   months: MonthlyContributions;
+  /** Organizações não têm timeline: a página lista quem mais contribui (§6). */
+  people: OrgPerson[];
 }
 
 /**
@@ -59,6 +74,7 @@ export function deriveSnapshot(collected: CollectedProfile, now: Date): ProfileS
     achievements: buildAchievements(collected.repos, now),
     timeline: buildTimeline({ ...collected, recordYear: stats.recordYear }),
     months: collected.months,
+    people: collected.people ?? [],
   };
 }
 
@@ -81,6 +97,7 @@ export function buildStats(repos: Repo[]): ProfileStats {
     ownRepos: own.length,
     forks: repos.length - own.length,
     ownStars: own.reduce((sum, repo) => sum + repo.stars, 0),
+    languageCount: distinctLanguageCount(own),
     topRepo: top && top.stars > 0 ? { name: top.name, stars: top.stars } : null,
     recordYear: recordYear(repos),
   };

@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 import type { ProfileSnapshot } from '../domain/snapshot.js';
@@ -22,12 +21,11 @@ export interface CardRenderer {
 export interface SatoriCardRendererDeps {
   fonts: CardFont[];
   fetchImage: ImageFetcher;
-  logos: Record<Theme, string>;
   cacheSize?: number;
 }
 
 /**
- * Satori (JSX/flexbox → SVG) + resvg (SVG → PNG), com cache por login, tema, variante e
+ * Satori (JSX/flexbox → SVG) + resvg (SVG → PNG), com cache por username, tema, variante e
  * versão do snapshot.
  * @example await renderer.render(snapshot, 'escuro', 'headline')
  */
@@ -42,7 +40,7 @@ export class SatoriCardRenderer implements CardRenderer {
     variant: CardVariant,
   ): Promise<Uint8Array<ArrayBuffer>> {
     const key = [
-      snapshot.account.login.toLowerCase(),
+      snapshot.account.username.toLowerCase(),
       theme,
       variant,
       snapshot.version,
@@ -61,10 +59,7 @@ export class SatoriCardRenderer implements CardRenderer {
     variant: CardVariant,
   ): Promise<Uint8Array<ArrayBuffer>> {
     const avatarDataUri = await this.deps.fetchImage(avatarUrl(snapshot.account.avatarUrl, 192));
-    const tree = cardLayout(snapshot, theme, variant, {
-      avatarDataUri,
-      logoDataUri: this.deps.logos[theme],
-    });
+    const tree = cardLayout(snapshot, theme, variant, { avatarDataUri });
     // O Satori tipa a entrada como ReactNode; a árvore tem o mesmo shape sem depender de React.
     const svg = await satori(tree as unknown as Parameters<typeof satori>[0], {
       width: CARD_WIDTH,
@@ -83,16 +78,6 @@ export class SatoriCardRenderer implements CardRenderer {
     const oldest = this.cache.keys().next().value;
     if (this.cache.size > limit && oldest !== undefined) this.cache.delete(oldest);
   }
-}
-
-/**
- * Lê os logos da direção 1 como data URI para o rodapé do card.
- * @example const logos = await loadCardLogos('public/brand');
- */
-export async function loadCardLogos(brandDir: string): Promise<Record<Theme, string>> {
-  const toDataUri = async (file: string) =>
-    `data:image/svg+xml;base64,${(await readFile(`${brandDir}/${file}`)).toString('base64')}`;
-  return { claro: await toDataUri('logo-light.svg'), escuro: await toDataUri('logo-dark.svg') };
 }
 
 /**

@@ -7,7 +7,11 @@ export type HeadlineForm = 'estrela' | 'transicao' | 'poliglota' | 'fiel';
 
 export interface Headline {
   form: HeadlineForm;
-  /** Fecho da manchete, ex.: "De Ruby a Go." */
+  /** Abertura da página, ex.: "13 anos. 296 repositórios." */
+  opening: string;
+  /** Abertura do card, ex.: "13 anos de código." */
+  shortOpening: string;
+  /** Fecho da manchete, ex.: "De Ruby a Go."; a página o destaca em verde. */
   closing: string;
   /** "N anos. M repositórios." + fecho, usado na página. */
   full: string;
@@ -36,11 +40,15 @@ export function buildHeadline(input: HeadlineInput): Headline {
   const own = ownRepos(input.repos);
   const [form, closing] = pickClosing(own, input.orgContributions);
   const years = plural(input.activeYears, 'ano', 'anos');
+  const opening = `${years}. ${plural(input.repos.length, 'repositório', 'repositórios')}.`;
+  const shortOpening = `${years} de código.`;
   return {
     form,
+    opening,
+    shortOpening,
     closing,
-    full: `${years}. ${plural(input.repos.length, 'repositório', 'repositórios')}. ${closing}`,
-    short: `${years} de código. ${closing}`,
+    full: `${opening} ${closing}`,
+    short: `${shortOpening} ${closing}`,
   };
 }
 

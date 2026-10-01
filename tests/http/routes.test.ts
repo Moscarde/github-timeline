@@ -3,9 +3,9 @@ import type { CollectedProfile } from '../../src/domain/types.js';
 import { createAppHarness } from '../fakes/app-harness.js';
 import { makeAccount, repoIn } from '../fakes/repo-factory.js';
 
-function profile(login = 'dev', overrides: Partial<CollectedProfile> = {}): CollectedProfile {
+function profile(username = 'dev', overrides: Partial<CollectedProfile> = {}): CollectedProfile {
   return {
-    account: makeAccount({ login, name: 'Dev <script>alert(1)</script>' }),
+    account: makeAccount({ username, name: 'Dev <script>alert(1)</script>' }),
     repos: [
       repoIn(2019, { name: 'site', language: 'HTML', homepage: 'javascript:alert(1)' }),
       repoIn(2024, { language: 'Go', stars: 3 }),
@@ -23,15 +23,15 @@ describe('rotas de sistema e API', () => {
     expect(await response.json()).toEqual({ status: 'ok', quota: null });
   });
 
-  it('GET /api/profile/<login> devolve o snapshot', async () => {
+  it('GET /api/profile/<username> devolve o snapshot', async () => {
     const harness = createAppHarness();
     harness.addProfile(profile());
     const response = await harness.app.request('/api/profile/dev');
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({ account: { login: 'dev' }, stale: false });
+    expect(await response.json()).toMatchObject({ account: { username: 'dev' }, stale: false });
   });
 
-  it('GET /api/profile valida login e 404', async () => {
+  it('GET /api/profile valida username e 404', async () => {
     const { app } = createAppHarness();
     expect((await app.request('/api/profile/-x-')).status).toBe(400);
     expect((await app.request('/api/profile/ghost')).status).toBe(404);
@@ -61,10 +61,10 @@ describe('badge', () => {
     const response = await harness.app.request('/badge/dev.svg');
     expect(response.headers.get('content-type')).toContain('image/svg+xml');
     expect(response.headers.get('cache-control')).toBe('max-age=3600');
-    expect(await response.text()).toContain('Timeline · 2019–2024 · 2 repos');
+    expect(await response.text()).toContain('2019–2024 · 2 repos');
   });
 
-  it('login sem snapshot gera badge cinza com status 200', async () => {
+  it('username sem snapshot gera badge cinza com status 200', async () => {
     const { app } = createAppHarness();
     const response = await app.request('/badge/ghost.svg');
     expect(response.status).toBe(200);
@@ -77,7 +77,8 @@ describe('páginas', () => {
     const { app } = createAppHarness();
     const html = await (await app.request('/')).text();
     expect(html).toContain('Gerar timeline');
-    expect(html).toContain('/brand/logo-light.svg');
+    expect(html).toContain('Todo commit conta uma história.');
+    expect(html).toContain('★ Star<span class="star-count">1,2k</span>');
   });
 
   it('/buscar normaliza a entrada e redireciona', async () => {
@@ -90,7 +91,7 @@ describe('páginas', () => {
     expect((await app.request('/buscar?q=%20')).status).toBe(400);
   });
 
-  it('/u/<login> renderiza no servidor, com meta tags e conteúdo escapado', async () => {
+  it('/u/<username> renderiza no servidor, com meta tags e conteúdo escapado', async () => {
     const harness = createAppHarness();
     harness.addProfile(profile());
     const html = await (await harness.app.request('/u/dev?tema=claro')).text();
@@ -104,7 +105,7 @@ describe('páginas', () => {
     expect(html).toContain('data-theme="light"');
     expect(html).not.toContain('<script>alert(1)</script>');
     expect(html).not.toContain('href="javascript:');
-    expect(html).toContain('6 anos. 2 repositórios.');
+    expect(html).toContain('6 anos. 2 repositórios. <span class="ink">');
   });
 
   it('tema vem do cookie quando não há query', async () => {
@@ -116,18 +117,18 @@ describe('páginas', () => {
     expect(html).toContain('data-theme="dark"');
   });
 
-  it('login inexistente responde 404', async () => {
+  it('username inexistente responde 404', async () => {
     const { app } = createAppHarness();
     const response = await app.request('/u/ghost');
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain('Perfil não encontrado');
+    expect(await response.text()).toContain('Esse perfil não existe.');
   });
 
   it('perfil sem repositórios mostra "A história ainda não começou"', async () => {
     const harness = createAppHarness();
     harness.addProfile(profile('novo', { repos: [], months: {} }));
     expect(await (await harness.app.request('/u/novo')).text()).toContain(
-      'A história ainda não começou',
+      'A história ainda <span class="ink">não começou.</span>',
     );
   });
 
@@ -154,7 +155,9 @@ describe('card', () => {
     harness.addProfile(profile());
     const response = await harness.app.request('/u/dev/card.png');
     expect(response.headers.get('content-type')).toBe('image/png');
-    expect(harness.cards.calls).toEqual([{ login: 'dev', theme: 'escuro', variant: 'headline' }]);
+    expect(harness.cards.calls).toEqual([
+      { username: 'dev', theme: 'escuro', variant: 'headline' },
+    ]);
   });
 
   it('respeita ?tema= e ?variante=', async () => {
@@ -162,5 +165,107 @@ describe('card', () => {
     harness.addProfile(profile());
     await harness.app.request('/u/dev/card.png?tema=claro&variante=numero');
     expect(harness.cards.calls[0]).toMatchObject({ theme: 'claro', variant: 'numero' });
+  });
+});
+
+describe('features do redesign', () => {
+  it('/comparar redireciona para /u/<a>...<b>', async () => {
+    const { app } = createAppHarness();
+    const response = await app.request('/comparar?a=%40torvalds&b=gaearon');
+    expect(response.headers.get('location')).toBe('/u/torvalds...gaearon');
+    expect((await app.request('/comparar?a=torvalds')).status).toBe(400);
+  });
+
+  it('/u/<a>...<b> mostra o perfil A com a comparação', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile('ana'));
+    harness.addProfile(profile('bia', { repos: [repoIn(2020)] }));
+    const html = await (await harness.app.request('/u/ana...bia')).text();
+    expect(html).toContain('id="comparar-titulo"');
+    expect(html).toContain('/u/ana...bia</span>');
+    expect(html).toContain('Copiar link da comparação');
+  });
+
+  it('comparação com perfil inexistente responde 404 desse username', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile('ana'));
+    const response = await harness.app.request('/u/ana...ghost');
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain('404 · github.com/ghost');
+  });
+
+  it('404 sugere um username parecido', async () => {
+    const harness = createAppHarness();
+    harness.suggester.suggestions.set('torvaldz', {
+      username: 'torvalds',
+      avatarUrl: 'https://avatars.githubusercontent.com/u/1024025',
+    });
+    const html = await (await harness.app.request('/u/torvaldz')).text();
+    expect(html).toContain('Você quis dizer:');
+    expect(html).toContain('href="/u/torvalds"');
+  });
+
+  it('snapshot vencido com cota baixa mostra a faixa de aviso', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile());
+    await harness.app.request('/api/profile/dev');
+    const stored = harness.store.find('dev')!;
+    const old = { ...stored.snapshot, generatedAt: '2026-09-30T09:00:00Z' };
+    harness.store.save(old, new Date('2026-09-30T10:00:00Z'));
+    harness.quota.record({ limit: 5000, remaining: 1, resetAt: '2026-09-30T17:20:00Z' });
+    const html = await (await harness.app.request('/u/dev')).text();
+    expect(html).toContain('Mostrando dados de <b>há 3 horas</b>');
+    expect(html).toContain('<b>14:20</b>');
+  });
+
+  it('organização lista quem mais contribuiu', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(
+      profile('acme', {
+        account: makeAccount({ username: 'acme', name: 'Acme', type: 'Organization' }),
+        repos: [],
+        people: [{ username: 'ana', avatarUrl: 'https://a/1', contributions: 1234 }],
+      }),
+    );
+    const html = await (await harness.app.request('/u/acme')).text();
+    expect(html).toContain('Veja quem fez o Acme.');
+    expect(html).toContain('1.234 commits');
+  });
+
+  it('visitas alimentam o contador semanal e "Em alta"', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile());
+    await harness.app.request('/u/dev', { headers: { 'x-forwarded-for': '203.0.113.7' } });
+    const html = await (await harness.app.request('/')).text();
+    expect(html).toContain('1<span class="live-long"> timelines geradas</span> esta semana');
+    expect(html).toContain('href="/u/dev"');
+  });
+});
+
+describe('limite de coletas novas por IP', () => {
+  const fromIp = { headers: { 'x-forwarded-for': '203.0.113.7' } };
+
+  it('responde 429 acima do limite, mas perfis salvos continuam abrindo', async () => {
+    const harness = createAppHarness(50, 1);
+    harness.addProfile(profile('ana'));
+    harness.addProfile(profile('bia'));
+    expect((await harness.app.request('/u/ana', fromIp)).status).toBe(200);
+    const blocked = await harness.app.request('/u/bia', fromIp);
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get('retry-after')).toBe('600');
+    expect(await blocked.text()).toContain('Calma: muitas timelines novas daqui.');
+    expect((await harness.app.request('/u/ana', fromIp)).status).toBe(200);
+    expect((await harness.app.request('/api/profile/bia', fromIp)).status).toBe(429);
+    expect((await harness.app.request('/u/bia/card.png', fromIp)).status).toBe(429);
+  });
+
+  it('badge acima do limite não dispara coleta e segue com 200', async () => {
+    const harness = createAppHarness(50, 1);
+    harness.addProfile(profile('ana'));
+    harness.addProfile(profile('bia'));
+    await harness.app.request('/u/ana', fromIp);
+    const response = await harness.app.request('/badge/bia.svg', fromIp);
+    expect(response.status).toBe(200);
+    expect(harness.collector.calls).toBe(1);
   });
 });

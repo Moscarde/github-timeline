@@ -14,10 +14,10 @@ export interface ShareLinks {
  * URLs de compartilhamento no host canônico; seguem o tema ativo (§5.1).
  * @example shareLinks('torvalds', 'escuro', '16 anos. …').x
  */
-export function shareLinks(login: string, theme: Theme, headline: string): ShareLinks {
-  const path = `/u/${encodeURIComponent(login)}`;
+export function shareLinks(username: string, theme: Theme, headline: string): ShareLinks {
+  const path = `/u/${encodeURIComponent(username)}`;
   const page = `${CANONICAL_ORIGIN}${path}?tema=${theme}`;
-  const badge = `${CANONICAL_ORIGIN}/badge/${encodeURIComponent(login)}.svg`;
+  const badge = `${CANONICAL_ORIGIN}/badge/${encodeURIComponent(username)}.svg`;
   return {
     page,
     card: `${path}/card.png?tema=${theme}`,

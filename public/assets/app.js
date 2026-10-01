@@ -1,7 +1,9 @@
-// Timeline v2 — JS mínimo do cliente (§7): tema, copiar, abas de anos/repos e progresso da coleta.
+// GitHub Timeline — JS mínimo do cliente (§7): tema, copiar, abas, paginação e progresso da coleta.
 
 const THEME_COOKIE = 'tema';
 const ONE_YEAR = 60 * 60 * 24 * 365;
+const COPIED_MS = 1800;
+const STAGE_ORDER = ['perfil', 'repositorios', 'contribuicoes', 'conquistas'];
 
 /** @returns {'escuro' | 'claro'} */
 function effectiveTheme() {
@@ -31,34 +33,42 @@ function withTheme(href, theme) {
   return url.origin === location.origin && href.startsWith('/') ? url.pathname + url.search : url.toString();
 }
 
-/** "Baixar card" e "Compartilhar" seguem o tema ativo na página (§5.1). */
+/** "Baixar card", "Compartilhar" e "Copiar link" seguem o tema ativo na página (§5.1). */
 function syncShareTheme(theme) {
   for (const link of document.querySelectorAll('[data-share]')) link.href = withTheme(link.getAttribute('href'), theme);
   for (const button of document.querySelectorAll('[data-share-link]')) button.dataset.copyText = withTheme(button.dataset.copyText, theme);
-  const pageInput = document.getElementById('url-perfil');
-  if (pageInput) pageInput.value = withTheme(pageInput.value, theme);
 }
 
 /** @param {HTMLElement} button @param {string} text */
 async function copyText(button, text) {
-  const label = button.textContent;
+  button.dataset.label ??= button.textContent;
   try {
     await navigator.clipboard.writeText(text);
-    button.textContent = 'Copiado';
+    button.textContent = button.dataset.copiedLabel ?? 'Copiado ✓';
   } catch {
     button.textContent = 'Selecione e copie';
   }
-  setTimeout(() => (button.textContent = label), 1600);
+  clearTimeout(Number(button.dataset.timer));
+  button.dataset.timer = String(setTimeout(() => (button.textContent = button.dataset.label), COPIED_MS));
 }
 
 function onClick(event) {
   const target = event.target instanceof Element ? event.target.closest('button') : null;
   if (!target) return;
   if (target.matches('[data-theme-toggle]')) applyTheme(effectiveTheme() === 'escuro' ? 'claro' : 'escuro');
-  else if (target.dataset.copy) copyText(target, document.getElementById(target.dataset.copy)?.value ?? '');
   else if (target.dataset.copyText) copyText(target, target.dataset.copyText);
+  else if (target.dataset.tab) selectTab(target);
   else if (target.matches('[data-toggle-repos]')) toggleRepos(target);
   else if (target.matches('[data-more-eras]')) showAllEras(target);
+}
+
+/** Abas da galeria (WAI-ARIA tabs): um painel visível por vez. */
+function selectTab(tab) {
+  for (const other of tab.parentElement.querySelectorAll('[role="tab"]')) {
+    const selected = other === tab;
+    other.setAttribute('aria-selected', String(selected));
+    document.getElementById(other.getAttribute('aria-controls')).hidden = !selected;
+  }
 }
 
 /** @param {HTMLElement} button */
@@ -76,17 +86,18 @@ function showAllEras(button) {
   const hidden = [...document.querySelectorAll('[data-era][hidden]')];
   hidden.forEach((era) => (era.hidden = false));
   hidden[0]?.querySelector('.mo')?.focus();
-  button.remove();
+  button.closest('.more-eras-row')?.remove();
 }
 
 /** Perfil novo: acompanha a coleta por SSE e recarrega quando o snapshot fica pronto (§6). */
 function watchCollection(container) {
-  const login = container.dataset.collecting;
-  const source = new EventSource(`/api/status/${encodeURIComponent(login)}`);
+  const username = container.dataset.collecting;
+  const source = new EventSource(`/api/status/${encodeURIComponent(username)}`);
+  const done = new Set();
   const finish = () => { source.close(); location.reload(); };
   source.addEventListener('progress', (event) => {
     const { stage, account } = JSON.parse(event.data);
-    markStage(container, stage);
+    markStage(container, done, stage);
     if (account) fillHeader(container, account);
   });
   source.addEventListener('done', finish);
@@ -95,12 +106,17 @@ function watchCollection(container) {
   source.addEventListener('idle', () => { source.close(); showRetry(container); });
 }
 
-function markStage(container, stage) {
-  let reached = false;
-  for (const item of [...container.querySelectorAll('[data-stage]')].reverse()) {
-    if (item.dataset.stage === stage) reached = true;
-    item.classList.toggle('done', reached);
+/** Repositórios e contribuições chegam em paralelo; "conquistas" fecha todas as etapas. */
+function markStage(container, done, stage) {
+  if (stage === 'conquistas') STAGE_ORDER.forEach((name) => done.add(name));
+  else done.add(stage);
+  const active = STAGE_ORDER.find((name) => !done.has(name));
+  for (const item of container.querySelectorAll('[data-stage]')) {
+    item.classList.toggle('done', done.has(item.dataset.stage));
+    item.classList.toggle('active', item.dataset.stage === active);
   }
+  const bar = container.querySelector('[data-progress]');
+  if (bar) bar.style.width = `${Math.max(6, (done.size / STAGE_ORDER.length) * 100)}%`;
 }
 
 /** Troca o skeleton pelo cabeçalho real assim que `/users` responde. */
@@ -110,23 +126,30 @@ function fillHeader(container, account) {
   const avatar = document.createElement('img');
   avatar.className = 'avatar';
   avatar.alt = '';
-  avatar.src = `${account.avatarUrl}${account.avatarUrl.includes('?') ? '&' : '?'}s=176`;
+  avatar.width = avatar.height = 72;
+  avatar.src = `${account.avatarUrl}${account.avatarUrl.includes('?') ? '&' : '?'}s=144`;
   header.querySelector('[data-pending-avatar]')?.replaceWith(avatar);
   const name = header.querySelector('[data-pending-name]');
-  const login = header.querySelector('[data-pending-login]');
-  if (name) { name.className = ''; name.textContent = account.name || account.login; }
-  if (login) { login.className = 'login mono'; login.textContent = `@${account.login}`; }
-  header.removeAttribute('aria-busy');
+  if (name) name.textContent = account.name || account.username;
   header.removeAttribute('data-pending-header');
 }
 
 function showRetry(container) {
   const note = document.createElement('p');
+  note.className = 'muted';
   note.textContent = 'A coleta não terminou. Recarregue a página para tentar de novo.';
-  container.append(note);
+  container.querySelector('.steps-panel')?.append(note);
+}
+
+/** Cota esgotada sem snapshot (S4): a página tenta de novo sozinha. */
+function scheduleRetry(element) {
+  const seconds = Number(element.dataset.retryIn);
+  if (seconds > 0) setTimeout(() => location.reload(), seconds * 1000);
 }
 
 document.addEventListener('click', onClick);
 syncShareTheme(effectiveTheme());
 const collecting = document.querySelector('[data-collecting]');
 if (collecting) watchCollection(collecting);
+const retry = document.querySelector('[data-retry-in]');
+if (retry) scheduleRetry(retry);

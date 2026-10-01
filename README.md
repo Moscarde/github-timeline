@@ -21,12 +21,12 @@ https://moscarde.github.io/github-timeline/<usuario>
 
 Sem autenticação a API não expõe contribuições, e o limite é **60 requisições/hora por IP**. Por isso a grade mensal tem dois modos:
 
-| modo | o que conta |
-|---|---|
-| sem token | eventos de repositório: criação + último push de cada repo no mês |
+| modo      | o que conta                                                          |
+| --------- | -------------------------------------------------------------------- |
+| sem token | eventos de repositório: criação + último push de cada repo no mês    |
 | com token | calendário de contribuições real (GraphQL `contributionsCollection`) |
 
-O token é opcional, colado na própria página, salvo só no `localStorage` do navegador e enviado apenas para `api.github.com`. Um token *classic* sem nenhum escopo basta. Com ele, o limite sobe para 5.000/h.
+O token é opcional, colado na própria página, salvo só no `localStorage` do navegador e enviado apenas para `api.github.com`. Um token _classic_ sem nenhum escopo basta. Com ele, o limite sobe para 5.000/h.
 
 Repositórios privados não aparecem: a API pública só lista os públicos.
 
@@ -34,36 +34,42 @@ Repositórios privados não aparecem: a API pública só lista os públicos.
 
 HTML, CSS e JavaScript puros. Sem build, sem dependências. Visual GitHub Primer com tema claro/escuro.
 
-| arquivo | papel |
-|---|---|
-| `index.html` | shell + CSS |
-| `404.html` | cópia do `index.html` (gerada por `scripts/sync-404.sh`) |
-| `app.js` | rota, coleta, derivação e render |
-| `scripts/serve.py` | servidor local que imita o fallback 404 do Pages |
+| arquivo            | papel                                                    |
+| ------------------ | -------------------------------------------------------- |
+| `index.html`       | shell + CSS                                              |
+| `404.html`         | cópia do `index.html` (gerada por `scripts/sync-404.sh`) |
+| `app.js`           | rota, coleta, derivação e render                         |
+| `scripts/serve.py` | servidor local que imita o fallback 404 do Pages         |
 
 ## Próxima versão
 
 A v2 sai do GitHub Pages para um servidor próprio, com contribuições reais, card de compartilhamento, badge e comparação de perfis. A especificação está em [docs/v2-especificacao.md](docs/v2-especificacao.md).
 
-A marca própria **Timeline** usa a [direção 1 — Path of activity](reference/Timeline_Design_Kit/timeline_design_kit/direction-1-path-of-activity/) do design kit.
+O visual segue o template **GitHub Timeline Redesign v2** do Claude Design (telas, estados e mobile); veja §5.3 da [especificação](docs/v2-especificacao.md).
 
 ## v2 em desenvolvimento
 
-Servidor Node + TypeScript (Hono, SQLite, Satori) em `src/`, com testes em `tests/`. Implementado até agora, da entrega 1 da especificação:
+Servidor Node + TypeScript (Hono, SQLite, Satori) em `src/`, com testes em `tests/`. Implementado até agora:
 
-- coleta com o token do servidor, snapshot em SQLite com TTL de 12 h e uma coleta por login por vez;
+- coleta com o token do servidor, snapshot em SQLite com TTL de 12 h e uma coleta por username por vez;
 - manchete, conquistas, linha do tempo e contribuições reais;
-- `/`, `/u/<login>` (SSR, dois temas, responsiva), estados de coleta (SSE), 404 e perfil vazio;
-- `/u/<login>/card.png`, meta tags Open Graph e `/badge/<login>.svg` com a marca Timeline.
+- `/`, `/u/<username>` (SSR, dois temas, responsiva), estados de coleta (SSE), 404 com "Você quis dizer", perfil vazio, organização (maiores contribuidores) e faixa de snapshot antigo quando a cota acaba;
+- comparação `/u/<a>...<b>` e atalho `/comparar?a=&b=` na landing;
+- galeria "Perfis para explorar" (Em alta pelas visitas de 7 dias + listas de `data/curated.json`), contador semanal e botão "Star" com a contagem do repositório;
+- `/u/<username>/card.png` no tema ativo, meta tags Open Graph e `/badge/<username>.svg`.
+
+Limites: no máximo 3 coletas simultâneas no processo (as demais esperam a vez) e 10 timelines novas por IP a cada 10 minutos (acima disso, HTTP 429 com `Retry-After`; perfis já salvos não contam). Com menos de 10% da cota GraphQL, o servidor só serve snapshots.
+
+Visitas guardam só username, dia e um hash diário do IP, por 30 dias. Defina `VISIT_SALT` para que o hash não mude a cada reinício.
 
 ```sh
 npm install
-GITHUB_TOKEN=<token> npm run dev   # http://localhost:3000/u/<login>
+GITHUB_TOKEN=<token> npm run dev   # http://localhost:3000/u/<username>
 npm test                           # todos os testes
 npm run typecheck && npm run lint
 ```
 
-Um token *classic* sem escopos basta. Variáveis em `.env.example`.
+Um token _classic_ sem escopos basta. Variáveis em `.env.example`.
 
 ## Rodar local (v1)
 

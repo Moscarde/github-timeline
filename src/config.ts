@@ -1,10 +1,19 @@
 /** Host canônico (§9): URLs absolutas nunca são derivadas de cabeçalhos da requisição. */
 export const CANONICAL_ORIGIN = 'https://github-timeline.frangolab.com';
 
+/** Host exibido no card e nos campos de link, ex.: "github-timeline.frangolab.com". */
+export const CANONICAL_HOST = new URL(CANONICAL_ORIGIN).host;
+
+/** Repositório do projeto: botão "Star" da landing e link "código" do rodapé. */
+export const PROJECT_REPO = 'Moscarde/github-timeline';
+export const PROJECT_URL = `https://github.com/${PROJECT_REPO}`;
+
 export interface AppConfig {
   githubToken: string;
   port: number;
   databasePath: string;
+  /** Sal do hash diário de IP das visitas (§8); opcional. */
+  visitSalt: string | null;
 }
 
 /**
@@ -20,6 +29,7 @@ export function loadConfig(env: NodeJS.ProcessEnv): AppConfig {
     githubToken,
     port: parsePort(env.PORT),
     databasePath: env.DATABASE_PATH ?? 'timeline.db',
+    visitSalt: env.VISIT_SALT?.trim() || null,
   };
 }
 

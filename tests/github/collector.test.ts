@@ -9,7 +9,7 @@ function repos(count: number) {
 }
 
 describe('GithubProfileCollector', () => {
-  it('devolve null para login inexistente', async () => {
+  it('devolve null para username inexistente', async () => {
     const collector = new GithubProfileCollector(new FakeGithubTransport(), now);
     expect(await collector.collect('ghost')).toBeNull();
   });
@@ -91,11 +91,26 @@ describe('GithubProfileCollector', () => {
     expect(api.calls.filter((call) => call === 'graphql contributions')).toHaveLength(19);
   });
 
-  it('não consulta repositórios de organizações', async () => {
+  it('em organizações, só busca os maiores contribuidores, sem bots', async () => {
     const api = new FakeGithubTransport();
     api.users.set('acme', makeRestUser({ login: 'acme', type: 'Organization' }));
+    api.orgRepos.set('acme', ['acme/core', 'acme/docs']);
+    const person = (login: string, contributions: number, type = 'User') => ({
+      login,
+      avatar_url: `https://avatars.githubusercontent.com/${login}`,
+      type,
+      contributions,
+    });
+    api.contributors.set('acme/core', [person('ana', 40), person('bot', 900, 'Bot')]);
+    api.contributors.set('acme/docs', [person('bia', 30), person('ana', 5)]);
+
     const collected = await new GithubProfileCollector(api, now).collect('acme');
-    expect(collected?.account.type).toBe('Organization');
-    expect(api.calls).toEqual(['GET /users/acme']);
+
+    expect(collected?.repos).toEqual([]);
+    expect(collected?.people?.map((p) => [p.username, p.contributions])).toEqual([
+      ['ana', 45],
+      ['bia', 30],
+    ]);
+    expect(api.calls).not.toContain('graphql contributions');
   });
 });

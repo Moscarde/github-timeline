@@ -8,9 +8,11 @@ import type { ProfileSnapshot } from '../../domain/snapshot.js';
 export const Summary: FC<{ snapshot: ProfileSnapshot }> = ({ snapshot }) => (
   <section class="summary" aria-labelledby="resumo">
     <h2 class="eyebrow" id="resumo">
-      Resumo
+      Seu GitHub em resumo
     </h2>
-    <p class="headline">{snapshot.headline.full}</p>
+    <p class="headline">
+      {snapshot.headline.opening} <span class="ink">{snapshot.headline.closing}</span>
+    </p>
     <Indicators snapshot={snapshot} />
     <LanguageBar shares={snapshot.languages} />
   </section>
@@ -35,23 +37,26 @@ const Indicators: FC<{ snapshot: ProfileSnapshot }> = ({ snapshot }) => {
       <Indicator
         value={formatCompact(stats.ownStars)}
         label="stars nos próprios"
-        note={stats.topRepo ? `destaque: ${stats.topRepo.name}` : 'nenhuma ainda'}
+        note={
+          stats.topRepo
+            ? `top: ${stats.topRepo.name} ★ ${formatCompact(stats.topRepo.stars)}`
+            : 'nenhuma ainda'
+        }
       />
       <Indicator
         value={stats.recordYear ? String(stats.recordYear) : '—'}
         label="ano recorde"
         note={plural(recordCount, 'repositório criado', 'repositórios criados')}
-        accent
       />
     </div>
   );
 };
 
-const Indicator: FC<{ value: string; label: string; note: string; accent?: boolean }> = (props) => (
-  <div class={props.accent ? 'indicator accent' : 'indicator'}>
+const Indicator: FC<{ value: string; label: string; note: string }> = (props) => (
+  <div class="indicator">
     <div class="value">{props.value}</div>
     <div class="label">{props.label}</div>
-    <div class="note">{props.note}</div>
+    <div class="note muted">{props.note}</div>
   </div>
 );
 
@@ -77,7 +82,8 @@ const LanguageBar: FC<{ shares: LanguageShare[] }> = ({ shares }) => {
         {shares.map((share) => (
           <li>
             <i class="dot" style={`background:${shareColor(share)}`} />
-            <b>{share.name}</b> <span class="muted">{formatPercent(share.ratio)}</span>
+            <b>{share.name}</b>
+            <span class="muted">{formatPercent(share.ratio)}</span>
           </li>
         ))}
       </ul>
@@ -91,5 +97,5 @@ function shareColor(share: LanguageShare): string {
 
 function spanText(first: number | null, last: number | null): string {
   if (first === null || last === null) return '—';
-  return first === last ? String(first) : `${first}–${last}`;
+  return first === last ? String(first) : `${first} – ${last}`;
 }

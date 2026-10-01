@@ -4,10 +4,10 @@ import { openDatabase } from '../../src/storage/database.js';
 import { SqliteSnapshotStore } from '../../src/storage/snapshot-store.js';
 import { makeAccount, repoIn } from '../fakes/repo-factory.js';
 
-const snapshotFor = (login: string) =>
+const snapshotFor = (username: string) =>
   deriveSnapshot(
     {
-      account: makeAccount({ login }),
+      account: makeAccount({ username }),
       repos: [repoIn(2020, { language: 'Go' })],
       months: {},
       orgContributions: [],
@@ -22,13 +22,13 @@ describe('SqliteSnapshotStore', () => {
     store.save(snapshotFor('TeoCalvo'), expiresAt);
     store.save(snapshotFor('TeoCalvo'), new Date('2026-01-02T00:00:00Z'));
     const found = store.find('teocalvo');
-    expect(found?.snapshot.account.login).toBe('TeoCalvo');
+    expect(found?.snapshot.account.username).toBe('TeoCalvo');
     expect(found?.expiresAt.toISOString()).toBe('2026-01-02T00:00:00.000Z');
     expect(store.find('ghost')).toBeNull();
   });
 
   it('aplica migrações de forma idempotente', () => {
     const db = openDatabase(':memory:');
-    expect(db.pragma('user_version', { simple: true })).toBe(1);
+    expect(db.pragma('user_version', { simple: true })).toBe(8);
   });
 });

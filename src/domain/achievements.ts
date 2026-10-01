@@ -13,11 +13,15 @@ export type AchievementId =
   | 'uma-decada'
   | 'topics-50';
 
+/** Cor do disco quando desbloqueada; as bloqueadas ficam em cinza. */
+export type AchievementTone = 'brand' | 'gold' | 'purple' | 'blue';
+
 export interface Achievement {
   id: AchievementId;
   title: string;
-  icon: string;
-  color: string;
+  /** Texto curto dentro do disco, ex.: "100", "★", "8×". */
+  mark: string;
+  tone: AchievementTone;
   unlocked: boolean;
   /** Texto exibido: detalhe quando desbloqueada, progresso quando bloqueada. */
   detail: string;
@@ -29,53 +33,48 @@ interface AchievementContext {
   now: Date;
 }
 
+interface AchievementResult {
+  unlocked: boolean;
+  detail: string;
+  /** Marca calculada; sem ela vale a marca fixa da regra. */
+  mark?: string;
+}
+
 interface AchievementRule {
   id: AchievementId;
   title: string;
-  icon: string;
-  color: string;
-  evaluate: (context: AchievementContext) => { unlocked: boolean; detail: string };
+  mark: string;
+  tone: AchievementTone;
+  evaluate: (context: AchievementContext) => AchievementResult;
 }
 
 const POLYGLOT_MIN = 5;
 const DECADE_YEARS = 10;
 const TOPICS_MIN = 50;
 
-/** Catálogo das conquistas (§4.2): regra, ícone, cor e texto de progresso. */
+/** Catálogo das conquistas (§4.2): regra, marca, cor e texto de progresso. */
 const RULES: AchievementRule[] = [
-  {
-    id: 'primeiro-repo',
-    title: 'Primeiro repo',
-    icon: 'repo',
-    color: 'green',
-    evaluate: firstRepo,
-  },
-  { id: 'estrelado', title: 'Estrelado', icon: 'star', color: 'yellow', evaluate: starsAtLeast(1) },
-  {
-    id: 'stars-100',
-    title: '100 stars',
-    icon: 'star',
-    color: 'orange',
-    evaluate: starsAtLeast(100),
-  },
+  { id: 'primeiro-repo', title: 'Primeiro repo', mark: '01', tone: 'brand', evaluate: firstRepo },
+  { id: 'estrelado', title: 'Estrelado', mark: '★', tone: 'gold', evaluate: firstStarred },
+  { id: 'stars-100', title: '100 stars', mark: '100', tone: 'gold', evaluate: starsAtLeast(100) },
   {
     id: 'stars-1000',
     title: '1.000 stars',
-    icon: 'star',
-    color: 'red',
+    mark: '1k',
+    tone: 'gold',
     evaluate: starsAtLeast(1000),
   },
-  { id: 'primeiro-fork', title: 'Primeiro fork', icon: 'fork', color: 'blue', evaluate: firstFork },
-  { id: 'poliglota', title: 'Poliglota', icon: 'code', color: 'purple', evaluate: polyglot },
+  { id: 'primeiro-fork', title: 'Primeiro fork', mark: '⑂', tone: 'blue', evaluate: firstFork },
+  { id: 'poliglota', title: 'Poliglota', mark: '5×', tone: 'purple', evaluate: polyglot },
   {
     id: 'ano-recorde',
     title: 'Ano recorde',
-    icon: 'flame',
-    color: 'green',
+    mark: '—',
+    tone: 'brand',
     evaluate: recordYearRule,
   },
-  { id: 'uma-decada', title: 'Uma década', icon: 'clock', color: 'slate', evaluate: decade },
-  { id: 'topics-50', title: '50 topics', icon: 'tag', color: 'teal', evaluate: topics },
+  { id: 'uma-decada', title: 'Uma década', mark: '10a', tone: 'brand', evaluate: decade },
+  { id: 'topics-50', title: '50 topics', mark: '50', tone: 'blue', evaluate: topics },
 ];
 
 /**
@@ -108,7 +107,13 @@ function oldest(repos: Repo[]): Repo | undefined {
 function firstRepo({ all }: AchievementContext) {
   const repo = oldest(all);
   if (!repo) return { unlocked: false, detail: 'nenhum repositório público' };
-  return { unlocked: true, detail: `${repo.name} · ${formatMonthYear(repo.createdAt)}` };
+  return { unlocked: true, detail: formatMonthYear(repo.createdAt) };
+}
+
+function firstStarred({ own }: AchievementContext): AchievementResult {
+  const repo = oldest(own.filter((candidate) => candidate.stars >= 1));
+  if (repo) return { unlocked: true, detail: `repo mais antigo com ★: ${repo.name}` };
+  return { unlocked: false, detail: 'nenhuma star ainda' };
 }
 
 function starsAtLeast(minimum: number) {
@@ -124,18 +129,21 @@ function firstFork({ own }: AchievementContext) {
   const dates = own.map((repo) => repo.firstForkAt).filter((date): date is string => !!date);
   const first = dates.sort()[0];
   if (!first) return { unlocked: false, detail: 'nenhum fork ainda' };
-  return { unlocked: true, detail: formatMonthYear(first) };
+  return { unlocked: true, detail: `recebido · ${yearOf(first)}` };
 }
 
 function polyglot({ own }: AchievementContext) {
   const count = distinctLanguageCount(own);
-  if (count >= POLYGLOT_MIN) return { unlocked: true, detail: `${count} linguagens` };
+  if (count >= POLYGLOT_MIN)
+    return { unlocked: true, detail: `${count} linguagens`, mark: `${count}×` };
   return { unlocked: false, detail: `${count} de ${POLYGLOT_MIN} linguagens` };
 }
 
-function recordYearRule({ all }: AchievementContext) {
+function recordYearRule({ all }: AchievementContext): AchievementResult {
   const year = recordYear(all);
-  return year ? { unlocked: true, detail: String(year) } : { unlocked: false, detail: '—' };
+  if (!year) return { unlocked: false, detail: '—' };
+  const created = all.filter((repo) => yearOf(repo.createdAt) === year).length;
+  return { unlocked: true, detail: String(year), mark: String(created) };
 }
 
 function decade({ all, now }: AchievementContext) {

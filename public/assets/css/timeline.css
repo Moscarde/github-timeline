@@ -1,0 +1,353 @@
+/* Linha do tempo do perfil (tela 02 do template; M3 no celular). */
+
+/* ---------- linha do tempo ---------- */
+.timeline-section {
+  padding-block: 48px 24px;
+}
+.timeline-section .sec-head {
+  margin-bottom: 8px;
+}
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.legend i {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  display: inline-block;
+  border: 1px solid var(--cell-line);
+}
+.timeline-note {
+  margin: 0 0 32px;
+  font-size: 13px;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.era {
+  display: grid;
+  grid-template-columns: 180px 28px minmax(0, 1fr);
+}
+.era-year {
+  padding-top: 4px;
+}
+.year {
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.era.record .year {
+  color: var(--brand-ink);
+}
+.era-count {
+  font-size: 12px;
+  margin-top: 8px;
+}
+.era-rail {
+  position: relative;
+  padding-top: 10px;
+}
+.era-rail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--line);
+}
+.months {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.mo {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--cell-line);
+  transition: transform 0.12s;
+}
+.mo:hover,
+.mo:focus-visible {
+  transform: scale(1.35);
+  z-index: 4;
+}
+.mo:hover .tip,
+.mo:focus-visible .tip {
+  opacity: 1;
+}
+.month-initials {
+  display: none;
+}
+.era-body {
+  padding: 0 0 56px 28px;
+  min-width: 0;
+}
+.era-body h3 {
+  margin: 6px 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.era-body .lead {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+.skills {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.skill i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.lang-skill {
+  border: 1px solid var(--border);
+  background: var(--subtle);
+  color: var(--fg);
+}
+.topic-skill {
+  border: 1px solid color-mix(in srgb, var(--link) 25%, transparent);
+  background: color-mix(in srgb, var(--link) 10%, transparent);
+  color: var(--link);
+}
+.topic-skill i {
+  background: var(--link);
+}
+.repos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.more-repos {
+  margin-top: 12px;
+}
+.repo {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  background: var(--canvas);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.repo:hover {
+  border-color: var(--hover);
+}
+.repo.featured {
+  grid-column: 1 / -1;
+  border-color: var(--brand);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--glow) 25%, transparent),
+    var(--canvas) 70%
+  );
+}
+.repo-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+.repo-head .name {
+  font-weight: 700;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 8px;
+  line-height: 18px;
+}
+.tag-brand {
+  color: var(--brand-ink);
+  border-color: color-mix(in srgb, var(--brand) 33%, transparent);
+}
+.desc {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.desc.empty {
+  font-style: italic;
+}
+.topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.topics li {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 8px;
+  line-height: 20px;
+  border-radius: 999px;
+  color: var(--link);
+  background: color-mix(in srgb, var(--link) 10%, transparent);
+}
+.repo-meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 12px;
+  align-items: center;
+}
+.btn.more {
+  margin-top: 12px;
+}
+.more-eras-row {
+  display: flex;
+  justify-content: center;
+  padding: 0 0 32px 208px;
+}
+.more-eras {
+  padding: 8px 18px;
+  font-size: 14px;
+}
+
+/* ---------- celular ---------- */
+@media (max-width: 720px) {
+  .timeline-section {
+    padding-block: 20px 28px;
+  }
+  .timeline-section .sec-head {
+    margin-bottom: 14px;
+  }
+  .legend {
+    font-size: 11px;
+    gap: 3px;
+  }
+  .legend i {
+    width: 9px;
+    height: 9px;
+  }
+  .legend .l1,
+  .legend .l3 {
+    display: none;
+  }
+  .timeline-note {
+    display: none;
+  }
+  .era {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .era-year {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 0;
+  }
+  .year {
+    font-size: 40px;
+  }
+  .era-count {
+    font-size: 11px;
+    margin: 0;
+  }
+  .era-rail {
+    padding: 0;
+  }
+  .era-rail::before {
+    display: none;
+  }
+  .months,
+  .month-initials {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+  }
+  .mo {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .month-initials {
+    margin-top: 4px;
+    font-size: 9px;
+    text-align: center;
+  }
+  .era-body {
+    padding: 0;
+  }
+  .era-body h3 {
+    margin: 0 0 12px;
+    font-size: 21px;
+    line-height: 1.15;
+  }
+  .era-body .lead {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .skills {
+    margin-bottom: 12px;
+  }
+  .lang-skill,
+  .topic-skill {
+    border-color: var(--border);
+    background: var(--subtle);
+    color: var(--fg);
+  }
+  .skill i {
+    display: none;
+  }
+  .repos {
+    grid-template-columns: 1fr;
+  }
+  .repo {
+    padding: 14px;
+    gap: 8px;
+  }
+  .btn.more,
+  .more-eras {
+    width: 100%;
+    min-height: 44px;
+  }
+  .more-eras-row {
+    padding: 0 0 8px;
+  }
+}

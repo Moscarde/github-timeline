@@ -21,38 +21,38 @@ type ForksPage = Record<string, { forks: { nodes: Array<{ createdAt: string }> }
  */
 export async function fetchOwnedRepos(
   transport: GithubTransport,
-  login: string,
+  username: string,
   publicRepos: number,
 ): Promise<Repo[]> {
-  const raw = await fetchAllPages(transport, login, publicRepos);
-  // `/users/{login}/repos` só lista públicos; o filtro protege a conta dona do token (§3).
+  const raw = await fetchAllPages(transport, username, publicRepos);
+  // `/users/{username}/repos` só lista públicos; o filtro protege a conta dona do token (§3).
   const repos = raw.filter((repo) => !repo.private).map(toRepo);
-  return attachFirstForks(transport, login, repos);
+  return attachFirstForks(transport, username, repos);
 }
 
 async function fetchAllPages(
   transport: GithubTransport,
-  login: string,
+  username: string,
   publicRepos: number,
 ): Promise<RestRepo[]> {
   const expected = Math.min(MAX_PAGES, Math.max(1, Math.ceil(publicRepos / PER_PAGE)));
   const numbers = Array.from({ length: expected }, (_, index) => index + 1);
   const pages = await mapWithConcurrency(numbers, CONCURRENCY, (page) =>
-    fetchPage(transport, login, page),
+    fetchPage(transport, username, page),
   );
   // `public_repos` pode estar defasado: segue enquanto a última página vier cheia.
   for (let page = expected + 1; pages.at(-1)?.length === PER_PAGE && page <= MAX_PAGES; page++) {
-    pages.push(await fetchPage(transport, login, page));
+    pages.push(await fetchPage(transport, username, page));
   }
   return pages.flat();
 }
 
 async function fetchPage(
   transport: GithubTransport,
-  login: string,
+  username: string,
   page: number,
 ): Promise<RestRepo[]> {
-  const path = `/users/${encodeURIComponent(login)}/repos?type=owner&sort=created&direction=asc&per_page=${PER_PAGE}&page=${page}`;
+  const path = `/users/${encodeURIComponent(username)}/repos?type=owner&sort=created&direction=asc&per_page=${PER_PAGE}&page=${page}`;
   const body = await transport.getJson(path);
   if (!Array.isArray(body)) {
     throw new GithubError(
@@ -66,13 +66,13 @@ async function fetchPage(
 /** Só repositórios próprios já forkados precisam da consulta; os demais ficam com `null`. */
 async function attachFirstForks(
   transport: GithubTransport,
-  login: string,
+  username: string,
   repos: Repo[],
 ): Promise<Repo[]> {
   const forked = repos.filter((repo) => !repo.isFork && repo.forks > 0).map((repo) => repo.name);
   const batches = chunk(forked, FORK_BATCH);
   const results = await mapWithConcurrency(batches, CONCURRENCY, (names) =>
-    fetchFirstForks(transport, login, names),
+    fetchFirstForks(transport, username, names),
   );
   const firstForkByName = new Map(results.flat());
   return repos.map((repo) => ({ ...repo, firstForkAt: firstForkByName.get(repo.name) ?? null }));
@@ -80,10 +80,10 @@ async function attachFirstForks(
 
 async function fetchFirstForks(
   transport: GithubTransport,
-  login: string,
+  username: string,
   names: string[],
 ): Promise<Array<[string, string]>> {
-  const data = (await transport.graphql(firstForksQuery(login, names), {})) as ForksPage;
+  const data = (await transport.graphql(firstForksQuery(username, names), {})) as ForksPage;
   return names.flatMap((name, index): Array<[string, string]> => {
     const createdAt = data?.[`r${index}`]?.forks.nodes[0]?.createdAt;
     return createdAt ? [[name, createdAt]] : [];

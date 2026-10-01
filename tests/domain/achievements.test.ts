@@ -14,11 +14,11 @@ describe('buildAchievements', () => {
       repoIn(2013, { name: 'fork', isFork: true, stars: 99999 }),
     ];
     const achievements = byId(repos);
-    expect(achievements.get('primeiro-repo')?.detail).toBe('fork · jun 2013');
-    expect(achievements.get('estrelado')?.detail).toBe('old');
+    expect(achievements.get('primeiro-repo')?.detail).toBe('jun 2013');
+    expect(achievements.get('estrelado')?.detail).toBe('repo mais antigo com ★: old');
     expect(achievements.get('stars-100')?.detail).toBe('big');
     expect(achievements.get('stars-1000')?.unlocked).toBe(true);
-    expect(achievements.get('primeiro-fork')?.detail).toBe('ago 2015');
+    expect(achievements.get('primeiro-fork')?.detail).toBe('recebido · 2015');
     expect(achievements.get('uma-decada')?.unlocked).toBe(true);
   });
 
@@ -30,6 +30,15 @@ describe('buildAchievements', () => {
     expect(achievements.get('topics-50')?.detail).toBe('2 de 50');
     expect(achievements.get('uma-decada')?.detail).toBe('faltam 8 anos');
     expect(achievements.get('primeiro-fork')?.unlocked).toBe(false);
+  });
+
+  it('calcula as marcas dos discos', () => {
+    const languages = ['Go', 'Rust', 'C', 'Zig', 'Lua', 'Ruby'];
+    const repos = languages.map((language) => repoIn(2020, { language }));
+    const achievements = byId(repos);
+    expect(achievements.get('poliglota')).toMatchObject({ unlocked: true, mark: '6×' });
+    expect(achievements.get('ano-recorde')).toMatchObject({ detail: '2020', mark: '6' });
+    expect(achievements.get('stars-100')).toMatchObject({ mark: '100', tone: 'gold' });
   });
 
   it('mantém a ordem do catálogo', () => {

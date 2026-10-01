@@ -1,7 +1,7 @@
 import type { GithubAccount, OrgContribution, Repo } from '../domain/types.js';
 import { GithubError } from './errors.js';
 
-/** Formato de `GET /users/{login}` usado aqui. */
+/** Formato de `GET /users/{username}` usado aqui. */
 export interface RestUser {
   login: string;
   name: string | null;
@@ -13,7 +13,7 @@ export interface RestUser {
   public_repos?: number;
 }
 
-/** Formato de `GET /users/{login}/repos` usado aqui. */
+/** Formato de `GET /users/{username}/repos` usado aqui. */
 export interface RestRepo {
   name: string;
   html_url: string;
@@ -58,7 +58,7 @@ export function toAccount(raw: unknown): GithubAccount {
     );
   }
   return {
-    login: user.login,
+    username: user.login,
     name: user.name ?? null,
     avatarUrl: user.avatar_url ?? '',
     bio: user.bio ?? null,

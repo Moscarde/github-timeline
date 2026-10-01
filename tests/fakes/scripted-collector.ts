@@ -19,13 +19,13 @@ export class ScriptedCollector implements ProfileCollector {
   }
 
   async collect(
-    login: string,
+    username: string,
     onProgress: ProgressListener = () => {},
   ): Promise<CollectedProfile | null> {
     this.calls += 1;
     await this.gate;
     if (this.failure) throw this.failure;
-    const profile = this.profiles.get(login.toLowerCase()) ?? null;
+    const profile = this.profiles.get(username.toLowerCase()) ?? null;
     if (profile) onProgress({ stage: 'perfil', account: profile.account });
     return profile;
   }

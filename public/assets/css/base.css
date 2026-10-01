@@ -1,0 +1,437 @@
+/* Timeline — tokens, tipografia, topbar, botões e rodapé (template "GitHub Timeline Redesign v2"). */
+
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/fonts/mona-sans-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/fonts/mona-sans-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/fonts/mona-sans-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/fonts/mona-sans-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/fonts/mona-sans-latin-800-normal.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/fonts/mona-sans-latin-900-normal.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/*
+ * Cada token é `light-dark(claro, escuro)`: o tema vem de `color-scheme`, que segue o sistema
+ * ou o `data-theme` gravado no cookie. Assim cada valor aparece uma vez só.
+ */
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f6f8fa, #010409);
+  --canvas: light-dark(#ffffff, #0d1117);
+  --subtle: light-dark(#f6f8fa, #161b22);
+  --line: light-dark(#d8dee4, #21262d);
+  --border: light-dark(#d1d9e0, #30363d);
+  --btn: light-dark(#f6f8fa, #212830);
+  --fg: light-dark(#1f2328, #e6edf3);
+  --muted: light-dark(#59636e, #9198a1);
+  --faint: light-dark(#6e7781, #7d8590);
+  --hover: light-dark(#818b98, #8b949e);
+  --link: light-dark(#0969da, #4493f8);
+  --brand: light-dark(#2da44e, #39d353);
+  /* verde de texto AA sobre fundo claro (§8) */
+  --brand-ink: light-dark(#1a7f37, #39d353);
+  --primary: light-dark(#1f883d, #238636);
+  --primary-h: light-dark(#1a7f37, #2ea043);
+  --b: light-dark(#8250df, #a371f7);
+  --b-ink: light-dark(#8250df, #d2a8ff);
+  --gold: light-dark(#9a6700, #e3b341);
+  --blue: light-dark(#0969da, #4493f8);
+  --str: light-dark(#0a3069, #a5d6ff);
+  --danger: light-dark(#d1242f, #f85149);
+  --warn: light-dark(#9a6700, #d29922);
+  --glow: light-dark(#aceebb, #0e4429);
+  --lv0: light-dark(#ebedf0, #161b22);
+  --lv1: light-dark(#9be9a8, #0e4429);
+  --lv2: light-dark(#40c463, #006d32);
+  --lv3: light-dark(#30a14e, #26a641);
+  --lv4: light-dark(#216e39, #39d353);
+  --cell-line: light-dark(rgba(31, 35, 40, 0.06), rgba(255, 255, 255, 0.06));
+  --skel: light-dark(#eef1f4, #161b22);
+  --skel-hi: light-dark(#f6f8fa, #21262d);
+  --tip-bg: var(--fg);
+  --tip-fg: var(--canvas);
+  --gutter: 64px;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--fg);
+  font-family:
+    'Mona Sans',
+    -apple-system,
+    'Segoe UI',
+    Helvetica,
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+img {
+  max-width: 100%;
+}
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.muted {
+  color: var(--muted);
+}
+.faint {
+  color: var(--faint);
+}
+.ink {
+  color: var(--brand-ink);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+.h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+.eyebrow {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+}
+
+/* ---------- botões ---------- */
+.btn,
+.btn-p {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn {
+  border: 1px solid var(--border);
+  background: var(--btn);
+  color: var(--fg);
+}
+.btn:hover {
+  border-color: var(--hover);
+  text-decoration: none;
+}
+.btn-p {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+.btn-p:hover {
+  background: var(--primary-h);
+  text-decoration: none;
+}
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  background: var(--subtle);
+  color: var(--fg);
+}
+.pill {
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: inherit;
+  cursor: pointer;
+}
+.pill[aria-selected='true'] {
+  background: var(--fg);
+  color: var(--canvas);
+  font-weight: 600;
+  border-color: var(--fg);
+}
+
+/* Rótulo do botão de tema: mostra o tema para o qual se vai trocar. */
+.theme-dark-label {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .theme-dark-label {
+    display: inline;
+  }
+  :root:not([data-theme='dark']) .theme-light-label {
+    display: none;
+  }
+}
+:root[data-theme='light'] .theme-dark-label {
+  display: inline;
+}
+:root[data-theme='light'] .theme-light-label {
+  display: none;
+}
+
+/* ---------- topbar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  color: var(--fg);
+  font-size: 14px;
+}
+.crumb:hover {
+  text-decoration: none;
+}
+.crumb-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--fg);
+  display: inline-block;
+  flex: none;
+  object-fit: cover;
+}
+.spacer {
+  flex: 1;
+}
+.topnav {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+.topnav a {
+  color: var(--muted);
+}
+.topnav a:hover {
+  color: var(--fg);
+  text-decoration: none;
+}
+.star-btn {
+  padding: 5px 12px;
+}
+.star-count {
+  background: var(--border);
+  border-radius: 10px;
+  padding: 0 7px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.theme-btn {
+  padding: 5px 10px;
+}
+.top-search input {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  width: 200px;
+  background: var(--canvas);
+}
+.top-search input::placeholder {
+  color: var(--faint);
+}
+.search-link {
+  display: none;
+  padding: 6px 10px;
+  min-height: 36px;
+}
+
+/* ---------- rodapé ---------- */
+.footer {
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--faint);
+}
+.footer .wrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 20px;
+}
+
+/* ---------- tooltip dos meses ---------- */
+.tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  background: var(--tip-bg);
+  color: var(--tip-fg);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 5;
+}
+
+/* ---------- celular (≤ 720px) ---------- */
+@media (min-width: 721px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+@media (max-width: 720px) {
+  .desktop-only {
+    display: none !important;
+  }
+  :root {
+    --gutter: 16px;
+  }
+  .topbar {
+    gap: 10px;
+    padding: 12px 16px;
+  }
+  .crumb {
+    gap: 10px;
+    font-size: 13px;
+    flex: 1;
+  }
+  .mark {
+    width: 22px;
+    height: 22px;
+  }
+  .topbar > .spacer,
+  .topnav,
+  .star-btn,
+  .top-search,
+  .footer-long {
+    display: none;
+  }
+  .search-link {
+    display: inline-flex;
+  }
+  .theme-btn,
+  .topbar .btn-p {
+    min-height: 36px;
+  }
+  .theme-btn .theme-text {
+    display: none;
+  }
+}
+@media (min-width: 721px) {
+  .footer-short {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

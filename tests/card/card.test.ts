@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { cardLayout, type CardImages } from '../../src/card/card-layout.js';
+import { cardLayout, headlineSize, type CardImages } from '../../src/card/card-layout.js';
 import {
   createImageFetcher,
-  loadCardLogos,
   SatoriCardRenderer,
   type ImageFetcher,
 } from '../../src/card/card-renderer.js';
@@ -14,7 +13,7 @@ import { FakeFetch } from '../fakes/fake-fetch.js';
 
 const snapshot = deriveSnapshot(
   {
-    account: makeAccount({ login: 'dev', name: 'Dev' }),
+    account: makeAccount({ username: 'dev', name: 'Dev' }),
     repos: [repoIn(2016, { language: 'Go' }), repoIn(2024, { language: 'Rust' })],
     months: Object.fromEntries(
       Array.from({ length: 11 }, (_, i) => [2016 + i, Array<number>(12).fill(i)]),
@@ -23,7 +22,7 @@ const snapshot = deriveSnapshot(
   },
   new Date('2026-09-30T00:00:00Z'),
 );
-const images: CardImages = { avatarDataUri: null, logoDataUri: 'data:image/svg+xml;base64,' };
+const images: CardImages = { avatarDataUri: null };
 
 function texts(node: CardNode | string | null): string[] {
   if (node === null) return [];
@@ -33,9 +32,9 @@ function texts(node: CardNode | string | null): string[] {
 }
 
 describe('cardLayout', () => {
-  it('mostra manchete curta, 8 anos de grade e domínio', () => {
+  it('mostra manchete curta palavra a palavra, 8 anos de grade e domínio', () => {
     const all = texts(cardLayout(snapshot, 'escuro', 'headline', images));
-    expect(all).toContain(snapshot.headline.short);
+    expect(all.join(' ')).toContain(snapshot.headline.short);
     expect(all.filter((text) => /^20\d\d$/.test(text))).toEqual([
       '2019',
       '2020',
@@ -51,8 +50,14 @@ describe('cardLayout', () => {
 
   it('variante número destaca a contagem de repositórios', () => {
     expect(texts(cardLayout(snapshot, 'claro', 'numero', images))).toContain(
-      'repositórios públicos',
+      'repositórios em 9 anos',
     );
+  });
+
+  it('reduz o corpo da manchete em frases longas', () => {
+    expect(headlineSize('8 anos de código. De HTML a React.')).toBe(76);
+    expect(headlineSize('16 anos de código. 11 linguagens, Python primeiro.')).toBe(60);
+    expect(headlineSize('x'.repeat(60))).toBe(48);
   });
 });
 
@@ -65,7 +70,6 @@ describe('SatoriCardRenderer', () => {
     };
     const renderer = new SatoriCardRenderer({
       fonts: await loadCardFonts(),
-      logos: await loadCardLogos('public/brand'),
       fetchImage,
     });
     const png = await renderer.render(snapshot, 'escuro', 'headline');

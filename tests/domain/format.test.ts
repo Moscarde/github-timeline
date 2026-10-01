@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  formatAge,
   formatCompact,
   formatInteger,
   formatMonthYear,
@@ -43,5 +44,17 @@ describe('format', () => {
     expect(joinPt([])).toBe('');
     expect(joinPt(['Go'])).toBe('Go');
     expect(joinPt(['Go', 'Rust', 'Zig'])).toBe('Go, Rust e Zig');
+  });
+});
+
+describe('formatAge', () => {
+  const now = new Date('2026-09-30T12:00:00Z');
+  it.each([
+    ['2026-09-30T11:59:40Z', 'agora há pouco'],
+    ['2026-09-30T11:35:00Z', 'há 25 minutos'],
+    ['2026-09-30T09:00:00Z', 'há 3 horas'],
+    ['2026-09-29T11:00:00Z', 'há 1 dia'],
+  ])('%s → %s', (since, expected) => {
+    expect(formatAge(new Date(since), now)).toBe(expected);
   });
 });

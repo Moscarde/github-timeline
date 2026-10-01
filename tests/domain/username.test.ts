@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { isValidLogin, loginKey, parseLoginInput } from '../../src/domain/login.js';
+import { isValidUsername, usernameKey, parseUsernameInput } from '../../src/domain/username.js';
 
-describe('parseLoginInput', () => {
+describe('parseUsernameInput', () => {
   it.each([
     ['torvalds', 'torvalds'],
     ['  @torvalds ', 'torvalds'],
@@ -9,20 +9,20 @@ describe('parseLoginInput', () => {
     ['github.com/TeoCalvo/', 'TeoCalvo'],
     ['https://www.github.com/tj?tab=repositories', 'tj'],
   ])('aceita %s', (input, expected) => {
-    expect(parseLoginInput(input)).toBe(expected);
+    expect(parseUsernameInput(input)).toBe(expected);
   });
 
   it.each(['', '-abc', 'abc-', 'a--b', 'a'.repeat(40), 'https://gitlab.com/x', 'a b'])(
     'rejeita %j',
     (input) => {
-      expect(parseLoginInput(input)).toBeNull();
+      expect(parseUsernameInput(input)).toBeNull();
     },
   );
 });
 
-describe('login helpers', () => {
+describe('username helpers', () => {
   it('valida e normaliza', () => {
-    expect(isValidLogin('a-b')).toBe(true);
-    expect(loginKey('TeoCalvo')).toBe('teocalvo');
+    expect(isValidUsername('a-b')).toBe(true);
+    expect(usernameKey('TeoCalvo')).toBe('teocalvo');
   });
 });

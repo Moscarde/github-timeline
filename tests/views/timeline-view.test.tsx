@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { deriveSnapshot } from '../../src/domain/snapshot.js';
-import { contributionLevel, Timeline } from '../../src/views/profile/timeline.js';
+import { contributionLevel } from '../../src/domain/contributions.js';
+import { Timeline } from '../../src/views/profile/timeline.js';
 import { makeAccount, repoIn } from '../fakes/repo-factory.js';
 
 describe('Timeline view', () => {

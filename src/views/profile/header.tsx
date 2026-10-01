@@ -8,32 +8,47 @@ import type { ShareLinks } from '../share-links.js';
 export const ProfileHeader: FC<{ account: GithubAccount; share?: ShareLinks }> = ({
   account,
   share,
-}) => (
-  <section class="profile-head">
-    <img class="avatar" src={avatarUrl(account.avatarUrl, 176)} alt="" width="88" height="88" />
-    <div class="who">
-      <h1>{account.name || account.login}</h1>
-      <p class="login mono">
-        <a href={account.htmlUrl} rel="noopener">
-          @{account.login}
-        </a>{' '}
-        · no GitHub desde {formatMonthYear(account.createdAt)}
-      </p>
-      {account.bio && <p class="bio">{account.bio}</p>}
+}) => {
+  const isOrg = account.type === 'Organization';
+  return (
+    <div class="profile-head">
+      <img
+        class={isOrg ? 'avatar org' : 'avatar'}
+        src={avatarUrl(account.avatarUrl, 144)}
+        alt=""
+        width="72"
+        height="72"
+      />
+      <div class="who">
+        <div class="who-name">{account.name || account.username}</div>
+        <div class="mono muted who-username">
+          <a href={account.htmlUrl} rel="noopener">
+            @{account.username}
+          </a>{' '}
+          · {isOrg ? 'organização' : `no GitHub desde ${formatMonthYear(account.createdAt)}`}
+        </div>
+      </div>
+      {share && <ShareActions share={share} placement="desktop-only" />}
     </div>
-    {share && <ShareActions share={share} />}
-  </section>
-);
+  );
+};
 
-const ShareActions: FC<{ share: ShareLinks }> = ({ share }) => (
-  <div class="share-actions" data-share-actions>
+/**
+ * "Compartilhar no X", "LinkedIn" e "Baixar card". No celular o bloco desce para depois das
+ * linguagens (M2), então a página o renderiza nas duas posições e o CSS escolhe uma.
+ */
+export const ShareActions: FC<{ share: ShareLinks; placement: 'desktop-only' | 'mobile-only' }> = ({
+  share,
+  placement,
+}) => (
+  <div class={`share-actions ${placement}`} data-share-actions>
     <a class="btn" href={share.x} data-share="x" target="_blank" rel="noopener">
-      Compartilhar no X
+      <span class="desktop-only">Compartilhar no </span>X
     </a>
     <a class="btn" href={share.linkedin} data-share="linkedin" target="_blank" rel="noopener">
       LinkedIn
     </a>
-    <a class="btn primary" href={share.card} data-share="card" download>
+    <a class="btn" href={share.card} data-share="card" download>
       Baixar card
     </a>
   </div>

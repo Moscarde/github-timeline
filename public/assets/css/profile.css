@@ -1,0 +1,383 @@
+/* Perfil (tela 02 do template; M2–M4 no celular). */
+
+/* ---------- cabeçalho e resumo ---------- */
+.profile-hero {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+  background: radial-gradient(
+    900px 400px at 85% 0%,
+    color-mix(in srgb, var(--glow) 40%, transparent),
+    transparent 70%
+  );
+}
+.profile-hero > .wrap {
+  padding-block: 64px 56px;
+}
+.profile-head {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 40px;
+}
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--brand);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--brand) 14%, transparent);
+  background: var(--subtle);
+  flex: none;
+}
+.avatar.org {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.who {
+  flex: 1;
+  min-width: 0;
+}
+.who-name {
+  font-size: 22px;
+  font-weight: 700;
+}
+.who-username {
+  font-size: 14px;
+}
+.share-actions {
+  display: flex;
+  gap: 8px;
+}
+.summary .eyebrow {
+  margin-bottom: 14px;
+}
+.headline {
+  margin: 0 0 44px;
+  font-size: 76px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.indicators {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.indicator {
+  background: var(--canvas);
+  padding: 22px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.indicator .value {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.indicator .label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.indicator .note {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.languages {
+  margin-top: 28px;
+}
+.langbar {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 2px;
+}
+.langlegend {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  font-size: 13px;
+}
+.langlegend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.langlegend b {
+  font-weight: 600;
+}
+
+/* ---------- seções ---------- */
+.sec {
+  padding-block: 44px;
+  border-bottom: 1px solid var(--line);
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.sec-note {
+  font-size: 13px;
+}
+
+/* ---------- conquistas ---------- */
+.achievement-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 10px;
+}
+.achievement {
+  --tone: var(--faint);
+  border: 1px solid color-mix(in srgb, var(--tone) 33%, transparent);
+  background: color-mix(in srgb, var(--tone) 6%, transparent);
+  border-radius: 10px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.tone-brand {
+  --tone: var(--brand-ink);
+}
+.tone-gold {
+  --tone: var(--gold);
+}
+.tone-purple {
+  --tone: var(--b);
+}
+.tone-blue {
+  --tone: var(--blue);
+}
+.disc {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--tone) 15%, transparent);
+  color: var(--tone);
+  font-weight: 700;
+  font-size: 16px;
+}
+.achievement .title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.achievement .detail {
+  font-size: 11.5px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.achievement.locked {
+  border-color: var(--border);
+  background: transparent;
+  opacity: 0.55;
+}
+.achievement.locked .disc {
+  background: var(--subtle);
+  color: var(--faint);
+}
+
+/* ---------- compartilhar ---------- */
+.share-cta {
+  padding-bottom: 56px;
+}
+.share-cta-box {
+  border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  border-radius: 12px;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--glow) 25%, transparent),
+    var(--canvas) 60%
+  );
+}
+.share-cta-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.share-cta h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.share-cta p {
+  margin: 0;
+  font-size: 15px;
+}
+.share-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+.url-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 7px 12px;
+  overflow-wrap: anywhere;
+}
+.share-cta .badge-html {
+  margin-top: 0;
+}
+
+/* ---------- celular ---------- */
+@media (max-width: 1100px) {
+  .achievement-list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .headline {
+    font-size: 60px;
+  }
+}
+@media (max-width: 720px) {
+  .profile-hero {
+    background: radial-gradient(
+      420px 260px at 90% 0%,
+      color-mix(in srgb, var(--glow) 40%, transparent),
+      transparent 70%
+    );
+  }
+  .profile-hero > .wrap {
+    padding-block: 20px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .profile-head {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .profile-head .avatar {
+    width: 52px;
+    height: 52px;
+    box-shadow: none;
+  }
+  .who-name {
+    font-size: 17px;
+  }
+  .who-username {
+    font-size: 12px;
+  }
+  /* Os botões de compartilhar descem para depois das linguagens (M2). */
+  .share-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    margin-top: 20px;
+  }
+  .share-actions .btn {
+    min-height: 44px;
+    padding: 6px;
+  }
+  .summary .eyebrow {
+    font-size: 11px;
+  }
+  .headline {
+    font-size: 40px;
+    margin-bottom: 20px;
+  }
+  .indicators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .indicator {
+    padding: 14px;
+    gap: 4px;
+  }
+  .indicator .value {
+    font-size: 30px;
+  }
+  .indicator .label {
+    font-size: 13px;
+  }
+  .indicator .note {
+    font-size: 12px;
+  }
+  .langbar {
+    height: 10px;
+  }
+  .langlegend {
+    gap: 4px 14px;
+    font-size: 12px;
+  }
+  .sec {
+    padding-block: 20px 28px;
+  }
+  .sec-head .h2 {
+    font-size: 20px;
+  }
+  .achievements .wrap {
+    padding-right: 0;
+  }
+  .achievements .sec-head {
+    padding-right: 16px;
+  }
+  .achievement-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-right: 16px;
+  }
+  .achievement {
+    flex: none;
+    width: 112px;
+    padding: 14px 10px;
+    gap: 8px;
+    scroll-snap-align: start;
+  }
+  .disc {
+    width: 44px;
+    height: 44px;
+    font-size: 14px;
+  }
+  .achievement .title {
+    font-size: 12.5px;
+  }
+  .achievement .detail {
+    font-size: 11px;
+  }
+  .share-cta-box {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 20px;
+  }
+  .share-cta-row .btn-p,
+  .share-cta-row .btn {
+    min-height: 44px;
+  }
+}

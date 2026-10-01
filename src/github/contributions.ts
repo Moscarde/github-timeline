@@ -19,11 +19,11 @@ export interface ContributionHistory {
  */
 export async function fetchContributionHistory(
   transport: GithubTransport,
-  login: string,
+  username: string,
   years: number[],
 ): Promise<ContributionHistory> {
   const pages = await mapWithConcurrency(years, CONCURRENCY, async (year) => {
-    const data = (await transport.graphql(contributionsQuery(year), { login })) as YearPage;
+    const data = (await transport.graphql(contributionsQuery(year), { username })) as YearPage;
     return [year, data?.user?.year ?? null] as const;
   });
   const history: ContributionHistory = { months: {}, orgContributions: [] };
