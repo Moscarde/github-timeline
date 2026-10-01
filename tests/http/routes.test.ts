@@ -79,6 +79,8 @@ describe('páginas', () => {
     expect(html).toContain('Gerar timeline');
     expect(html).toContain('Todo commit conta uma história.');
     expect(html).toContain('★ Star<span class="star-count">1,2k</span>');
+    expect(html).toContain('<img class="mark brand-mark" src="/favicon.svg"');
+    expect(html).not.toContain('<span class="mark"');
   });
 
   it('/buscar normaliza a entrada e redireciona', async () => {

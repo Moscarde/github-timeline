@@ -51,6 +51,8 @@ O visual segue o template **GitHub Timeline Redesign v2** do Claude Design (tela
 
 Servidor Node + TypeScript (Hono, SQLite, Satori) em `src/`, com testes em `tests/`. Implementado até agora:
 
+A versão hospedada está em **https://github-timeline.frangolab.com/**. Perfis usam `/u/<username>`.
+
 - coleta com o token do servidor, snapshot em SQLite com TTL de 12 h e uma coleta por username por vez;
 - manchete, conquistas, linha do tempo e contribuições reais;
 - `/`, `/u/<username>` (SSR, dois temas, responsiva), estados de coleta (SSE), 404 com "Você quis dizer", perfil vazio, organização (maiores contribuidores) e faixa de snapshot antigo quando a cota acaba;
@@ -83,7 +85,8 @@ docker compose up --build -d
 ```
 
 A aplicação fica em `http://localhost:3000`; `PORT` no `.env` altera a porta do
-host. O SQLite fica no volume `timeline-data`, que persiste entre recriações do
+host. A porta fica acessível apenas no próprio servidor para uso por um proxy reverso.
+O SQLite fica no volume `timeline-data`, que persiste entre recriações do
 contêiner. Para acompanhar logs e encerrar o serviço:
 
 ```sh
@@ -92,6 +95,24 @@ docker compose down
 ```
 
 Para remover também o banco, use `docker compose down -v`.
+
+### Deploy da v2 na VPS
+
+O checkout fica em `/opt/projects/github-timeline`. O `.env` da VPS contém
+`GITHUB_TOKEN`, `VISIT_SALT` e `PORT=3002` e deve ter permissão `600`. O Nginx
+encaminha `github-timeline.frangolab.com` para `127.0.0.1:3002`; o Certbot gerencia
+o certificado e o redirecionamento HTTP para HTTPS.
+
+```sh
+cd /opt/projects/github-timeline
+git pull --ff-only
+docker compose up -d --build
+docker compose ps
+curl -fsS https://github-timeline.frangolab.com/healthz
+```
+
+Depois de alterar `compose.yaml` localmente, sincronize-o antes de executar o
+deploy. O banco permanece no volume `github-timeline_timeline-data`.
 
 ## Rodar local (v1)
 

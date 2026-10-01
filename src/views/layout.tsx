@@ -90,7 +90,7 @@ const Topbar: FC<TopbarProps> = ({ owner, landing, actions, searchValue }) => (
       {owner?.avatarUrl ? (
         <img class="mark" src={avatarUrl(owner.avatarUrl, 52)} alt="" width="26" height="26" />
       ) : (
-        <span class="mark" aria-hidden="true" />
+        <img class="mark brand-mark" src="/favicon.svg" alt="" width="26" height="26" />
       )}
       <span class="crumb-text">
         <span class="muted">{owner?.username ?? 'github'}</span> <span class="muted">/</span>{' '}

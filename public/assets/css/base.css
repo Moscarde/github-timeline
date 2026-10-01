@@ -299,6 +299,10 @@ img {
   flex: none;
   object-fit: cover;
 }
+.brand-mark {
+  border-radius: 6px;
+  background: none;
+}
 .spacer {
   flex: 1;
 }
