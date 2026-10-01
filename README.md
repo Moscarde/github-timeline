@@ -41,7 +41,31 @@ HTML, CSS e JavaScript puros. Sem build, sem dependências. Visual GitHub Primer
 | `app.js` | rota, coleta, derivação e render |
 | `scripts/serve.py` | servidor local que imita o fallback 404 do Pages |
 
-## Rodar local
+## Próxima versão
+
+A v2 sai do GitHub Pages para um servidor próprio, com contribuições reais, card de compartilhamento, badge e comparação de perfis. A especificação está em [docs/v2-especificacao.md](docs/v2-especificacao.md).
+
+A marca própria **Timeline** usa a [direção 1 — Path of activity](reference/Timeline_Design_Kit/timeline_design_kit/direction-1-path-of-activity/) do design kit.
+
+## v2 em desenvolvimento
+
+Servidor Node + TypeScript (Hono, SQLite, Satori) em `src/`, com testes em `tests/`. Implementado até agora, da entrega 1 da especificação:
+
+- coleta com o token do servidor, snapshot em SQLite com TTL de 12 h e uma coleta por login por vez;
+- manchete, conquistas, linha do tempo e contribuições reais;
+- `/`, `/u/<login>` (SSR, dois temas, responsiva), estados de coleta (SSE), 404 e perfil vazio;
+- `/u/<login>/card.png`, meta tags Open Graph e `/badge/<login>.svg` com a marca Timeline.
+
+```sh
+npm install
+GITHUB_TOKEN=<token> npm run dev   # http://localhost:3000/u/<login>
+npm test                           # todos os testes
+npm run typecheck && npm run lint
+```
+
+Um token *classic* sem escopos basta. Variáveis em `.env.example`.
+
+## Rodar local (v1)
 
 ```sh
 python3 scripts/serve.py        # http://localhost:8000/github-timeline/<usuario>
