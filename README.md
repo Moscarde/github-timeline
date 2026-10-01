@@ -71,6 +71,28 @@ npm run typecheck && npm run lint
 
 Um token _classic_ sem escopos basta. Variáveis em `.env.example`.
 
+### Rodar a v2 com Docker
+
+Crie um `.env` a partir de `.env.example` e defina `GITHUB_TOKEN`. Se quiser manter
+as contagens de visitas estáveis entre reinícios, defina também `VISIT_SALT`.
+
+```sh
+cp .env.example .env
+# Edite .env e preencha GITHUB_TOKEN
+docker compose up --build -d
+```
+
+A aplicação fica em `http://localhost:3000`; `PORT` no `.env` altera a porta do
+host. O SQLite fica no volume `timeline-data`, que persiste entre recriações do
+contêiner. Para acompanhar logs e encerrar o serviço:
+
+```sh
+docker compose logs -f timeline
+docker compose down
+```
+
+Para remover também o banco, use `docker compose down -v`.
+
 ## Rodar local (v1)
 
 ```sh

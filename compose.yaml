@@ -1,0 +1,14 @@
+services:
+  timeline:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:?Defina GITHUB_TOKEN no arquivo .env}
+      VISIT_SALT: ${VISIT_SALT:-}
+    volumes:
+      - timeline-data:/app/storage
+    restart: unless-stopped
+
+volumes:
+  timeline-data:
