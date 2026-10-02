@@ -1,7 +1,4 @@
 node_modules
 dist
 reference
-index.html
-404.html
-app.js
 *.db
