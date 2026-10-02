@@ -1,125 +1,168 @@
-# GitHub Timeline
+<p align="center">
+  <a href="https://github-timeline.frangolab.com">
+    <img src="docs/assets/header.png" alt="GitHub Timeline: todo perfil tem uma história" width="100%" />
+  </a>
+</p>
 
-Versão dinâmica do [Code Timeline](https://github.com/Moscarde/timeline): em vez de uma página curada à mão, qualquer perfil do GitHub vira uma linha do tempo ano a ano, montada no navegador a partir da API pública.
+<p align="center">
+  <a href="https://github-timeline.frangolab.com"><b>github-timeline.frangolab.com</b></a>
+  &nbsp;·&nbsp;
+  <a href="#-comece-agora">Comece agora</a>
+  &nbsp;·&nbsp;
+  <a href="#-badge-para-o-readme">Badge</a>
+  &nbsp;·&nbsp;
+  <a href="#-hospede-o-seu">Hospede o seu</a>
+</p>
+
+<p align="center">
+  <img alt="Node 20+" src="https://img.shields.io/badge/node-20%2B-39d353?style=flat-square&labelColor=0d1117" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-39d353?style=flat-square&labelColor=0d1117" />
+  <img alt="Hono" src="https://img.shields.io/badge/Hono-SSR-39d353?style=flat-square&labelColor=0d1117" />
+  <img alt="Docker" src="https://img.shields.io/badge/docker-ready-39d353?style=flat-square&labelColor=0d1117" />
+</p>
+
+---
+
+O gráfico de contribuições mostra **quanto** alguém programou. O **GitHub Timeline** conta **o quê**: digite um username e veja a trajetória ano a ano, com as linguagens que chegaram, os projetos que ganharam stars, as viradas de stack e os marcos que ficam escondidos numa lista de repositórios.
+
+Nada é escrito à mão nem inventado. Cada frase sai dos dados públicos do GitHub.
+
+## ✦ Comece agora
+
+Não precisa instalar nada. Troque `<username>` pelo perfil que quiser:
+
+| Quero…                       | Endereço                                                      |
+| ---------------------------- | ------------------------------------------------------------- |
+| ver a timeline de alguém     | `https://github-timeline.frangolab.com/u/<username>`          |
+| comparar dois perfis         | `https://github-timeline.frangolab.com/u/<a>...<b>`           |
+| uma imagem para compartilhar | `https://github-timeline.frangolab.com/u/<username>/card.png` |
+| um badge para o README       | `https://github-timeline.frangolab.com/badge/<username>.svg`  |
+
+A primeira visita a um perfil dispara a coleta, e a página mostra o progresso ao vivo. Daí em diante o snapshot fica salvo e abre na hora.
+
+## ✦ O que aparece na timeline
+
+- **Manchete**: o perfil resumido numa frase, como _"9 anos de código. De Python a Go."_ ou _"12k ★ em seu-projeto."_
+- **Capítulos por ano**: o que estreou em cada ano (linguagens, topics) e os repositórios em destaque, ordenados por stars, forks, descrição e atividade.
+- **Contribuições reais**: grade mensal com os dados do calendário de contribuições do GitHub, inclusive em organizações.
+- **Conquistas**: primeiro repo, primeiro fork, 100 e 1.000 stars, poliglota, ano recorde, uma década de código e outras.
+- **Organizações**: perfis de organização mostram os maiores contribuidores.
+- **Dois temas**: claro e escuro, seguindo o sistema ou a sua escolha, em layout pensado também para celular.
+
+## ✦ Compare dois perfis
+
+Junte dois usernames com `...` e veja os dois lado a lado: números, linguagens em comum, quem estreou primeiro e um resumo do duelo.
 
 ```
-https://moscarde.github.io/github-timeline/<usuario>
+https://github-timeline.frangolab.com/u/torvalds...gvanrossum
 ```
 
-## Como funciona
+## ✦ Card para compartilhar
 
-1. A rota `/github-timeline/<usuario>` não existe como arquivo — o GitHub Pages serve o `404.html`, que é cópia do `index.html`. O JS lê o usuário do path.
-2. Duas chamadas REST (mais paginação): `GET /users/{u}` e `GET /users/{u}/repos`.
-3. Tudo o que aparece é derivado dos **metadados dos repositórios** — data de criação, último push, linguagem, topics, descrição, stars, forks, homepage. Nada de texto inventado:
-   - **capítulo** = ano de criação dos repositórios;
-   - **título** = linguagens e topics que aparecem pela primeira vez naquele ano;
-   - **parágrafo** = contagens do ano (repos, forks, linguagem predominante, topics, mais estrelado);
-   - **repos em destaque** = top 6 do ano por score (stars, forks, descrição, topics, homepage, tamanho; forks e arquivados perdem pontos).
-4. Resultado fica em `sessionStorage` por 30 min.
+Toda timeline tem um PNG 1200×630, já usado nas meta tags Open Graph. Colou o link no LinkedIn, no X ou no Discord, a prévia aparece sozinha.
 
-## Atividade mensal e token
+```
+/u/<username>/card.png?tema=claro&variante=numero
+```
 
-Sem autenticação a API não expõe contribuições, e o limite é **60 requisições/hora por IP**. Por isso a grade mensal tem dois modos:
+| Parâmetro  | Valores                                                 | Padrão     |
+| ---------- | ------------------------------------------------------- | ---------- |
+| `tema`     | `escuro`, `claro`                                       | `escuro`   |
+| `variante` | `headline` (manchete), `numero` (total de repositórios) | `headline` |
 
-| modo      | o que conta                                                          |
-| --------- | -------------------------------------------------------------------- |
-| sem token | eventos de repositório: criação + último push de cada repo no mês    |
-| com token | calendário de contribuições real (GraphQL `contributionsCollection`) |
+## ✦ Badge para o README
 
-O token é opcional, colado na própria página, salvo só no `localStorage` do navegador e enviado apenas para `api.github.com`. Um token _classic_ sem nenhum escopo basta. Com ele, o limite sobe para 5.000/h.
+Um selo que se atualiza sozinho e leva quem clicar direto para a sua timeline:
 
-Repositórios privados não aparecem: a API pública só lista os públicos.
+```md
+[![GitHub Timeline](https://github-timeline.frangolab.com/badge/seu-username.svg)](https://github-timeline.frangolab.com/u/seu-username)
+```
 
-## Stack
+O badge mostra o intervalo de anos e o total de repositórios, por exemplo `2019–2026 · 83 repos`.
 
-HTML, CSS e JavaScript puros. Sem build, sem dependências. Visual GitHub Primer com tema claro/escuro.
+## ✦ API
 
-| arquivo            | papel                                                    |
-| ------------------ | -------------------------------------------------------- |
-| `index.html`       | shell + CSS                                              |
-| `404.html`         | cópia do `index.html` (gerada por `scripts/sync-404.sh`) |
-| `app.js`           | rota, coleta, derivação e render                         |
-| `scripts/serve.py` | servidor local que imita o fallback 404 do Pages         |
+Os mesmos dados da página, em JSON:
 
-## Próxima versão
+| Rota                          | Retorna                                                     |
+| ----------------------------- | ----------------------------------------------------------- |
+| `GET /api/profile/<username>` | snapshot completo (manchete, anos, linguagens, conquistas…) |
+| `GET /api/status/<username>`  | progresso da coleta via Server-Sent Events                  |
+| `GET /healthz`                | estado do servidor e cota restante da API do GitHub         |
 
-A v2 sai do GitHub Pages para um servidor próprio, com contribuições reais, card de compartilhamento, badge e comparação de perfis. A especificação está em [docs/v2-especificacao.md](docs/v2-especificacao.md).
+```sh
+curl -s https://github-timeline.frangolab.com/api/profile/torvalds | jq .headline
+```
 
-O visual segue o template **GitHub Timeline Redesign v2** do Claude Design (telas, estados e mobile); veja §5.3 da [especificação](docs/v2-especificacao.md).
+## ✦ Hospede o seu
 
-## v2 em desenvolvimento
+Você só precisa de um token do GitHub. Um token _classic_ **sem nenhum escopo** basta: ele só serve para subir o limite da API e liberar o calendário de contribuições.
 
-Servidor Node + TypeScript (Hono, SQLite, Satori) em `src/`, com testes em `tests/`. Implementado até agora:
+### Com Docker
 
-A versão hospedada está em **https://github-timeline.frangolab.com/**. Perfis usam `/u/<username>`.
+```sh
+git clone https://github.com/Moscarde/github-timeline.git
+cd github-timeline
+cp .env.example .env        # preencha GITHUB_TOKEN
+docker compose up -d --build
+```
 
-- coleta com o token do servidor, snapshot em SQLite com TTL de 12 h e uma coleta por username por vez;
-- manchete, conquistas, linha do tempo e contribuições reais;
-- `/`, `/u/<username>` (SSR, dois temas, responsiva), estados de coleta (SSE), 404 com "Você quis dizer", perfil vazio, organização (maiores contribuidores) e faixa de snapshot antigo quando a cota acaba;
-- comparação `/u/<a>...<b>` e atalho `/comparar?a=&b=` na landing;
-- galeria "Perfis para explorar" (Em alta pelas visitas de 7 dias + listas de `data/curated.json`), contador semanal e botão "Star" com a contagem do repositório;
-- `/u/<username>/card.png` no tema ativo, meta tags Open Graph e `/badge/<username>.svg`.
+Pronto: `http://localhost:3000`. O banco SQLite fica no volume `timeline-data` e sobrevive a recriações do contêiner. A porta só escuta em `127.0.0.1`, pronta para ficar atrás de um proxy reverso (Nginx, Caddy, Traefik).
 
-Limites: no máximo 3 coletas simultâneas no processo (as demais esperam a vez) e 10 timelines novas por IP a cada 10 minutos (acima disso, HTTP 429 com `Retry-After`; perfis já salvos não contam). Com menos de 10% da cota GraphQL, o servidor só serve snapshots.
+```sh
+docker compose logs -f timeline   # acompanhar
+docker compose down               # parar (com -v apaga o banco)
+```
 
-Visitas guardam só username, dia e um hash diário do IP, por 30 dias. Defina `VISIT_SALT` para que o hash não mude a cada reinício.
+### Com Node
 
 ```sh
 npm install
 GITHUB_TOKEN=<token> npm run dev   # http://localhost:3000/u/<username>
-npm test                           # todos os testes
-npm run typecheck && npm run lint
 ```
 
-Um token _classic_ sem escopos basta. Variáveis em `.env.example`.
+Para produção: `npm run build && npm run start:prod`.
 
-### Rodar a v2 com Docker
+### Configuração
 
-Crie um `.env` a partir de `.env.example` e defina `GITHUB_TOKEN`. Se quiser manter
-as contagens de visitas estáveis entre reinícios, defina também `VISIT_SALT`.
+| Variável        | Para quê                                                                  | Padrão        |
+| --------------- | ------------------------------------------------------------------------- | ------------- |
+| `GITHUB_TOKEN`  | autenticar na API do GitHub (obrigatória)                                 | –             |
+| `PORT`          | porta HTTP                                                                | `3000`        |
+| `DATABASE_PATH` | arquivo SQLite dos snapshots e visitas                                    | `timeline.db` |
+| `VISIT_SALT`    | sal do hash diário de IP; defina para manter as contagens entre reinícios | aleatório     |
+
+Um passo a passo de deploy numa VPS com Nginx está em [`docs/deploy.md`](docs/deploy.md).
+
+## ✦ Como funciona
+
+```
+username ─▶ coleta (REST + GraphQL) ─▶ snapshot no SQLite ─▶ páginas SSR, card PNG, badge SVG
+```
+
+1. **Coleta**: o servidor busca perfil, repositórios públicos, organizações e o calendário de contribuições com o próprio token.
+2. **Derivação**: anos, linguagens, manchete e conquistas são calculados a partir dos metadados (datas de criação e push, linguagem, topics, stars, forks, homepage).
+3. **Snapshot**: o resultado fica guardado por 12 h. Depois disso, a próxima visita coleta de novo.
+4. **Render**: páginas renderizadas no servidor com Hono, card desenhado com Satori + resvg, badge em SVG puro.
+
+### Limites e privacidade
+
+- Só dados **públicos**: repositórios privados nunca aparecem.
+- No máximo 3 coletas simultâneas e 10 timelines novas por IP a cada 10 minutos. Perfis já salvos não contam.
+- Com menos de 10% da cota do GitHub, o servidor serve só snapshots salvos e avisa quando o dado está antigo.
+- Visitas guardam apenas username, dia e um hash diário do IP, por 30 dias. Servem para a seção "Em alta".
+
+## ✦ Stack
+
+**TypeScript** · **Hono** (rotas e JSX no servidor) · **SQLite** via better-sqlite3 · **Satori + resvg** (card PNG) · **Vitest** · **Docker**. Fontes Mona Sans e JetBrains Mono hospedadas no próprio servidor, sem dependência de CDN.
 
 ```sh
-cp .env.example .env
-# Edite .env e preencha GITHUB_TOKEN
-docker compose up --build -d
+npm test                           # testes
+npm run typecheck && npm run lint  # tipos e lint
 ```
 
-A aplicação fica em `http://localhost:3000`; `PORT` no `.env` altera a porta do
-host. A porta fica acessível apenas no próprio servidor para uso por um proxy reverso.
-O SQLite fica no volume `timeline-data`, que persiste entre recriações do
-contêiner. Para acompanhar logs e encerrar o serviço:
+## ✦ Contribuições
 
-```sh
-docker compose logs -f timeline
-docker compose down
-```
+Contribuições são muito bem-vindas! Encontrou um bug, pensou numa conquista nova ou numa forma melhor de contar a história de um perfil? Abra uma [issue](https://github.com/Moscarde/github-timeline/issues) ou mande um pull request.
 
-Para remover também o banco, use `docker compose down -v`.
-
-### Deploy da v2 na VPS
-
-O checkout fica em `/opt/projects/github-timeline`. O `.env` da VPS contém
-`GITHUB_TOKEN`, `VISIT_SALT` e `PORT=3002` e deve ter permissão `600`. O Nginx
-encaminha `github-timeline.frangolab.com` para `127.0.0.1:3002`; o Certbot gerencia
-o certificado e o redirecionamento HTTP para HTTPS.
-
-```sh
-cd /opt/projects/github-timeline
-git pull --ff-only
-docker compose up -d --build
-docker compose ps
-curl -fsS https://github-timeline.frangolab.com/healthz
-```
-
-Depois de alterar `compose.yaml` localmente, sincronize-o antes de executar o
-deploy. O banco permanece no volume `github-timeline_timeline-data`.
-
-## Rodar local (v1)
-
-```sh
-python3 scripts/serve.py        # http://localhost:8000/github-timeline/<usuario>
-```
-
-Depois de editar `index.html`, rode `scripts/sync-404.sh`.
-
-O prefixo `github-timeline` está fixo em `index.html` (`REPO`) e em `scripts/serve.py` (`PREFIX`). Num fork com outro nome, ou num domínio próprio, ajuste os dois.
+<p align="center"><sub>Feito por <a href="https://github.com/Moscarde">@Moscarde</a> · se o projeto te ajudou, deixe uma ⭐</sub></p>
