@@ -4,7 +4,7 @@ import type { ProfileSnapshot } from '../domain/snapshot.js';
 import type { Theme, ThemePreference } from '../lib/theme.js';
 import { Layout, type PageMeta } from './layout.js';
 import { Achievements } from './profile/achievements.js';
-import { Compare } from './profile/compare.js';
+import { CompareForm } from './compare-form.js';
 import { ProfileHeader, ShareActions } from './profile/header.js';
 import { CopyLinkButton, ShareCta } from './profile/share-cta.js';
 import { Summary } from './profile/summary.js';
@@ -22,8 +22,6 @@ export interface ProfilePageProps {
   theme: ThemePreference;
   /** Tema do card e dos links de compartilhamento; o padrão é escuro (§5.1). */
   shareTheme: Theme;
-  /** Segundo perfil em `/u/<a>...<b>` (§2.4). */
-  compareWith?: ProfileSnapshot;
   /** Aviso de snapshot antigo enquanto a cota está esgotada (§6). */
   stale?: StaleNotice;
 }
@@ -43,7 +41,7 @@ export function profileMeta(snapshot: ProfileSnapshot, shareTheme: Theme): PageM
   };
 }
 
-/** Página `/u/<username>` (§2.2) e comparação `/u/<a>...<b>` (§2.4). */
+/** Página `/u/<username>` (§2.2); a comparação tem página própria (`compare-page.tsx`). */
 export const ProfilePage: FC<ProfilePageProps> = (props) => {
   const { snapshot } = props;
   const share = shareLinks(snapshot.account.username, props.shareTheme, snapshot.headline.full);
@@ -73,10 +71,10 @@ const ProfileBody: FC<ProfilePageProps & { share: ShareLinks }> = (props) => {
           <ProfileHeader account={snapshot.account} share={share} />
           <Summary snapshot={snapshot} />
           <ShareActions share={share} placement="mobile-only" />
+          <CompareForm lead="Comparar com outro perfil:" a={snapshot.account.username} lockA />
         </div>
       </section>
       <Achievements achievements={snapshot.achievements} />
-      {props.compareWith && <Compare a={snapshot} b={props.compareWith} />}
       <Timeline eras={snapshot.timeline} months={snapshot.months} />
       <ShareCta share={share} stats={snapshot.stats} />
     </>

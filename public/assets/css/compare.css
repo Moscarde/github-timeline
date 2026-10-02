@@ -1,27 +1,14 @@
-/* Comparação /u/<a>...<b> (tela 02 do template; M4 no celular). */
+/* Comparação /u/<a>...<b> (direção 1a "Duelo"; M4 no celular). */
 
-/* ---------- comparação ---------- */
-.compare {
-  background: var(--bg);
+/* B usa a escala roxa no lugar do verde; A segue os tokens --lv* do GitHub. */
+:root {
+  --b-lv1: light-dark(#e2d4fb, #2e2052);
+  --b-lv2: light-dark(#c297ff, #553a9e);
+  --b-lv3: light-dark(#a371f7, #8250df);
+  --b-lv4: light-dark(#6639ba, #c297ff);
 }
-.compare-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-.compare-chips {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-}
-.compare-chips > :not(.faint) {
-  border: 1px solid;
-  border-radius: 6px;
-  padding: 4px 10px;
-}
+
+/* ---------- lados ---------- */
 .side-a {
   --side: var(--brand);
   --side-ink: var(--brand-ink);
@@ -30,21 +17,121 @@
   --side: var(--b);
   --side-ink: var(--b-ink);
 }
-.compare-chips .side-a,
-.compare-chips .side-b {
+.side-ink {
+  color: var(--side-ink);
+}
+.compare-inputs .chip.side-a {
   border-color: var(--side);
   color: var(--side-ink);
 }
-.compare-link {
+/* "Comparar com outro perfil" no perfil: entrada da comparação logo abaixo do resumo. */
+.profile-hero .compare-form {
+  margin-top: 24px;
+}
+.sec-title {
+  margin-bottom: 20px;
+}
+
+/* ---------- duelo ---------- */
+.duel-hero {
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(
+      520px 260px at 0% 0%,
+      color-mix(in srgb, var(--glow) 35%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      520px 260px at 100% 0%,
+      color-mix(in srgb, var(--b) 14%, transparent),
+      transparent 70%
+    );
+}
+.duel-hero > .wrap {
+  padding-block: 44px 32px;
+}
+.duel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.contender {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.contender.side-b {
+  align-items: flex-end;
+  text-align: right;
+}
+.contender p {
+  margin: 0;
+}
+.contender-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--side);
+  margin-bottom: 6px;
+}
+.contender-name {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.contender-username {
   font-size: 13px;
 }
-.compare-link .mono {
-  color: var(--fg);
+.contender-headline {
+  max-width: 440px;
+  font-size: 16px;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
-.compare-people,
-.compare-copy {
-  display: none;
+.contender-link {
+  font-size: 13px;
 }
+.contender.side-a .contender-link::after {
+  content: ' →';
+}
+.contender.side-b .contender-link::before {
+  content: '← ';
+}
+.duel-vs {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 700;
+}
+.verdicts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.verdict {
+  border: 1px solid var(--border);
+  background: var(--subtle);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.verdict b {
+  font-weight: 700;
+}
+
+/* ---------- números ---------- */
 .compare-rows {
   display: flex;
   flex-direction: column;
@@ -52,7 +139,7 @@
 }
 .compare-row {
   display: grid;
-  grid-template-columns: 1fr 180px 1fr;
+  grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr);
   gap: 16px;
   align-items: center;
 }
@@ -65,11 +152,16 @@
   justify-content: flex-end;
 }
 .bar-side .value {
+  min-width: 52px;
   font-size: 14px;
   font-weight: 700;
+  color: var(--side-ink);
+}
+.bar-side.side-a .value {
+  text-align: right;
 }
 .track {
-  width: min(320px, 100%);
+  width: min(360px, 100%);
   height: 10px;
   background: var(--subtle);
   border-radius: 5px;
@@ -89,40 +181,181 @@
   font-size: 13px;
 }
 
+/* ---------- linguagens ---------- */
+.compare-langs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+.compare-langs .languages {
+  margin-top: 0;
+}
+.shared-langs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 0;
+  font-size: 13px;
+}
+
+/* ---------- ano a ano ---------- */
+.year-duel {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.year-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding-block: 7px;
+  border-bottom: 1px solid var(--line);
+}
+.year-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.year-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.year-side.side-a {
+  flex-direction: row-reverse;
+}
+.year-months {
+  display: grid;
+  grid-template-columns: repeat(12, 11px);
+  gap: 3px;
+  flex: none;
+}
+/* A cresce para fora a partir do ano: dezembro encosta na coluna central. */
+.side-a .year-months {
+  direction: rtl;
+}
+.year-months i {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--cell-line);
+}
+.side-b .year-months .l1 {
+  background: var(--b-lv1);
+}
+.side-b .year-months .l2 {
+  background: var(--b-lv2);
+}
+.side-b .year-months .l3 {
+  background: var(--b-lv3);
+}
+.side-b .year-months .l4 {
+  background: var(--b-lv4);
+}
+.year-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 600;
+}
+.year-side.quiet .year-title {
+  color: var(--faint);
+  font-weight: 400;
+}
+.year-count {
+  flex: none;
+  font-size: 12px;
+}
+
+/* ---------- conquistas ---------- */
+.achievement-duel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.achievement-pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  background: var(--subtle);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+}
+.pips {
+  display: flex;
+  gap: 6px;
+}
+.pip {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--side) 22%, transparent);
+  color: var(--side-ink);
+  font-size: 10px;
+  font-weight: 700;
+}
+.pip.off {
+  background: none;
+  border: 1px dashed var(--border);
+  color: var(--faint);
+}
+
+/* ---------- compartilhar ---------- */
+.share-cta {
+  padding-top: 44px;
+}
+.compare-share {
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
 /* ---------- celular ---------- */
 @media (max-width: 720px) {
-  .compare-head .compare-chips,
-  .compare-link,
-  .compare-head .spacer {
+  .duel-hero > .wrap {
+    padding-block: 24px 20px;
+  }
+  .duel {
+    gap: 10px;
+    align-items: center;
+  }
+  .contender,
+  .contender.side-b {
+    align-items: center;
+    text-align: center;
+  }
+  .contender-avatar {
+    width: 52px;
+    height: 52px;
+  }
+  .contender-name {
+    font-size: 16px;
+  }
+  .contender-username {
+    font-size: 11px;
+  }
+  .contender-headline {
     display: none;
   }
-  .compare-people {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 20px;
+  .duel-vs {
+    width: 36px;
+    height: 36px;
+    margin-top: 0;
+  }
+  .verdict {
     font-size: 12px;
-  }
-  .compare-person {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid var(--side);
-    border-radius: 10px;
-    padding: 12px 6px;
-    font-size: 11.5px;
-    color: var(--side-ink);
-    min-width: 0;
-  }
-  .compare-person img {
-    border-radius: 50%;
-  }
-  .compare-person span {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   .compare-row {
     grid-template-columns: 1fr;
@@ -135,7 +368,7 @@
   .bar-side,
   .bar-side.side-a {
     display: grid;
-    grid-template-columns: 1fr 44px;
+    grid-template-columns: 1fr 52px;
     gap: 8px;
   }
   .bar-side.side-a .value {
@@ -151,10 +384,42 @@
   .side-a .track {
     justify-content: flex-start;
   }
-  .compare-copy {
-    display: flex;
-    width: 100%;
-    min-height: 48px;
-    margin-top: 20px;
+  .compare-langs {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  /* Celular: as duas faixas de meses empilhadas sob o ano; títulos ficam no perfil. */
+  .year-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .year-label {
+    order: -1;
+    text-align: left;
+  }
+  .year-side,
+  .year-side.side-a {
+    flex-direction: row;
+  }
+  .year-months {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    flex: 0 1 252px;
+  }
+  .side-a .year-months {
+    direction: ltr;
+  }
+  .year-months i {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .year-title {
+    display: none;
+  }
+  .achievement-duel {
+    grid-template-columns: 1fr;
+  }
+  .share-cta-box.compare-share {
+    padding: 20px;
   }
 }

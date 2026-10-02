@@ -88,3 +88,11 @@ export function formatAge(since: Date, now: Date): string {
   if (hours < 24) return `há ${plural(hours, 'hora', 'horas')}`;
   return `há ${plural(Math.floor(hours / 24), 'dia', 'dias')}`;
 }
+
+/**
+ * Quantas vezes maior, para os chips da comparação: uma casa abaixo de 10×, inteiro acima.
+ * @example formatRatio(3.62) // "3,6×"
+ */
+export function formatRatio(ratio: number): string {
+  return `${ratio < 10 ? decimalFormat.format(ratio) : integerFormat.format(Math.round(ratio))}×`;
+}

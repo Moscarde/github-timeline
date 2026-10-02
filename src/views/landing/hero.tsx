@@ -1,6 +1,7 @@
 import type { FC } from 'hono/jsx';
 import { formatInteger } from '../../domain/format.js';
 import { decorativeLevel, seededRandom } from '../decorative.js';
+import { CompareForm } from '../compare-form.js';
 
 const GRID_COLUMNS = 34;
 const GRID_ROWS = 7;
@@ -37,7 +38,7 @@ export const Hero: FC<{ weeklyCount: number; error?: string }> = ({ weeklyCount,
           {error}
         </p>
       )}
-      <CompareForm />
+      <CompareForm id="comparar" lead="Ou compare dois perfis:" />
     </div>
   </section>
 );
@@ -59,20 +60,6 @@ const SearchForm: FC<{ error?: string }> = ({ error }) => (
     <button class="hero-submit" type="submit">
       Gerar timeline →
     </button>
-  </form>
-);
-
-const CompareForm: FC = () => (
-  <form class="compare-form muted" id="comparar" action="/comparar" method="get">
-    <span>Ou compare dois perfis:</span>
-    <span class="compare-inputs mono">
-      <input class="chip" name="a" placeholder="torvalds" aria-label="Primeiro perfil" required />
-      <span class="faint">vs</span>
-      <input class="chip" name="b" placeholder="gaearon" aria-label="Segundo perfil" required />
-      <button class="link-btn" type="submit">
-        Comparar
-      </button>
-    </span>
   </form>
 );
 

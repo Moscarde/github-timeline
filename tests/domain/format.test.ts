@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   formatAge,
   formatCompact,
+  formatRatio,
   formatInteger,
   formatMonthYear,
   formatPercent,
@@ -56,5 +57,16 @@ describe('formatAge', () => {
     ['2026-09-29T11:00:00Z', 'há 1 dia'],
   ])('%s → %s', (since, expected) => {
     expect(formatAge(new Date(since), now)).toBe(expected);
+  });
+});
+
+describe('formatRatio', () => {
+  it.each([
+    [3, '3×'],
+    [3.62, '3,6×'],
+    [30.4, '30×'],
+    [1250, '1.250×'],
+  ])('%f → %s', (ratio, expected) => {
+    expect(formatRatio(ratio)).toBe(expected);
   });
 });

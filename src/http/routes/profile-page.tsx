@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
-import { parseComparePair } from '../../domain/compare.js';
+import { isSelfComparison, parseComparePair } from '../../domain/compare.js';
 import { formatAge } from '../../domain/format.js';
 import { isValidUsername } from '../../domain/username.js';
 import type { ProfileSnapshot } from '../../domain/snapshot.js';
@@ -11,6 +11,7 @@ import {
   type ThemePreference,
 } from '../../lib/theme.js';
 import type { ProfileLookup } from '../../services/profile-service.js';
+import { ComparePage } from '../../views/compare-page.js';
 import { ProfilePage } from '../../views/profile-page.js';
 import { CollectingPage, NotFoundPage, UnavailablePage } from '../../views/states/pages.js';
 import type { StaleNotice } from '../../views/states/profile-states.js';
@@ -23,14 +24,19 @@ const RETRY_MIN_SECONDS = 30;
 const RETRY_MAX_SECONDS = 600;
 
 type PageLookup = ProfileLookup | { status: 'collecting' };
+type ReadyLookup = Extract<ProfileLookup, { status: 'ok' }>;
 
 /**
- * `/u/<username>` e `/u/<a>...<b>`: o primeiro perfil que não estiver pronto decide o estado.
+ * `/u/<username>` e `/u/<a>...<b>`: o primeiro perfil que não estiver pronto decide o estado;
+ * `/u/<a>...<a>` volta para o perfil.
  * @example app.get('/u/:username', (c) => profilePage(c, deps));
  */
 export async function profilePage(c: Context, deps: AppDeps) {
   const param = c.req.param('username') ?? '';
-  const usernames = parseComparePair(param) ?? [param];
+  const pair = parseComparePair(param);
+  if (pair && isSelfComparison(...pair))
+    return c.redirect(`/u/${encodeURIComponent(pair[0])}`, 302);
+  const usernames = pair ?? [param];
   const theme = themeOf(c);
   const invalid = usernames.find((username) => !isValidUsername(username));
   if (invalid !== undefined) return notFound(c, deps, invalid, theme);
@@ -43,29 +49,36 @@ export async function profilePage(c: Context, deps: AppDeps) {
   const pending = lookups.findIndex((lookup) => lookup.status !== 'ok');
   if (pending >= 0)
     return pendingState(c, deps, usernames[pending] ?? param, lookups[pending]!, theme);
-  const [main, other] = lookups as Array<Extract<ProfileLookup, { status: 'ok' }>>;
-  return renderProfile(c, deps, theme, main!, other?.snapshot);
+  const [main, other] = lookups as ReadyLookup[];
+  if (other) return renderComparison(c, deps, theme, main!, other);
+  return renderProfile(c, deps, theme, main!);
 }
 
-function renderProfile(
+function renderProfile(c: Context, deps: AppDeps, theme: ThemePreference, main: ReadyLookup) {
+  deps.visits.record(main.snapshot.account.username, clientIp(c));
+  const shareTheme = parseTheme(c.req.query('tema')) ?? (theme === 'auto' ? 'escuro' : theme);
+  const stale = staleOf(deps, [main]);
+  return c.html(
+    <ProfilePage snapshot={main.snapshot} theme={theme} shareTheme={shareTheme} stale={stale} />,
+  );
+}
+
+/** A comparação não conta visita: "Em alta" mede quem abre um perfil, não quem aparece num par. */
+function renderComparison(
   c: Context,
   deps: AppDeps,
   theme: ThemePreference,
-  main: Extract<ProfileLookup, { status: 'ok' }>,
-  compareWith: ProfileSnapshot | undefined,
+  a: ReadyLookup,
+  b: ReadyLookup,
 ) {
-  deps.visits.record(main.snapshot.account.username, clientIp(c));
-  const shareTheme = parseTheme(c.req.query('tema')) ?? (theme === 'auto' ? 'escuro' : theme);
-  const stale = main.stale && deps.quota.isLow() ? staleNotice(deps, main.snapshot) : undefined;
-  return c.html(
-    <ProfilePage
-      snapshot={main.snapshot}
-      theme={theme}
-      shareTheme={shareTheme}
-      compareWith={compareWith}
-      stale={stale}
-    />,
-  );
+  const stale = staleOf(deps, [a, b]);
+  return c.html(<ComparePage a={a.snapshot} b={b.snapshot} theme={theme} stale={stale} />);
+}
+
+/** Aviso do primeiro snapshot vencido, só enquanto a cota está baixa (§6). */
+function staleOf(deps: AppDeps, lookups: ReadyLookup[]): StaleNotice | undefined {
+  const old = lookups.find((lookup) => lookup.stale);
+  return old && deps.quota.isLow() ? staleNotice(deps, old.snapshot) : undefined;
 }
 
 function pendingState(

@@ -77,6 +77,8 @@ const MetaTags: FC<{ meta: PageMeta }> = ({ meta }) => (
 export interface TopbarProps {
   /** Perfil aberto: o avatar e o username ocupam o lugar de "github" no caminho. */
   owner?: { username: string; avatarUrl?: string };
+  /** Comparação: o segundo perfil divide o caminho com o primeiro ("a vs b / timeline"). */
+  rival?: { username: string; avatarUrl: string };
   /** Landing: navegação e botão "Star" com a contagem do repositório do projeto. */
   landing?: { stars: number | null };
   /** Ações extras à direita (ex.: "Copiar link"). */
@@ -84,17 +86,27 @@ export interface TopbarProps {
   searchValue?: string;
 }
 
-const Topbar: FC<TopbarProps> = ({ owner, landing, actions, searchValue }) => (
+const Topbar: FC<TopbarProps> = ({ owner, rival, landing, actions, searchValue }) => (
   <header class="topbar">
     <a class="crumb mono" href="/" aria-label="GitHub Timeline, página inicial">
-      {owner?.avatarUrl ? (
-        <img class="mark" src={avatarUrl(owner.avatarUrl, 52)} alt="" width="26" height="26" />
-      ) : (
-        <img class="mark brand-mark" src="/favicon.svg" alt="" width="26" height="26" />
-      )}
+      <span class="marks">
+        {owner?.avatarUrl ? (
+          <img class="mark" src={avatarUrl(owner.avatarUrl, 52)} alt="" width="26" height="26" />
+        ) : (
+          <img class="mark brand-mark" src="/favicon.svg" alt="" width="26" height="26" />
+        )}
+        {rival && (
+          <img
+            class="mark rival-mark"
+            src={avatarUrl(rival.avatarUrl, 52)}
+            alt=""
+            width="26"
+            height="26"
+          />
+        )}
+      </span>
       <span class="crumb-text">
-        <span class="muted">{owner?.username ?? 'github'}</span> <span class="muted">/</span>{' '}
-        <b>timeline</b>
+        <CrumbOwner owner={owner} rival={rival} /> <span class="muted">/</span> <b>timeline</b>
       </span>
     </a>
     <span class="spacer" />
@@ -103,6 +115,16 @@ const Topbar: FC<TopbarProps> = ({ owner, landing, actions, searchValue }) => (
     {actions}
   </header>
 );
+
+const CrumbOwner: FC<Pick<TopbarProps, 'owner' | 'rival'>> = ({ owner, rival }) => {
+  if (!rival) return <span class="muted">{owner?.username ?? 'github'}</span>;
+  return (
+    <>
+      <span class="side-a side-ink">{owner?.username}</span> <span class="faint">vs</span>{' '}
+      <span class="side-b side-ink">{rival.username}</span>
+    </>
+  );
+};
 
 const LandingNav: FC<{ stars: number | null }> = ({ stars }) => (
   <>

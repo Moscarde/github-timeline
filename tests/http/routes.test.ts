@@ -178,14 +178,55 @@ describe('features do redesign', () => {
     expect((await app.request('/comparar?a=torvalds')).status).toBe(400);
   });
 
-  it('/u/<a>...<b> mostra o perfil A com a comparação', async () => {
+  it('/u/<a>...<b> é uma página do par, não o perfil de A', async () => {
     const harness = createAppHarness();
     harness.addProfile(profile('ana'));
     harness.addProfile(profile('bia', { repos: [repoIn(2020)] }));
     const html = await (await harness.app.request('/u/ana...bia')).text();
-    expect(html).toContain('id="comparar-titulo"');
-    expect(html).toContain('/u/ana...bia</span>');
-    expect(html).toContain('Copiar link da comparação');
+    expect(html).toContain('<title>ana vs bia · GitHub Timeline</title>');
+    expect(html).toContain('<meta name="robots" content="noindex"/>');
+    expect(html).toContain('href="https://github-timeline.frangolab.com/u/ana...bia"');
+    expect(html).not.toContain('og:image');
+    expect(html).toContain('data-copy-text="https://github-timeline.frangolab.com/u/ana...bia"');
+    expect(html).toContain('href="/u/bia...ana"');
+    expect(html).toContain('id="ano-a-ano"');
+    expect(html).not.toContain('id="linha-do-tempo"');
+    expect(html).not.toContain('data-share="card"');
+  });
+
+  it('comparação não conta visita para nenhum dos dois', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile('ana'));
+    harness.addProfile(profile('bia'));
+    await harness.app.request('/u/ana...bia');
+    expect(harness.visitStore.rows.size).toBe(0);
+  });
+
+  it('o mesmo perfil dos dois lados volta para o perfil', async () => {
+    const { app } = createAppHarness();
+    const response = await app.request('/u/Ana...ana');
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('/u/Ana');
+  });
+
+  it('organização num dos lados explica que não dá pra comparar', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile('ana'));
+    harness.addProfile(
+      profile('acme', { account: makeAccount({ username: 'acme', type: 'Organization' }) }),
+    );
+    const html = await (await harness.app.request('/u/ana...acme')).text();
+    expect(html).toContain('@acme é uma organização.');
+    expect(html).not.toContain('id="ano-a-ano"');
+  });
+
+  it('perfil oferece comparar com outro, com o próprio username fixo', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile('ana'));
+    const html = await (await harness.app.request('/u/ana')).text();
+    expect(html).toContain('<input type="hidden" name="a" value="ana"/>');
+    expect(html).toContain('action="/comparar"');
+    expect(html).not.toContain('id="comparar-titulo"');
   });
 
   it('comparação com perfil inexistente responde 404 desse username', async () => {

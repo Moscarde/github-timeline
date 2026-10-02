@@ -70,6 +70,7 @@ Todas as telas têm tema claro e escuro, e funcionam de 390px a 1280px ou mais.
 - **Resumo**: manchete (§4.1); quatro indicadores (anos de atividade, repositórios públicos com próprios · forks, stars nos próprios com o repo de destaque, ano recorde); barra de linguagens com percentuais.
 - **Conquistas** (§4.2).
 - **Linha do tempo** (§4.3).
+- Abaixo do resumo, "Comparar com outro perfil": o username aberto fica fixo e leva a `/u/<username>...<outro>` (§2.4).
 - Chamada para compartilhar: URL canônica, botão de copiar e badge.
 
 No mobile, os indicadores ficam em grade 2×2, as conquistas viram um carrossel horizontal e os 12 meses de cada ano formam uma faixa horizontal.
@@ -90,7 +91,25 @@ As atribuições da última aba podem ser conferidas nas fontes dos projetos: [P
 
 ### 2.4 Comparação
 
-Dois cabeçalhos lado a lado e barras proporcionais ao maior valor para repositórios, stars, anos de atividade e nº de linguagens. No desktop as barras são espelhadas; no mobile ficam empilhadas por métrica.
+Página própria, sobre o par: nenhum dos dois perfis é o "dono". Segue a direção **1a (Duelo)** do projeto "GitHub Timeline — Comparação repensada" (Claude Design).
+
+- **Topo:** os dois perfis com o mesmo peso (avatar, nome, `@username · desde AAAA`, manchete e "Ver timeline completa") e até quatro frases-resumo: quem criou N× mais repositórios, quem tem N× mais stars (só com razão ≥ 1,5 e nenhum lado zerado), ano de estreia e linguagens em comum.
+- **Números:** barras proporcionais ao maior valor para repositórios, stars nos próprios, anos de atividade e nº de linguagens. No desktop as barras são espelhadas; no mobile ficam empilhadas por métrica.
+- **Linguagens:** a barra de cada lado e as linguagens que os dois usaram.
+- **Ano a ano:** eixo de anos comum, do primeiro ao último capítulo de qualquer um dos dois, sem buracos. Cada lado mostra os 12 meses (A em verde, B em roxo, cada um na escala do próprio perfil), o título do capítulo e quantos repositórios criou.
+- **Conquistas:** o catálogo da §4.2 com o estado de cada lado.
+- **Compartilhar:** link do par, X e LinkedIn, e um formulário para trocar os perfis. Ainda não existe card do par, então a página não tem `og:image`.
+
+Responsabilidades que separam a comparação do perfil:
+
+|                     | Perfil `/u/<a>`                  | Comparação `/u/<a>...<b>`                                                                                      |
+| ------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Sobre quem          | uma pessoa                       | o par                                                                                                          |
+| Entrada             | busca, galeria                   | landing ("a vs b"), perfil ("Comparar com outro perfil"), a própria comparação ("⇄ Inverter", "Trocar perfis") |
+| Link e meta         | perfil de A, indexável, com card | par, `canonical` do par, `noindex`, sem card                                                                   |
+| Visitas ("Em alta") | conta                            | não conta                                                                                                      |
+
+`/u/<a>...<a>` (o mesmo username, sem diferenciar maiúsculas) redireciona para `/u/<a>`. Se um dos lados for organização ou não tiver repositórios públicos, a página explica que não dá para comparar e oferece os dois perfis e um novo formulário.
 
 ---
 

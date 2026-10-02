@@ -303,6 +303,15 @@ img {
   border-radius: 6px;
   background: none;
 }
+.marks {
+  display: flex;
+  flex: none;
+}
+/* Comparação: o avatar do segundo perfil encosta no primeiro. */
+.rival-mark {
+  margin-left: -8px;
+  box-shadow: 0 0 0 2px var(--canvas);
+}
 .spacer {
   flex: 1;
 }

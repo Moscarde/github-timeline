@@ -60,7 +60,8 @@ const Indicator: FC<{ value: string; label: string; note: string }> = (props) =>
   </div>
 );
 
-const LanguageBar: FC<{ shares: LanguageShare[] }> = ({ shares }) => {
+/** Barra e legenda de linguagens dos repositórios próprios; também usada na comparação. */
+export const LanguageBar: FC<{ shares: LanguageShare[]; owner?: string }> = ({ shares, owner }) => {
   if (!shares.length) return null;
   const description = shares
     .map((share) => `${share.name} ${formatPercent(share.ratio)}`)
@@ -70,7 +71,7 @@ const LanguageBar: FC<{ shares: LanguageShare[] }> = ({ shares }) => {
       <div
         class="langbar"
         role="img"
-        aria-label={`Linguagens dos repositórios próprios: ${description}`}
+        aria-label={`Linguagens dos repositórios próprios${owner ? ` de @${owner}` : ''}: ${description}`}
       >
         {shares.map((share) => (
           <span
