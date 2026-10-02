@@ -202,6 +202,10 @@
   font-size: 13px;
   color: var(--fg);
 }
+.suggest-chip:hover {
+  border-color: var(--hover);
+  text-decoration: none;
+}
 .suggest-chip img {
   border-radius: 50%;
 }

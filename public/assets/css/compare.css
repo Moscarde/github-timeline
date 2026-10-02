@@ -94,6 +94,12 @@
 .contender-link {
   font-size: 13px;
 }
+.contender-link::before,
+.contender-link::after {
+  /* inline-block tira a seta do sublinhado do link no hover. */
+  display: inline-block;
+  white-space: pre;
+}
 .contender.side-a .contender-link::after {
   content: ' →';
 }

@@ -5,6 +5,7 @@ import { languageColor } from '../domain/language-colors.js';
 import type { ProfileSnapshot } from '../domain/snapshot.js';
 import type { Theme } from '../lib/theme.js';
 import { node, type CardNode } from './element.js';
+import { STAR_CHAR, starGlyph } from './star-glyph.js';
 
 export type CardVariant = 'headline' | 'numero';
 
@@ -153,9 +154,14 @@ export function headlineSize(text: string): number {
 
 /** O Satori não quebra texto entre elementos: cada palavra vira um nó com espaço à direita. */
 function words(text: string, color: string, size: number): CardNode[] {
+  const gap = Math.round(size * 0.25);
   return text
     .split(' ')
-    .map((word) => node('span', { color, marginRight: Math.round(size * 0.25) }, word));
+    .map((word) =>
+      word === STAR_CHAR
+        ? starGlyph(color, size, gap)
+        : node('span', { color, marginRight: gap }, word),
+    );
 }
 
 function bigNumber(snapshot: ProfileSnapshot, palette: CardPalette): CardNode {
