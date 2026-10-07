@@ -462,6 +462,8 @@ img {
 .language-form {
   display: flex;
   flex-shrink: 0;
+  /* Sem doctype a página roda em quirks mode, e o form herda margin-bottom: 1em do navegador. */
+  margin: 0;
 }
 .language-select {
   max-width: 110px;
