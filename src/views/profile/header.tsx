@@ -1,5 +1,6 @@
+import { viewText, viewMessage } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
-import { formatMonthYear } from '../../domain/format.js';
+import { formatMonthYear } from '../../i18n/view-format.js';
 import type { GithubAccount } from '../../domain/types.js';
 import { avatarUrl } from '../../lib/avatar.js';
 import type { ShareLinks } from '../share-links.js';
@@ -25,7 +26,10 @@ export const ProfileHeader: FC<{ account: GithubAccount; share?: ShareLinks }> =
           <a href={account.htmlUrl} rel="noopener">
             @{account.username}
           </a>{' '}
-          · {isOrg ? 'organização' : `no GitHub desde ${formatMonthYear(account.createdAt)}`}
+          ·{' '}
+          {isOrg
+            ? viewText('organização')
+            : viewMessage('no GitHub desde {0}', [formatMonthYear(account.createdAt)])}
         </div>
       </div>
       {share && <ShareActions share={share} placement="desktop-only" />}
@@ -43,13 +47,13 @@ export const ShareActions: FC<{ share: ShareLinks; placement: 'desktop-only' | '
 }) => (
   <div class={`share-actions ${placement}`} data-share-actions>
     <a class="btn" href={share.x} data-share="x" target="_blank" rel="noopener">
-      <span class="desktop-only">Compartilhar no </span>X
+      <span class="desktop-only">{viewText('Compartilhar no ')}</span>X
     </a>
     <a class="btn" href={share.linkedin} data-share="linkedin" target="_blank" rel="noopener">
       LinkedIn
     </a>
     <a class="btn" href={share.card} data-share="card" download>
-      Baixar card
+      {viewText('Baixar card')}
     </a>
   </div>
 );

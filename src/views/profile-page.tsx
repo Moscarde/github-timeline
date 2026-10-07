@@ -1,3 +1,6 @@
+import { useLocale } from '../i18n/view.js';
+import type { Locale } from '../i18n/locale.js';
+import { viewText } from '../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import { CANONICAL_ORIGIN } from '../config.js';
 import type { ProfileSnapshot } from '../domain/snapshot.js';
@@ -30,24 +33,33 @@ export interface ProfilePageProps {
  * Meta tags do perfil; `og:image` usa o mesmo tema da URL compartilhada.
  * @example profileMeta(snapshot, 'claro').imageUrl
  */
-export function profileMeta(snapshot: ProfileSnapshot, shareTheme: Theme): PageMeta {
+export function profileMeta(
+  snapshot: ProfileSnapshot,
+  shareTheme: Theme,
+  locale?: Locale,
+): PageMeta {
   const { username, name } = snapshot.account;
   const path = `/u/${encodeURIComponent(username)}`;
   return {
     title: `${name || username} · GitHub Timeline`,
     description: snapshot.headline.full,
     canonicalUrl: `${CANONICAL_ORIGIN}${path}`,
-    imageUrl: `${CANONICAL_ORIGIN}${path}/card.png?tema=${shareTheme}&v=${encodeURIComponent(snapshot.generatedAt)}`,
+    imageUrl: `${CANONICAL_ORIGIN}${path}/card.png?tema=${shareTheme}${locale ? `&lang=${locale}` : ''}&v=${encodeURIComponent(snapshot.generatedAt)}`,
   };
 }
 
 /** Página `/u/<username>` (§2.2); a comparação tem página própria (`compare-page.tsx`). */
 export const ProfilePage: FC<ProfilePageProps> = (props) => {
   const { snapshot } = props;
-  const share = shareLinks(snapshot.account.username, props.shareTheme, snapshot.headline.full);
+  const share = shareLinks(
+    snapshot.account.username,
+    props.shareTheme,
+    snapshot.headline.full,
+    useLocale(),
+  );
   return (
     <Layout
-      meta={profileMeta(snapshot, props.shareTheme)}
+      meta={profileMeta(snapshot, props.shareTheme, useLocale())}
       theme={props.theme}
       topbar={{
         owner: snapshot.account,
@@ -71,7 +83,11 @@ const ProfileBody: FC<ProfilePageProps & { share: ShareLinks }> = (props) => {
           <ProfileHeader account={snapshot.account} share={share} />
           <Summary snapshot={snapshot} />
           <ShareActions share={share} placement="mobile-only" />
-          <CompareForm lead="Comparar com outro perfil:" a={snapshot.account.username} lockA />
+          <CompareForm
+            lead={viewText('Comparar com outro perfil:')}
+            a={snapshot.account.username}
+            lockA
+          />
         </div>
       </section>
       <Achievements achievements={snapshot.achievements} />

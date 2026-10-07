@@ -1,3 +1,4 @@
+import { viewText } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import type { ProfileStats } from '../../domain/snapshot.js';
 import { BadgePreview } from '../badge-preview.js';
@@ -9,9 +10,9 @@ export const ShareCta: FC<{ share: ShareLinks; stats: ProfileStats }> = ({ share
   <section class="share-cta wrap" aria-labelledby="compartilhar">
     <div class="share-cta-box">
       <div class="share-cta-copy">
-        <h2 id="compartilhar">Mostre sua trajetória</h2>
+        <h2 id="compartilhar">{viewText('Mostre sua trajetória')}</h2>
         <p class="muted">
-          Card pronto para redes, no tema que você está usando, e badge para o README.
+          {viewText('Card pronto para redes, no tema que você está usando, e badge para o README.')}
         </p>
         <div class="share-cta-row">
           <span class="mono url-box" data-share-url>
@@ -19,7 +20,7 @@ export const ShareCta: FC<{ share: ShareLinks; stats: ProfileStats }> = ({ share
           </span>
           <CopyLinkButton url={share.page} />
           <button class="btn" type="button" data-copy-text={share.badgeMarkdown}>
-            Copiar badge
+            {viewText('Copiar badge')}
           </button>
         </div>
       </div>
@@ -35,8 +36,8 @@ export const CopyLinkButton: FC<{ url: string }> = ({ url }) => (
     type="button"
     data-copy-text={url}
     data-share-link
-    data-copied-label="Link copiado ✓"
+    data-copied-label={viewText('Link copiado ✓')}
   >
-    Copiar link
+    {viewText('Copiar link')}
   </button>
 );

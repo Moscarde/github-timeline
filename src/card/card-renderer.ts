@@ -1,3 +1,4 @@
+import type { Locale } from '../i18n/locale.js';
 import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 import type { ProfileSnapshot } from '../domain/snapshot.js';
@@ -15,6 +16,7 @@ export interface CardRenderer {
     snapshot: ProfileSnapshot,
     theme: Theme,
     variant: CardVariant,
+    locale?: Locale,
   ): Promise<Uint8Array<ArrayBuffer>>;
 }
 
@@ -38,17 +40,19 @@ export class SatoriCardRenderer implements CardRenderer {
     snapshot: ProfileSnapshot,
     theme: Theme,
     variant: CardVariant,
+    locale: Locale = 'pt-BR',
   ): Promise<Uint8Array<ArrayBuffer>> {
     const key = [
       snapshot.account.username.toLowerCase(),
       theme,
       variant,
+      locale,
       snapshot.version,
       snapshot.generatedAt,
     ].join('|');
     const cached = this.cache.get(key);
     if (cached) return cached;
-    const png = await this.draw(snapshot, theme, variant);
+    const png = await this.draw(snapshot, theme, variant, locale);
     this.remember(key, png);
     return png;
   }
@@ -57,9 +61,10 @@ export class SatoriCardRenderer implements CardRenderer {
     snapshot: ProfileSnapshot,
     theme: Theme,
     variant: CardVariant,
+    locale: Locale,
   ): Promise<Uint8Array<ArrayBuffer>> {
     const avatarDataUri = await this.deps.fetchImage(avatarUrl(snapshot.account.avatarUrl, 192));
-    const tree = cardLayout(snapshot, theme, variant, { avatarDataUri });
+    const tree = cardLayout(snapshot, theme, variant, { avatarDataUri }, locale);
     // O Satori tipa a entrada como ReactNode; a árvore tem o mesmo shape sem depender de React.
     const svg = await satori(tree as unknown as Parameters<typeof satori>[0], {
       width: CARD_WIDTH,

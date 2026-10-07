@@ -1,8 +1,9 @@
+import { viewText, viewMessage } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import type { CompareSide } from '../../domain/compare.js';
 import { alignYears, type CompareYearSide } from '../../domain/compare-years.js';
 import { contributionLevel, maxMonth } from '../../domain/contributions.js';
-import { plural } from '../../domain/format.js';
+import { plural } from '../../i18n/view-format.js';
 import type { ProfileSnapshot } from '../../domain/snapshot.js';
 
 /**
@@ -17,9 +18,11 @@ export const YearByYear: FC<{ a: ProfileSnapshot; b: ProfileSnapshot }> = ({ a, 
       <div class="wrap">
         <div class="sec-head">
           <h2 class="h2" id="ano-a-ano">
-            Ano a ano
+            {viewText('Ano a ano')}
           </h2>
-          <span class="muted sec-note">um quadrado por mês, na escala de cada perfil</span>
+          <span class="muted sec-note">
+            {viewText('um quadrado por mês, na escala de cada perfil')}
+          </span>
         </div>
         <ol class="year-duel">
           {alignYears(a, b).map((row) => (
@@ -45,7 +48,11 @@ interface YearSideProps {
 
 const YearSide: FC<YearSideProps> = ({ side, year, cell, max, username }) => {
   const total = cell.months.reduce((sum, count) => sum + count, 0);
-  const label = `${username}: ${plural(total, 'contribuição', 'contribuições')} em ${year}`;
+  const label = viewMessage('{0}: {1} em {2}', [
+    username,
+    plural(total, 'contribuição', 'contribuições'),
+    year,
+  ]);
   const created = cell.era?.summary.repoCount ?? 0;
   return (
     <div class={`year-side side-${side}${created ? '' : ' quiet'}`}>
@@ -54,7 +61,9 @@ const YearSide: FC<YearSideProps> = ({ side, year, cell, max, username }) => {
           <i class={`l${contributionLevel(count, max)}`} />
         ))}
       </span>
-      <span class="year-title">{created ? cell.era?.title : 'sem repositórios novos'}</span>
+      <span class="year-title">
+        {created ? cell.era?.title : viewText('sem repositórios novos')}
+      </span>
       {created > 0 && <span class="mono faint year-count">{plural(created, 'repo', 'repos')}</span>}
     </div>
   );

@@ -23,3 +23,26 @@ describe('compareShareLinks', () => {
     expect(new URL(links.linkedin).searchParams.get('url')).toBe(links.page);
   });
 });
+
+describe('localized share links', () => {
+  it('keeps the chosen language in page, card, social and badge links', () => {
+    const links = shareLinks('dev', 'claro', '6 years. 2 repositories.', 'en');
+    expect(links.page).toBe('https://github-timeline.frangolab.com/u/dev?tema=claro&lang=en');
+    expect(links.card).toBe('/u/dev/card.png?tema=claro&lang=en');
+    expect(new URL(links.x).searchParams.get('text')).toBe('6 years. 2 repositories.');
+    expect(new URL(links.x).searchParams.get('url')).toBe(links.page);
+    expect(links.badgeMarkdown).toContain('/badge/dev.svg?lang=en');
+    expect(links.badgeMarkdown).toContain('/u/dev?lang=en');
+  });
+
+  it('shares the comparison in English and Portuguese', () => {
+    const english = compareShareLinks('ana', 'bia', 'en');
+    expect(new URL(english.x).searchParams.get('text')).toBe(
+      'ana vs bia: two GitHub journeys, year by year.',
+    );
+    expect(english.page).toContain('?lang=en');
+    const portuguese = compareShareLinks('ana', 'bia', 'pt-BR');
+    expect(new URL(portuguese.x).searchParams.get('text')).toContain('duas trajetórias');
+    expect(portuguese.page).toContain('?lang=pt-BR');
+  });
+});

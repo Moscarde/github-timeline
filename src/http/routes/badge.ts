@@ -1,3 +1,4 @@
+import { localeOf } from '../locale.js';
 import { Hono } from 'hono';
 import { renderBadge } from '../../brand/badge.js';
 import { isValidUsername } from '../../domain/username.js';
@@ -16,10 +17,12 @@ export function badgeRoutes(deps: AppDeps): Hono {
     const snapshot = isValidUsername(username) ? deps.profiles.findStored(username) : null;
     if (!snapshot && isValidUsername(username) && mayCollect(c, deps, username).allowed)
       void deps.profiles.getProfile(username);
-    const svg = renderBadge(snapshot);
+    const svg = renderBadge(snapshot, localeOf(c));
     return c.body(svg, 200, {
       'Content-Type': 'image/svg+xml; charset=utf-8',
       'Cache-Control': 'max-age=3600',
+      'Content-Language': localeOf(c),
+      Vary: 'Accept-Language, Cookie',
     });
   });
   return app;

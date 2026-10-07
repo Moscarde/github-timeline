@@ -1,3 +1,6 @@
+import type { Locale } from '../i18n/locale.js';
+import { message } from '../i18n/translate.js';
+import { useLocale } from '../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import { CANONICAL_ORIGIN } from '../config.js';
 import { comparePath, comparisonBlocker } from '../domain/compare.js';
@@ -26,11 +29,18 @@ type Pair = { a: ProfileSnapshot; b: ProfileSnapshot };
  * perfis, que já são indexáveis.
  * @example compareMeta(a, b).title // "torvalds vs gaearon · GitHub Timeline"
  */
-export function compareMeta(a: ProfileSnapshot, b: ProfileSnapshot): PageMeta {
+export function compareMeta(
+  a: ProfileSnapshot,
+  b: ProfileSnapshot,
+  locale: Locale = 'pt-BR',
+): PageMeta {
   const [left, right] = [a.account.username, b.account.username];
   return {
     title: `${left} vs ${right} · GitHub Timeline`,
-    description: `Duas trajetórias no GitHub, ano a ano: @${left} e @${right}.`,
+    description: message('Duas trajetórias no GitHub, ano a ano: @{0} e @{1}.', locale, [
+      left,
+      right,
+    ]),
     canonicalUrl: `${CANONICAL_ORIGIN}${comparePath(left, right)}`,
     noindex: true,
   };
@@ -42,7 +52,7 @@ export function compareMeta(a: ProfileSnapshot, b: ProfileSnapshot): PageMeta {
  * @example c.html(<ComparePage a={a} b={b} theme="auto" />)
  */
 export const ComparePage: FC<ComparePageProps> = ({ a, b, theme, stale }) => {
-  const meta = compareMeta(a, b);
+  const meta = compareMeta(a, b, useLocale());
   const [left, right] = [a.account.username, b.account.username];
   return (
     <Layout
@@ -51,7 +61,13 @@ export const ComparePage: FC<ComparePageProps> = ({ a, b, theme, stale }) => {
       topbar={{
         owner: a.account,
         rival: b.account,
-        actions: <CompareTopActions a={left} b={right} url={meta.canonicalUrl} />,
+        actions: (
+          <CompareTopActions
+            a={left}
+            b={right}
+            url={compareShareLinks(left, right, useLocale()).page}
+          />
+        ),
       }}
     >
       {stale && <StaleBanner notice={stale} />}
@@ -73,7 +89,7 @@ const CompareBody: FC<Pair> = ({ a, b }) => {
       <Languages a={a} b={b} />
       <YearByYear a={a} b={b} />
       <AchievementDuel a={a} b={b} />
-      <CompareShare share={compareShareLinks(left, right)} a={left} b={right} />
+      <CompareShare share={compareShareLinks(left, right, useLocale())} a={left} b={right} />
     </>
   );
 };

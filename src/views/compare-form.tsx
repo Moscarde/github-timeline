@@ -1,3 +1,4 @@
+import { viewText } from '../i18n/view.js';
 import type { FC } from 'hono/jsx';
 
 export interface CompareFormProps {
@@ -20,9 +21,13 @@ export const CompareForm: FC<CompareFormProps> = ({ lead, id, a, b, lockA }) => 
     <span class="compare-inputs mono">
       {lockA ? <LockedUsername username={a ?? ''} /> : <UsernameInput name="a" value={a} />}
       <span class="faint">vs</span>
-      <UsernameInput name="b" value={b} placeholder={lockA ? 'outro-username' : undefined} />
+      <UsernameInput
+        name="b"
+        value={b}
+        placeholder={lockA ? viewText('outro-username') : undefined}
+      />
       <button class="link-btn" type="submit">
-        Comparar
+        {viewText('Comparar')}
       </button>
     </span>
   </form>
@@ -45,7 +50,7 @@ const UsernameInput: FC<{ name: 'a' | 'b'; value?: string; placeholder?: string 
     name={name}
     value={value}
     placeholder={placeholder ?? (name === 'a' ? 'torvalds' : 'gaearon')}
-    aria-label={name === 'a' ? 'Primeiro perfil' : 'Segundo perfil'}
+    aria-label={name === 'a' ? viewText('Primeiro perfil') : viewText('Segundo perfil')}
     autocomplete="off"
     spellcheck={false}
     required

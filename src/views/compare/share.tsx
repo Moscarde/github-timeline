@@ -1,3 +1,4 @@
+import { viewText, viewMessage } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import { comparePath, type ComparisonBlocker } from '../../domain/compare.js';
 import type { ProfileSnapshot } from '../../domain/snapshot.js';
@@ -14,18 +15,22 @@ export const CopyCompareLink: FC<{ url: string }> = ({ url }) => (
     class="btn-p"
     type="button"
     data-copy-text={url}
-    data-copied-label="Link copiado ✓"
-    aria-label="Copiar link da comparação"
+    data-copied-label={viewText('Link copiado ✓')}
+    aria-label={viewText('Copiar link da comparação')}
   >
-    Copiar link
+    {viewText('Copiar link')}
   </button>
 );
 
 /** Topbar da comparação: inverter os lados e copiar o link do par. */
 export const CompareTopActions: FC<{ a: string; b: string; url: string }> = ({ a, b, url }) => (
   <>
-    <a class="btn" href={comparePath(b, a)} aria-label={`Inverter: ${b} vs ${a}`}>
-      ⇄<span class="desktop-only"> Inverter</span>
+    <a
+      class="btn"
+      href={comparePath(b, a)}
+      aria-label={viewMessage('Inverter: {0} vs {1}', [b, a])}
+    >
+      ⇄<span class="desktop-only">{viewText(' Inverter')}</span>
     </a>
     <CopyCompareLink url={url} />
   </>
@@ -35,7 +40,7 @@ export const CompareTopActions: FC<{ a: string; b: string; url: string }> = ({ a
 export const CompareShare: FC<{ share: CompareShareLinks; a: string; b: string }> = (props) => (
   <section class="share-cta wrap" aria-labelledby="compartilhar">
     <div class="share-cta-box compare-share">
-      <h2 id="compartilhar">Compartilhe o duelo</h2>
+      <h2 id="compartilhar">{viewText('Compartilhe o duelo')}</h2>
       <div class="share-cta-row">
         <span class="mono url-box">{props.share.page.replace(/^https?:\/\//, '')}</span>
         <CopyCompareLink url={props.share.page} />
@@ -46,15 +51,18 @@ export const CompareShare: FC<{ share: CompareShareLinks; a: string; b: string }
           LinkedIn
         </a>
       </div>
-      <CompareForm lead="Trocar perfis:" a={props.a} b={props.b} />
+      <CompareForm lead={viewText('Trocar perfis:')} a={props.a} b={props.b} />
     </div>
   </section>
 );
 
 const BLOCKER_TEXT: Record<ComparisonBlocker, (username: string) => string> = {
   organizacao: (username) =>
-    `@${username} é uma organização. Comparações contam a trajetória de duas pessoas.`,
-  vazio: (username) => `@${username} ainda não tem repositórios públicos, então não há trajetória.`,
+    viewMessage('@{0} é uma organização. Comparações contam a trajetória de duas pessoas.', [
+      username,
+    ]),
+  vazio: (username) =>
+    viewMessage('@{0} ainda não tem repositórios públicos, então não há trajetória.', [username]),
 };
 
 /** Um dos lados não tem trajetória (§6): explica e oferece os caminhos possíveis. */
@@ -66,17 +74,20 @@ export const NotComparable: FC<{
   <section class="state-card wrap">
     <ProfileHeader account={blocked.account} />
     <p class="state-title">
-      Essa dupla <span class="ink">não dá pra comparar.</span>
+      {viewText('Essa dupla ')}
+      <span class="ink">{viewText('não dá pra comparar.')}</span>
     </p>
     <p class="muted state-text">{BLOCKER_TEXT[reason](blocked.account.username)}</p>
     <div class="state-actions">
       <a class="btn" href={`/u/${encodeURIComponent(blocked.account.username)}`}>
-        Ver @{blocked.account.username}
+        {viewText('Ver @')}
+        {blocked.account.username}
       </a>
       <a class="btn" href={`/u/${encodeURIComponent(other.account.username)}`}>
-        Ver @{other.account.username}
+        {viewText('Ver @')}
+        {other.account.username}
       </a>
     </div>
-    <CompareForm lead="Comparar com outro perfil:" a={other.account.username} lockA />
+    <CompareForm lead={viewText('Comparar com outro perfil:')} a={other.account.username} lockA />
   </section>
 );

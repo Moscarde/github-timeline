@@ -1,3 +1,4 @@
+import { viewText, viewMessage } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import { CANONICAL_ORIGIN } from '../../config.js';
 import type { UsernameSuggestion } from '../../github/username-suggester.js';
@@ -32,7 +33,7 @@ export const CollectingPage: FC<{ username: string; theme: ThemePreference }> = 
       </div>
       <StepsPanel />
       <noscript>
-        <p>Recarregue a página em alguns segundos para ver a timeline.</p>
+        <p>{viewText('Recarregue a página em alguns segundos para ver a timeline.')}</p>
       </noscript>
     </section>
   </Layout>
@@ -46,19 +47,22 @@ const HeaderSkeleton: FC<{ username: string }> = ({ username }) => (
       <div class="who-name" data-pending-name>
         {username}
       </div>
-      <div class="mono muted who-username">@{username} · coletando…</div>
+      <div class="mono muted who-username">
+        @{username}
+        {viewText(' · coletando…')}
+      </div>
     </div>
   </div>
 );
 
 const StepsPanel: FC = () => (
-  <aside class="steps-panel" aria-label="Progresso da coleta">
-    <div class="mono muted steps-title">Montando a timeline</div>
+  <aside class="steps-panel" aria-label={viewText('Progresso da coleta')}>
+    <div class="mono muted steps-title">{viewText('Montando a timeline')}</div>
     <ol class="steps" aria-live="polite">
       {STAGES.map(([stage, label], index) => (
         <li class={index === 0 ? 'step active' : 'step'} data-stage={stage}>
           <span class="tick" aria-hidden="true" />
-          <span class="step-label">{label}</span>
+          <span class="step-label">{viewText(label)}</span>
           <span class="mono faint step-note" />
         </li>
       ))}
@@ -67,7 +71,7 @@ const StepsPanel: FC = () => (
       <span data-progress style="width:6%" />
     </div>
     <p class="muted steps-note">
-      Perfis já vistos abrem na hora. Este é novo: coletando agora, leva uns segundos.
+      {viewText('Perfis já vistos abrem na hora. Este é novo: coletando agora, leva uns segundos.')}
     </p>
   </aside>
 );
@@ -79,7 +83,7 @@ export const NotFoundPage: FC<{
   suggestion: UsernameSuggestion | null;
 }> = ({ username, theme, suggestion }) => (
   <Layout
-    meta={{ ...pendingMeta(username), title: 'Perfil não encontrado · GitHub Timeline' }}
+    meta={{ ...pendingMeta(username), title: viewText('Perfil não encontrado · GitHub Timeline') }}
     theme={theme}
     topbar={{ searchValue: username }}
   >
@@ -87,20 +91,21 @@ export const NotFoundPage: FC<{
       <div class="state-copy">
         <div class="mono state-code danger">404 · github.com/{username}</div>
         <h1>
-          <span class="desktop-only">Nenhum commit, nenhuma história. </span>
-          <span class="muted">Esse perfil não existe.</span>
+          <span class="desktop-only">{viewText('Nenhum commit, nenhuma história. ')}</span>
+          <span class="muted">{viewText('Esse perfil não existe.')}</span>
         </h1>
         <p>
-          Confira a grafia: usernames do GitHub não diferenciam maiúsculas, mas aceitam só letras,
-          números e hífen.
+          {viewText(
+            'Confira a grafia: usernames do GitHub não diferenciam maiúsculas, mas aceitam só letras, números e hífen.',
+          )}
         </p>
         {suggestion && <Suggestion suggestion={suggestion} />}
         <form class="state-search" action="/buscar" method="get" role="search">
           <input
             class="mono"
             name="q"
-            placeholder="buscar outro usuário…"
-            aria-label="Buscar outro usuário"
+            placeholder={viewText('buscar outro usuário…')}
+            aria-label={viewText('Buscar outro usuário')}
           />
         </form>
       </div>
@@ -115,11 +120,11 @@ export const NotFoundPage: FC<{
 
 const Suggestion: FC<{ suggestion: UsernameSuggestion }> = ({ suggestion }) => (
   <div class="suggest">
-    <span class="muted">Você quis dizer:</span>
+    <span class="muted">{viewText('Você quis dizer:')}</span>
     <a class="chip suggest-chip" href={`/u/${encodeURIComponent(suggestion.username)}`}>
       <img src={avatarUrl(suggestion.avatarUrl, 56)} alt="" width="20" height="20" />
       <span class="mono">{suggestion.username}</span>
-      <span class="ink suggest-go">abrir →</span>
+      <span class="ink suggest-go">{viewText('abrir →')}</span>
     </a>
   </div>
 );
@@ -157,17 +162,21 @@ export const UnavailablePage: FC<{
     >
       <section class="state wrap" data-retry-in={props.retryInSeconds}>
         <div class="state-copy">
-          <div class="mono state-code warn">{copy.code}</div>
-          <h1 class="state-h1-sm">{copy.title}</h1>
+          <div class="mono state-code warn">{viewText(copy.code)}</div>
+          <h1 class="state-h1-sm">{viewText(copy.title)}</h1>
           <p>
-            Ainda não temos uma cópia salva de @{props.username} e {copy.text}
+            {viewText('Ainda não temos uma cópia salva de @')}
+            {props.username}
+            {viewText(' e ')}
+            {viewText(copy.text)}
           </p>
           <div class="state-actions">
             <a class="btn-p" href={`/u/${encodeURIComponent(props.username)}`}>
-              Tentar agora
+              {viewText('Tentar agora')}
             </a>
             <span class="mono faint">
-              nova tentativa {props.retryAt ? `às ${props.retryAt}` : 'em instantes'}
+              {viewText('nova tentativa ')}
+              {props.retryAt ? viewMessage('às {0}', [props.retryAt]) : viewText('em instantes')}
             </span>
           </div>
         </div>
@@ -196,7 +205,9 @@ const QueueCells: FC = () => {
 function pendingMeta(username: string): PageMeta {
   return {
     title: `@${username} · GitHub Timeline`,
-    description: `Timeline de @${username}: a trajetória pública no GitHub, ano a ano.`,
+    description: viewMessage('Timeline de @{0}: a trajetória pública no GitHub, ano a ano.', [
+      username,
+    ]),
     canonicalUrl: `${CANONICAL_ORIGIN}/u/${encodeURIComponent(username)}`,
     noindex: true,
   };

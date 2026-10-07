@@ -1,5 +1,6 @@
+import { viewText } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
-import { formatInteger } from '../../domain/format.js';
+import { formatInteger } from '../../i18n/view-format.js';
 import { decorativeLevel, seededRandom } from '../decorative.js';
 import { CompareForm } from '../compare-form.js';
 
@@ -17,28 +18,30 @@ export const Hero: FC<{ weeklyCount: number; error?: string }> = ({ weeklyCount,
           <span class="live-dot" aria-hidden="true" />
           <span>
             {formatInteger(weeklyCount)}
-            <span class="live-long"> timelines geradas</span> esta semana
+            <span class="live-long">{viewText(' timelines geradas')}</span>
+            {viewText(' esta semana')}
           </span>
         </p>
       )}
       <h1>
-        Todo commit conta uma história. <span class="ink">Veja a sua.</span>
+        {viewText('Todo commit conta uma história. ')}
+        <span class="ink">{viewText('Veja a sua.')}</span>
       </h1>
       <p class="hero-lead muted">
-        Digite um usuário do GitHub. Montamos a trajetória ano a ano
+        {viewText('Digite um usuário do GitHub. Montamos a trajetória ano a ano')}
         <span class="hero-lead-long">
           {' '}
-          a partir dos repositórios públicos: linguagens, topics, stars e marcos
+          {viewText('a partir dos repositórios públicos: linguagens, topics, stars e marcos')}
         </span>
         .
       </p>
       <SearchForm error={error} />
       {error && (
         <p class="form-error" id="busca-erro" role="alert">
-          {error}
+          {viewText(error)}
         </p>
       )}
-      <CompareForm id="comparar" lead="Ou compare dois perfis:" />
+      <CompareForm id="comparar" lead={viewText('Ou compare dois perfis:')} />
     </div>
   </section>
 );
@@ -49,16 +52,16 @@ const SearchForm: FC<{ error?: string }> = ({ error }) => (
       <span class="faint">github.com/</span>
       <input
         name="q"
-        placeholder="seu-usuario"
+        placeholder={viewText('seu-usuario')}
         autocomplete="off"
         spellcheck={false}
         required
-        aria-label="Usuário do GitHub"
+        aria-label={viewText('Usuário do GitHub')}
         aria-describedby={error ? 'busca-erro' : undefined}
       />
     </label>
     <button class="hero-submit" type="submit">
-      Gerar timeline →
+      {viewText('Gerar timeline →')}
     </button>
   </form>
 );

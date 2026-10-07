@@ -1,3 +1,5 @@
+import { localeOf } from './locale.js';
+import { translate } from '../i18n/translate.js';
 import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import type { AppDeps } from './context.js';
@@ -44,7 +46,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/', pageRoutes(deps));
   app.onError((error, c) => {
     deps.logger.log('error', 'http.unhandled', { path: c.req.path, error: String(error) });
-    return c.text('Erro interno.', 500);
+    return c.text(translate('Erro interno.', localeOf(c)), 500);
   });
   return app;
 }

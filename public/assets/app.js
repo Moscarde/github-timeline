@@ -1,5 +1,12 @@
 // GitHub Timeline — JS mínimo do cliente (§7): tema, copiar, abas, paginação e progresso da coleta.
 
+const CLIENT_MESSAGES = JSON.parse(document.body.dataset.messages ?? '{}');
+
+/** Client feedback uses the same translation catalog as the rendered page. */
+function clientText(source) {
+  return CLIENT_MESSAGES[source] ?? source;
+}
+
 const THEME_COOKIE = 'tema';
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const COPIED_MS = 1800;
@@ -30,13 +37,17 @@ function withTheme(href, theme) {
   if (url.searchParams.has('tema')) url.searchParams.set('tema', theme);
   const inner = url.searchParams.get('url');
   if (inner) url.searchParams.set('url', withTheme(inner, theme));
-  return url.origin === location.origin && href.startsWith('/') ? url.pathname + url.search : url.toString();
+  return url.origin === location.origin && href.startsWith('/')
+    ? url.pathname + url.search
+    : url.toString();
 }
 
 /** "Baixar card", "Compartilhar" e "Copiar link" seguem o tema ativo na página (§5.1). */
 function syncShareTheme(theme) {
-  for (const link of document.querySelectorAll('[data-share]')) link.href = withTheme(link.getAttribute('href'), theme);
-  for (const button of document.querySelectorAll('[data-share-link]')) button.dataset.copyText = withTheme(button.dataset.copyText, theme);
+  for (const link of document.querySelectorAll('[data-share]'))
+    link.href = withTheme(link.getAttribute('href'), theme);
+  for (const button of document.querySelectorAll('[data-share-link]'))
+    button.dataset.copyText = withTheme(button.dataset.copyText, theme);
 }
 
 /** @param {HTMLElement} button @param {string} text */
@@ -44,18 +55,21 @@ async function copyText(button, text) {
   button.dataset.label ??= button.textContent;
   try {
     await navigator.clipboard.writeText(text);
-    button.textContent = button.dataset.copiedLabel ?? 'Copiado ✓';
+    button.textContent = button.dataset.copiedLabel ?? clientText('Copiado ✓');
   } catch {
-    button.textContent = 'Selecione e copie';
+    button.textContent = clientText('Selecione e copie');
   }
   clearTimeout(Number(button.dataset.timer));
-  button.dataset.timer = String(setTimeout(() => (button.textContent = button.dataset.label), COPIED_MS));
+  button.dataset.timer = String(
+    setTimeout(() => (button.textContent = button.dataset.label), COPIED_MS),
+  );
 }
 
 function onClick(event) {
   const target = event.target instanceof Element ? event.target.closest('button') : null;
   if (!target) return;
-  if (target.matches('[data-theme-toggle]')) applyTheme(effectiveTheme() === 'escuro' ? 'claro' : 'escuro');
+  if (target.matches('[data-theme-toggle]'))
+    applyTheme(effectiveTheme() === 'escuro' ? 'claro' : 'escuro');
   else if (target.dataset.copyText) copyText(target, target.dataset.copyText);
   else if (target.dataset.tab) selectTab(target);
   else if (target.matches('[data-toggle-repos]')) toggleRepos(target);
@@ -78,7 +92,7 @@ function toggleRepos(button) {
   more.hidden = !more.hidden;
   button.setAttribute('aria-expanded', String(!more.hidden));
   button.dataset.label ??= button.textContent;
-  button.textContent = more.hidden ? button.dataset.label : 'Mostrar menos';
+  button.textContent = more.hidden ? button.dataset.label : clientText('Mostrar menos');
 }
 
 /** @param {HTMLElement} button */
@@ -94,7 +108,10 @@ function watchCollection(container) {
   const username = container.dataset.collecting;
   const source = new EventSource(`/api/status/${encodeURIComponent(username)}`);
   const done = new Set();
-  const finish = () => { source.close(); location.reload(); };
+  const finish = () => {
+    source.close();
+    location.reload();
+  };
   source.addEventListener('progress', (event) => {
     const { stage, account } = JSON.parse(event.data);
     markStage(container, done, stage);
@@ -102,8 +119,14 @@ function watchCollection(container) {
   });
   source.addEventListener('done', finish);
   source.addEventListener('not_found', finish);
-  source.addEventListener('failed', () => { source.close(); showRetry(container); });
-  source.addEventListener('idle', () => { source.close(); showRetry(container); });
+  source.addEventListener('failed', () => {
+    source.close();
+    showRetry(container);
+  });
+  source.addEventListener('idle', () => {
+    source.close();
+    showRetry(container);
+  });
 }
 
 /** Repositórios e contribuições chegam em paralelo; "conquistas" fecha todas as etapas. */
@@ -137,7 +160,7 @@ function fillHeader(container, account) {
 function showRetry(container) {
   const note = document.createElement('p');
   note.className = 'muted';
-  note.textContent = 'A coleta não terminou. Recarregue a página para tentar de novo.';
+  note.textContent = clientText('A coleta não terminou. Recarregue a página para tentar de novo.');
   container.querySelector('.steps-panel')?.append(note);
 }
 
@@ -153,3 +176,11 @@ const collecting = document.querySelector('[data-collecting]');
 if (collecting) watchCollection(collecting);
 const retry = document.querySelector('[data-retry-in]');
 if (retry) scheduleRetry(retry);
+
+/** Submit the native form immediately when JavaScript is available. */
+function onLanguageChange(event) {
+  if (event.target instanceof HTMLSelectElement && event.target.matches('[data-language-select]'))
+    event.target.form?.requestSubmit();
+}
+
+document.addEventListener('change', onLanguageChange);

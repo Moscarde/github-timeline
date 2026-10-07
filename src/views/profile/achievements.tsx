@@ -1,3 +1,4 @@
+import { viewText } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import type { Achievement } from '../../domain/achievements.js';
 
@@ -9,12 +10,14 @@ export const Achievements: FC<{ achievements: Achievement[] }> = ({ achievements
       <div class="wrap">
         <div class="sec-head">
           <h2 class="h2" id="conquistas">
-            Conquistas
+            {viewText('Conquistas')}
           </h2>
           <span class="muted sec-note">
-            {unlocked} de {achievements.length}
-            <span class="desktop-only"> desbloqueadas</span>
-            <span class="mobile-only"> · deslize →</span>
+            {unlocked}
+            {viewText(' de ')}
+            {achievements.length}
+            <span class="desktop-only">{viewText(' desbloqueadas')}</span>
+            <span class="mobile-only">{viewText(' · deslize →')}</span>
           </span>
         </div>
         <ul class="achievement-list">
@@ -25,7 +28,7 @@ export const Achievements: FC<{ achievements: Achievement[] }> = ({ achievements
               </span>
               <span class="title">{achievement.title}</span>
               <span class="detail muted">{achievement.detail}</span>
-              {!achievement.unlocked && <span class="sr-only">(bloqueada)</span>}
+              {!achievement.unlocked && <span class="sr-only">{viewText('(bloqueada)')}</span>}
             </li>
           ))}
         </ul>

@@ -1,3 +1,4 @@
+import { storedText, viewText, viewMessage } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import type { CompareSide } from '../../domain/compare.js';
 import { compareVerdicts, type Verdict } from '../../domain/compare-verdicts.js';
@@ -9,7 +10,8 @@ export const Duel: FC<{ a: ProfileSnapshot; b: ProfileSnapshot }> = ({ a, b }) =
   <section class="duel-hero" aria-labelledby="duelo">
     <div class="wrap">
       <h1 class="sr-only" id="duelo">
-        Comparação: {a.account.username} vs {b.account.username}
+        {viewText('Comparação: ')}
+        {a.account.username} vs {b.account.username}
       </h1>
       <div class="duel">
         <Contender snapshot={a} side="a" />
@@ -37,13 +39,13 @@ const Contender: FC<{ snapshot: ProfileSnapshot; side: CompareSide }> = ({ snaps
       <p class="contender-name">{account.name || account.username}</p>
       <p class="mono muted contender-username">
         @{account.username}
-        {stats.firstYear !== null && ` · desde ${stats.firstYear}`}
+        {stats.firstYear !== null && viewMessage(' · desde {0}', [stats.firstYear])}
       </p>
       <p class="contender-headline">
         {headline.opening} <span class="side-ink">{headline.closing}</span>
       </p>
       <a class="contender-link" href={`/u/${encodeURIComponent(account.username)}`}>
-        Ver timeline completa
+        {viewText('Ver timeline completa')}
       </a>
     </div>
   );
@@ -53,13 +55,13 @@ const Verdicts: FC<{ verdicts: Verdict[]; a: ProfileSnapshot; b: ProfileSnapshot
   if (!props.verdicts.length) return null;
   const usernames = { a: props.a.account.username, b: props.b.account.username };
   return (
-    <ul class="verdicts" aria-label="Resumo da comparação">
+    <ul class="verdicts" aria-label={viewText('Resumo da comparação')}>
       {props.verdicts.map((verdict) => (
         <li class="verdict">
           {verdict.side && (
             <b class={`mono side-${verdict.side} side-ink`}>{usernames[verdict.side]} </b>
           )}
-          {verdict.text}
+          {storedText(verdict.text)}
         </li>
       ))}
     </ul>

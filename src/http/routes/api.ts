@@ -1,3 +1,7 @@
+import { usernameError } from '../input-errors.js';
+import { localeOf } from '../locale.js';
+import { localizeSnapshot } from '../../i18n/snapshot.js';
+import { translate } from '../../i18n/translate.js';
 import { Hono, type Context } from 'hono';
 import { streamSSE, type SSEStreamingApi } from 'hono/streaming';
 import { isValidUsername } from '../../domain/username.js';
@@ -11,18 +15,33 @@ export function apiRoutes(deps: AppDeps): Hono {
   app.get('/api/profile/:username', async (c) => {
     const username = c.req.param('username');
     if (!isValidUsername(username))
-      return c.json({ error: `username inválido: recebido "${username}"` }, 400);
+      return c.json(
+        {
+          error: usernameError(username, localeOf(c)),
+        },
+        400,
+      );
     const gate = mayCollect(c, deps, username);
     if (!gate.allowed) return tooManyCollections(c, gate.retryInSeconds);
     const lookup = await deps.profiles.getProfile(username);
-    if (lookup.status === 'ok') return c.json({ ...lookup.snapshot, stale: lookup.stale });
-    if (lookup.status === 'not_found') return c.json({ error: 'perfil não encontrado' }, 404);
-    return c.json({ error: 'GitHub indisponível', reason: lookup.reason }, 503);
+    if (lookup.status === 'ok')
+      return c.json({ ...localizeSnapshot(lookup.snapshot, localeOf(c)), stale: lookup.stale });
+    if (lookup.status === 'not_found')
+      return c.json({ error: translate('perfil não encontrado', localeOf(c)) }, 404);
+    return c.json(
+      { error: translate('GitHub indisponível', localeOf(c)), reason: lookup.reason },
+      503,
+    );
   });
   app.get('/api/status/:username', (c) => {
     const username = c.req.param('username');
     if (!isValidUsername(username))
-      return c.json({ error: `username inválido: recebido "${username}"` }, 400);
+      return c.json(
+        {
+          error: usernameError(username, localeOf(c)),
+        },
+        400,
+      );
     return streamSSE(c, (stream) => streamProgress(deps, username, stream));
   });
   return app;
@@ -30,7 +49,13 @@ export function apiRoutes(deps: AppDeps): Hono {
 
 function tooManyCollections(c: Context, retryInSeconds: number) {
   c.header('Retry-After', String(retryInSeconds));
-  return c.json({ error: 'muitas coletas novas deste IP; tente mais tarde', retryInSeconds }, 429);
+  return c.json(
+    {
+      error: translate('muitas coletas novas deste IP; tente mais tarde', localeOf(c)),
+      retryInSeconds,
+    },
+    429,
+  );
 }
 
 /** Se a coleta já terminou antes da conexão, responde `done` na hora. */

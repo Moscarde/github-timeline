@@ -187,7 +187,9 @@ describe('features do redesign', () => {
     expect(html).toContain('<meta name="robots" content="noindex"/>');
     expect(html).toContain('href="https://github-timeline.frangolab.com/u/ana...bia"');
     expect(html).not.toContain('og:image');
-    expect(html).toContain('data-copy-text="https://github-timeline.frangolab.com/u/ana...bia"');
+    expect(html).toContain(
+      'data-copy-text="https://github-timeline.frangolab.com/u/ana...bia?lang=pt-BR"',
+    );
     expect(html).toContain('href="/u/bia...ana"');
     expect(html).toContain('id="ano-a-ano"');
     expect(html).not.toContain('id="linha-do-tempo"');

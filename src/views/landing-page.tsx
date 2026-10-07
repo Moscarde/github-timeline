@@ -1,3 +1,4 @@
+import { viewText } from '../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import { CANONICAL_ORIGIN } from '../config.js';
 import type { ThemePreference } from '../lib/theme.js';
@@ -21,9 +22,10 @@ export const LandingPage: FC<LandingPageProps> = (props) => (
     theme={props.theme}
     topbar={{ landing: { stars: props.projectStars } }}
     meta={{
-      title: 'GitHub Timeline · todo commit conta uma história',
-      description:
+      title: viewText('GitHub Timeline · todo commit conta uma história'),
+      description: viewText(
         'Digite um usuário do GitHub e veja a trajetória ano a ano: linguagens, topics, stars e marcos dos repositórios públicos.',
+      ),
       canonicalUrl: `${CANONICAL_ORIGIN}/`,
     }}
   >

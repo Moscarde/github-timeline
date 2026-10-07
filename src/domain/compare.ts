@@ -1,3 +1,4 @@
+import type { Locale } from '../i18n/locale.js';
 import { formatCompact } from './format.js';
 import type { ProfileSnapshot } from './snapshot.js';
 import { usernameKey } from './username.js';
@@ -32,22 +33,26 @@ export type ComparisonBlocker = 'organizacao' | 'vazio';
  * Barras proporcionais ao maior valor para repositórios, stars, anos e linguagens.
  * @example compareProfiles(a, b)[0] // { label: 'repositórios', a: '126', b: '364', … }
  */
-export function compareProfiles(a: ProfileSnapshot, b: ProfileSnapshot): CompareRow[] {
+export function compareProfiles(
+  a: ProfileSnapshot,
+  b: ProfileSnapshot,
+  locale: Locale = 'pt-BR',
+): CompareRow[] {
   const metrics: Array<[string, number, number]> = [
     ['repositórios', a.stats.repos, b.stats.repos],
     ['stars nos próprios', a.stats.ownStars, b.stats.ownStars],
     ['anos de atividade', a.stats.activeYears, b.stats.activeYears],
     ['linguagens', a.stats.languageCount, b.stats.languageCount],
   ];
-  return metrics.map(([label, left, right]) => compareRow(label, left, right));
+  return metrics.map(([label, left, right]) => compareRow(label, left, right, locale));
 }
 
-function compareRow(label: string, left: number, right: number): CompareRow {
+function compareRow(label: string, left: number, right: number, locale: Locale): CompareRow {
   const max = Math.max(left, right, 1);
   return {
     label,
-    a: formatCompact(left),
-    b: formatCompact(right),
+    a: formatCompact(left, locale),
+    b: formatCompact(right, locale),
     aRatio: left / max,
     bRatio: right / max,
     leader: leaderOf(left, right),

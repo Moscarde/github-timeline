@@ -1,3 +1,4 @@
+import { viewText, useLocale } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
 import { compareAchievements, compareProfiles, type CompareRow } from '../../domain/compare.js';
 import { sharedLanguages } from '../../domain/compare-verdicts.js';
@@ -11,10 +12,10 @@ export const Numbers: FC<Pair> = ({ a, b }) => (
   <section class="sec" aria-labelledby="numeros">
     <div class="wrap">
       <h2 class="h2 sec-title" id="numeros">
-        Números
+        {viewText('Números')}
       </h2>
       <div class="compare-rows">
-        {compareProfiles(a, b).map((row) => (
+        {compareProfiles(a, b, useLocale()).map((row) => (
           <Row row={row} usernameA={a.account.username} usernameB={b.account.username} />
         ))}
       </div>
@@ -27,19 +28,19 @@ const Row: FC<{ row: CompareRow; usernameA: string; usernameB: string }> = (prop
   return (
     <div class="compare-row">
       <div class="bar-side side-a">
-        <span class="mono value" aria-label={`${props.usernameA}: ${row.a} ${row.label}`}>
+        <span class="mono value" aria-label={`${props.usernameA}: ${row.a} ${viewText(row.label)}`}>
           {row.a}
         </span>
         <span class="track">
           <span class="fill" style={`width:${pct(row.aRatio)}`} />
         </span>
       </div>
-      <div class="muted compare-label">{row.label}</div>
+      <div class="muted compare-label">{viewText(row.label)}</div>
       <div class="bar-side side-b">
         <span class="track">
           <span class="fill" style={`width:${pct(row.bRatio)}`} />
         </span>
-        <span class="mono value" aria-label={`${props.usernameB}: ${row.b} ${row.label}`}>
+        <span class="mono value" aria-label={`${props.usernameB}: ${row.b} ${viewText(row.label)}`}>
           {row.b}
         </span>
       </div>
@@ -58,15 +59,17 @@ export const Languages: FC<Pair> = ({ a, b }) => {
     <section class="sec" aria-labelledby="linguagens">
       <div class="wrap">
         <h2 class="h2 sec-title" id="linguagens">
-          Linguagens
+          {viewText('Linguagens')}
         </h2>
         <div class="compare-langs">
           <LanguageBar shares={a.languages} owner={a.account.username} />
           <LanguageBar shares={b.languages} owner={b.account.username} />
         </div>
         <p class="shared-langs">
-          <span class="muted">Em comum:</span>
-          {shared.length ? shared.map((name) => <span class="tag mono">{name}</span>) : ' nenhuma'}
+          <span class="muted">{viewText('Em comum:')}</span>
+          {shared.length
+            ? shared.map((name) => <span class="tag mono">{name}</span>)
+            : viewText(' nenhuma')}
         </p>
       </div>
     </section>
@@ -78,12 +81,12 @@ export const AchievementDuel: FC<Pair> = ({ a, b }) => (
   <section class="sec" aria-labelledby="conquistas">
     <div class="wrap">
       <h2 class="h2 sec-title" id="conquistas">
-        Conquistas
+        {viewText('Conquistas')}
       </h2>
       <ul class="achievement-duel">
         {compareAchievements(a, b).map((pair) => (
           <li class="achievement-pair">
-            <span>{pair.title}</span>
+            <span>{viewText(pair.title)}</span>
             <span class="pips">
               <Pip side="a" username={a.account.username} unlocked={pair.a} />
               <Pip side="b" username={b.account.username} unlocked={pair.b} />
@@ -99,7 +102,7 @@ const Pip: FC<{ side: 'a' | 'b'; username: string; unlocked: boolean }> = (props
   <span
     class={`pip mono side-${props.side}${props.unlocked ? '' : ' off'}`}
     role="img"
-    aria-label={`${props.username}: ${props.unlocked ? 'desbloqueada' : 'bloqueada'}`}
+    aria-label={`${props.username}: ${props.unlocked ? viewText('desbloqueada') : viewText('bloqueada')}`}
   >
     {props.side.toUpperCase()}
   </span>

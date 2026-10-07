@@ -1,6 +1,9 @@
+import { LanguageSelector } from './language-selector.js';
+import { clientMessages } from '../i18n/client.js';
+import { viewText, useLocale } from '../i18n/view.js';
 import type { Child, FC } from 'hono/jsx';
 import { PROJECT_URL } from '../config.js';
-import { formatCompact } from '../domain/format.js';
+import { formatCompact } from '../i18n/view-format.js';
 import { avatarUrl } from '../lib/avatar.js';
 import type { ThemePreference } from '../lib/theme.js';
 
@@ -30,7 +33,7 @@ const STYLESHEETS = ['base', 'landing', 'profile', 'compare', 'timeline', 'state
 
 /** Documento base: tema já resolvido no servidor (cookie) para não piscar. */
 export const Layout: FC<LayoutProps> = ({ meta, theme, topbar = {}, children }) => (
-  <html lang="pt-BR" data-theme={DATA_THEME[theme]}>
+  <html lang={useLocale()} data-theme={DATA_THEME[theme]}>
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -49,7 +52,7 @@ export const Layout: FC<LayoutProps> = ({ meta, theme, topbar = {}, children }) 
       ))}
       <script type="module" src="/assets/app.js"></script>
     </head>
-    <body>
+    <body data-messages={JSON.stringify(clientMessages(useLocale()))}>
       <Topbar {...topbar} />
       <main id="conteudo">{children}</main>
       <Footer />
@@ -61,6 +64,8 @@ const MetaTags: FC<{ meta: PageMeta }> = ({ meta }) => (
   <>
     <meta name="description" content={meta.description} />
     <link rel="canonical" href={meta.canonicalUrl} />
+    <link rel="alternate" hreflang="pt-BR" href={`${meta.canonicalUrl}?lang=pt-BR`} />
+    <link rel="alternate" hreflang="en" href={`${meta.canonicalUrl}?lang=en`} />
     {meta.noindex && <meta name="robots" content="noindex" />}
     <meta property="og:type" content="profile" />
     <meta property="og:site_name" content="GitHub Timeline" />
@@ -88,7 +93,7 @@ export interface TopbarProps {
 
 const Topbar: FC<TopbarProps> = ({ owner, rival, landing, actions, searchValue }) => (
   <header class="topbar">
-    <a class="crumb mono" href="/" aria-label="GitHub Timeline, página inicial">
+    <a class="crumb mono" href="/" aria-label={viewText('GitHub Timeline, página inicial')}>
       <span class="marks">
         {owner?.avatarUrl ? (
           <img class="mark" src={avatarUrl(owner.avatarUrl, 52)} alt="" width="26" height="26" />
@@ -111,6 +116,7 @@ const Topbar: FC<TopbarProps> = ({ owner, rival, landing, actions, searchValue }
     </a>
     <span class="spacer" />
     {landing ? <LandingNav stars={landing.stars} /> : <TopSearch value={searchValue} />}
+    <LanguageSelector />
     <ThemeButton />
     {actions}
   </header>
@@ -128,9 +134,9 @@ const CrumbOwner: FC<Pick<TopbarProps, 'owner' | 'rival'>> = ({ owner, rival }) 
 
 const LandingNav: FC<{ stars: number | null }> = ({ stars }) => (
   <>
-    <nav class="topnav" aria-label="Seções">
-      <a href="#explorar">Explorar</a>
-      <a href="#comparar">Comparar</a>
+    <nav class="topnav" aria-label={viewText('Seções')}>
+      <a href="#explorar">{viewText('Explorar')}</a>
+      <a href="#comparar">{viewText('Comparar')}</a>
       <a href="#badge">Badge</a>
     </nav>
     <a class="btn star-btn" href={PROJECT_URL} rel="noopener">
@@ -143,18 +149,18 @@ const TopSearch: FC<{ value?: string }> = ({ value }) => (
   <>
     <form class="top-search" action="/buscar" method="get" role="search">
       <label class="sr-only" for="busca-topo">
-        Buscar usuário do GitHub
+        {viewText('Buscar usuário do GitHub')}
       </label>
       <input
         id="busca-topo"
         name="q"
         value={value}
-        placeholder="buscar usuário…"
+        placeholder={viewText('buscar usuário…')}
         autocomplete="off"
         spellcheck={false}
       />
     </form>
-    <a class="btn search-link" href="/#gerar" aria-label="Buscar usuário">
+    <a class="btn search-link" href="/#gerar" aria-label={viewText('Buscar usuário')}>
       ⌕
     </a>
   </>
@@ -162,12 +168,17 @@ const TopSearch: FC<{ value?: string }> = ({ value }) => (
 
 /** Mostra o tema de destino; o CSS escolhe o rótulo certo mesmo no tema automático. */
 const ThemeButton: FC = () => (
-  <button class="btn theme-btn" type="button" data-theme-toggle aria-label="Alternar tema">
+  <button
+    class="btn theme-btn"
+    type="button"
+    data-theme-toggle
+    aria-label={viewText('Alternar tema')}
+  >
     <span class="theme-light-label">
-      ☀<span class="theme-text"> Claro</span>
+      ☀<span class="theme-text">{viewText(' Claro')}</span>
     </span>
     <span class="theme-dark-label">
-      ☾<span class="theme-text"> Escuro</span>
+      ☾<span class="theme-text">{viewText(' Escuro')}</span>
     </span>
   </button>
 );
@@ -175,10 +186,11 @@ const ThemeButton: FC = () => (
 const Footer: FC = () => (
   <footer class="footer">
     <div class="wrap">
-      <span>Dados da API pública do GitHub.</span>
+      <span>{viewText('Dados da API pública do GitHub.')}</span>
       <span class="footer-long">
-        Feito por <a href="https://github.com/Moscarde">@Moscarde</a> ·{' '}
-        <a href={PROJECT_URL}>código</a>
+        {viewText('Feito por ')}
+        <a href="https://github.com/Moscarde">@Moscarde</a> ·{' '}
+        <a href={PROJECT_URL}>{viewText('código')}</a>
       </span>
       <span class="footer-short">
         <a href="https://github.com/Moscarde">@Moscarde</a>

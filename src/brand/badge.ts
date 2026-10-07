@@ -1,3 +1,5 @@
+import type { Locale } from '../i18n/locale.js';
+import { translate } from '../i18n/translate.js';
 import type { ProfileSnapshot, ProfileStats } from '../domain/snapshot.js';
 import { escapeMarkup } from '../lib/escape.js';
 
@@ -27,10 +29,10 @@ export function badgeValue(stats: ProfileStats): string {
 
 /**
  * Texto completo do badge, usado no `aria-label` e no `<title>`.
- * @example badgeLabel(snapshot) // "github timeline: 2014–2026 · 97 repos"
+ * @example badgeLabel(snapshot, locale) // "github timeline: 2014–2026 · 97 repos"
  */
-export function badgeLabel(snapshot: ProfileSnapshot | null): string {
-  return `${LABEL}: ${snapshot ? badgeValue(snapshot.stats) : NOT_FOUND}`;
+export function badgeLabel(snapshot: ProfileSnapshot | null, locale: Locale = 'pt-BR'): string {
+  return `${LABEL}: ${snapshot ? badgeValue(snapshot.stats) : translate(NOT_FOUND, locale)}`;
 }
 
 /**
@@ -38,13 +40,13 @@ export function badgeLabel(snapshot: ProfileSnapshot | null): string {
  * "não encontrado".
  * @example renderBadge(snapshot)
  */
-export function renderBadge(snapshot: ProfileSnapshot | null): string {
-  const value = snapshot ? badgeValue(snapshot.stats) : NOT_FOUND;
+export function renderBadge(snapshot: ProfileSnapshot | null, locale: Locale = 'pt-BR'): string {
+  const value = snapshot ? badgeValue(snapshot.stats) : translate(NOT_FOUND, locale);
   const leftWidth = segmentWidth(LABEL);
   const rightWidth = segmentWidth(value);
   const width = leftWidth + rightWidth;
   const right = snapshot ? COLORS.value : COLORS.missing;
-  const title = escapeMarkup(badgeLabel(snapshot));
+  const title = escapeMarkup(badgeLabel(snapshot, locale));
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${HEIGHT}" viewBox="0 0 ${width} ${HEIGHT}" role="img" aria-label="${title}">
 <title>${title}</title>
 <clipPath id="r"><rect width="${width}" height="${HEIGHT}" rx="4"/></clipPath>

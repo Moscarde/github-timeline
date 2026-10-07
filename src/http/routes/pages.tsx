@@ -1,3 +1,4 @@
+import { localizedHtml, changeLanguage } from '../locale.js';
 import { Hono, type Context } from 'hono';
 import { comparePath } from '../../domain/compare.js';
 import { parseUsernameInput } from '../../domain/username.js';
@@ -11,6 +12,7 @@ const COMPARE_ERROR = 'Para comparar, digite dois usernames do GitHub.';
 /** Páginas renderizadas no servidor: `/`, `/buscar`, `/comparar` e `/u/<username>`. */
 export function pageRoutes(deps: AppDeps): Hono {
   const app = new Hono();
+  app.get('/idioma', changeLanguage);
   app.get('/', (c) => landing(c, deps));
   app.get('/buscar', (c) => {
     const username = parseUsernameInput(c.req.query('q') ?? '');
@@ -29,7 +31,8 @@ export function pageRoutes(deps: AppDeps): Hono {
 
 function landing(c: Context, deps: AppDeps, error?: string, status: 200 | 400 = 200) {
   deps.gallery.warmCurated();
-  return c.html(
+  return localizedHtml(
+    c,
     <LandingPage
       theme={themeOf(c)}
       tabs={deps.gallery.tabs()}

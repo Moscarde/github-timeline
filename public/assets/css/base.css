@@ -457,3 +457,27 @@ img {
     transition: none !important;
   }
 }
+
+/* Keep the selector compact beside the theme control, including on phones. */
+.language-form {
+  display: flex;
+  flex-shrink: 0;
+}
+.language-select {
+  max-width: 110px;
+  color: inherit;
+  background: var(--bg);
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .language-select {
+    max-width: 100px;
+    min-height: 36px;
+    padding-inline: 6px;
+    font-size: 12px;
+  }
+}

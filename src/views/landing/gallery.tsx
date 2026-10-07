@@ -1,5 +1,6 @@
+import { viewText } from '../../i18n/view.js';
 import type { FC } from 'hono/jsx';
-import { formatCompact, formatInteger } from '../../domain/format.js';
+import { formatCompact, formatInteger } from '../../i18n/view-format.js';
 import type { GalleryCard } from '../../domain/gallery.js';
 import { languageColor } from '../../domain/language-colors.js';
 import { avatarUrl } from '../../lib/avatar.js';
@@ -10,8 +11,8 @@ export const Gallery: FC<{ tabs: GalleryTab[] }> = ({ tabs }) => (
   <section class="gallery" id="explorar" aria-labelledby="explorar-titulo">
     <div class="wrap">
       <div class="gallery-head">
-        <h2 id="explorar-titulo">Perfis para explorar</h2>
-        <div class="tabs" role="tablist" aria-label="Listas de perfis">
+        <h2 id="explorar-titulo">{viewText('Perfis para explorar')}</h2>
+        <div class="tabs" role="tablist" aria-label={viewText('Listas de perfis')}>
           {tabs.map((tab, index) => (
             <button
               class="pill"
@@ -22,7 +23,7 @@ export const Gallery: FC<{ tabs: GalleryTab[] }> = ({ tabs }) => (
               aria-selected={index === 0 ? 'true' : 'false'}
               data-tab={tab.id}
             >
-              {tab.label}
+              {viewText(tab.label)}
             </button>
           ))}
         </div>
@@ -48,8 +49,8 @@ export const Gallery: FC<{ tabs: GalleryTab[] }> = ({ tabs }) => (
 
 function emptyText(id: GalleryTab['id']): string {
   return id === 'em-alta'
-    ? 'Nenhuma timeline visitada nos últimos 7 dias. Gere a primeira.'
-    : 'Os perfis desta lista ainda estão sendo coletados. Volte em alguns minutos.';
+    ? viewText('Nenhuma timeline visitada nos últimos 7 dias. Gere a primeira.')
+    : viewText('Os perfis desta lista ainda estão sendo coletados. Volte em alguns minutos.');
 }
 
 const ProfileCard: FC<{ card: GalleryCard }> = ({ card }) => (
@@ -60,7 +61,10 @@ const ProfileCard: FC<{ card: GalleryCard }> = ({ card }) => (
         <div class="profile-card-name">{card.name}</div>
         <div class="mono muted profile-card-username">
           @{card.username}
-          <span class="desktop-only"> · desde {card.since}</span>
+          <span class="desktop-only">
+            {viewText(' · desde ')}
+            {card.since}
+          </span>
           <span class="mobile-only">
             {card.language && ` · ${card.language}`} · ★ {formatCompact(card.stars)}
           </span>

@@ -1,3 +1,6 @@
+import type { Locale } from '../i18n/locale.js';
+import { localizeSnapshot } from '../i18n/snapshot.js';
+import { translate, message as localizedMessage } from '../i18n/translate.js';
 import { CANONICAL_HOST } from '../config.js';
 import { contributionLevel, maxMonth } from '../domain/contributions.js';
 import { formatCompact, formatInteger, plural } from '../domain/format.js';
@@ -68,7 +71,9 @@ export function cardLayout(
   theme: Theme,
   variant: CardVariant,
   images: CardImages,
+  locale: Locale = 'pt-BR',
 ): CardNode {
+  snapshot = localizeSnapshot(snapshot, locale);
   const palette = PALETTES[theme];
   const root = {
     display: 'flex',
@@ -85,9 +90,9 @@ export function cardLayout(
   return node('div', root, [
     node('div', { display: 'flex', flexDirection: 'column', flex: 1 }, [
       identity(snapshot, palette, images),
-      message(snapshot, variant, palette),
+      message(snapshot, variant, palette, locale),
       node('div', { display: 'flex', flex: 1 }, null),
-      indicators(snapshot, palette),
+      indicators(snapshot, palette, locale),
     ]),
     node('div', gridColumnStyle(), [monthGrid(snapshot, palette), topLanguages(snapshot)]),
     siteTag(palette),
@@ -123,8 +128,13 @@ function identity(snapshot: ProfileSnapshot, palette: CardPalette, images: CardI
   ]);
 }
 
-function message(snapshot: ProfileSnapshot, variant: CardVariant, palette: CardPalette): CardNode {
-  if (variant === 'numero') return bigNumber(snapshot, palette);
+function message(
+  snapshot: ProfileSnapshot,
+  variant: CardVariant,
+  palette: CardPalette,
+  locale: Locale,
+): CardNode {
+  if (variant === 'numero') return bigNumber(snapshot, palette, locale);
   const { shortOpening, closing } = snapshot.headline;
   const size = headlineSize(`${shortOpening} ${closing}`);
   return node(
@@ -164,7 +174,7 @@ function words(text: string, color: string, size: number): CardNode[] {
     );
 }
 
-function bigNumber(snapshot: ProfileSnapshot, palette: CardPalette): CardNode {
+function bigNumber(snapshot: ProfileSnapshot, palette: CardPalette, locale: Locale): CardNode {
   const { repos, activeYears } = snapshot.stats;
   return node('div', { display: 'flex', flexDirection: 'column', gap: 4, marginTop: 36 }, [
     node(
@@ -176,22 +186,25 @@ function bigNumber(snapshot: ProfileSnapshot, palette: CardPalette): CardNode {
         letterSpacing: '-0.05em',
         color: palette.ink,
       },
-      formatInteger(repos),
+      formatInteger(repos, locale),
     ),
     node(
       'div',
       { fontSize: 40, fontWeight: 800, letterSpacing: '-0.02em' },
-      `${repos === 1 ? 'repositório' : 'repositórios'} em ${plural(activeYears, 'ano', 'anos')}`,
+      localizedMessage('{0} em {1}', locale, [
+        translate(repos === 1 ? 'repositório' : 'repositórios', locale),
+        plural(activeYears, 'ano', 'anos', locale),
+      ]),
     ),
   ]);
 }
 
-function indicators(snapshot: ProfileSnapshot, palette: CardPalette): CardNode {
+function indicators(snapshot: ProfileSnapshot, palette: CardPalette, locale: Locale): CardNode {
   const { stats } = snapshot;
   const items: Array<[string, string]> = [
-    [formatInteger(stats.repos), 'repositórios'],
-    [formatCompact(stats.ownStars), 'stars'],
-    [formatInteger(stats.languageCount), 'linguagens'],
+    [formatInteger(stats.repos, locale), 'repositórios'],
+    [formatCompact(stats.ownStars, locale), 'stars'],
+    [formatInteger(stats.languageCount, locale), 'linguagens'],
   ];
   return node(
     'div',
@@ -199,7 +212,7 @@ function indicators(snapshot: ProfileSnapshot, palette: CardPalette): CardNode {
     items.map(([value, label]) =>
       node('div', { display: 'flex', flexDirection: 'column' }, [
         node('div', { fontSize: 30, fontWeight: 800 }, value),
-        node('div', { fontSize: 15, color: palette.muted }, label),
+        node('div', { fontSize: 15, color: palette.muted }, translate(label, locale)),
       ]),
     ),
   );

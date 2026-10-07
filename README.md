@@ -49,6 +49,18 @@ A primeira visita a um perfil dispara a coleta, e a página mostra o progresso a
 - **Organizações**: perfis de organização mostram os maiores contribuidores.
 - **Dois temas**: claro e escuro, seguindo o sistema ou a sua escolha, em layout pensado também para celular.
 
+## ✦ Idiomas
+
+O app oferece **português brasileiro e inglês**. O idioma é identificado pelo cabeçalho
+`Accept-Language` do navegador; quando nenhum idioma compatível é informado, usa português.
+O seletor no topo permite trocar o idioma, e a escolha fica salva em cookie por um ano.
+Selecione **Automático** para voltar à preferência do navegador.
+
+Links com `?lang=pt-BR` ou `?lang=en` abrem no idioma indicado e salvam essa preferência.
+Cards, badges e links de compartilhamento acompanham o idioma escolhido. Nomes e descrições
+vindos do GitHub permanecem no idioma original. Os snapshots existentes são localizados na
+apresentação, sem uma nova coleta.
+
 ## ✦ Compare dois perfis
 
 Junte dois usernames com `...` e veja os dois lado a lado: números, linguagens em comum, quem estreou primeiro e um resumo do duelo.

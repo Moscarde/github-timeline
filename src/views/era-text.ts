@@ -1,4 +1,5 @@
-import { formatInteger, plural } from '../domain/format.js';
+import { viewText, viewMessage } from '../i18n/view.js';
+import { formatInteger, plural } from '../i18n/view-format.js';
 import type { EraSummary } from '../domain/timeline.js';
 
 /** Trecho do parágrafo do ano; `strong` destaca nomes próprios. */
@@ -21,26 +22,32 @@ export function eraLead(summary: EraSummary): TextPart[] {
 function repoCountParts({ repoCount, forkCount }: EraSummary): TextPart[] {
   if (!repoCount) return [];
   const forks = forkCount ? ` (${plural(forkCount, 'fork', 'forks')})` : '';
-  return [{ text: `${plural(repoCount, 'repositório criado', 'repositórios criados')}${forks}. ` }];
+  return [
+    {
+      text: `${plural(repoCount, 'repositório criado', 'repositórios criados')}${forks}. `,
+    },
+  ];
 }
 
 function languageParts({ topLanguage }: EraSummary): TextPart[] {
   if (!topLanguage) return [];
   return [
-    { text: 'Linguagem predominante: ' },
+    { text: viewText('Linguagem predominante: ') },
     { text: topLanguage.name, strong: true },
-    { text: ` (${topLanguage.count} de ${topLanguage.of}). ` },
+    { text: viewMessage(' ({0} de {1}). ', [topLanguage.count, topLanguage.of]) },
   ];
 }
 
 function topicParts({ topTopics }: EraSummary): TextPart[] {
-  return topTopics.length ? [{ text: `Topics mais usados: ${topTopics.join(', ')}. ` }] : [];
+  return topTopics.length
+    ? [{ text: viewMessage('Topics mais usados: {0}. ', [topTopics.join(', ')]) }]
+    : [];
 }
 
 function starParts({ mostStarred }: EraSummary): TextPart[] {
   if (!mostStarred) return [];
   return [
-    { text: 'Mais estrelado: ' },
+    { text: viewText('Mais estrelado: ') },
     { text: mostStarred.name, strong: true },
     { text: ` (★ ${formatInteger(mostStarred.stars)}). ` },
   ];
@@ -49,6 +56,10 @@ function starParts({ mostStarred }: EraSummary): TextPart[] {
 function contributionParts({ contributions }: EraSummary): TextPart[] {
   if (contributions === null) return [];
   return [
-    { text: `${plural(contributions, 'contribuição pública', 'contribuições públicas')} no ano.` },
+    {
+      text: viewMessage('{0} no ano.', [
+        plural(contributions, 'contribuição pública', 'contribuições públicas'),
+      ]),
+    },
   ];
 }

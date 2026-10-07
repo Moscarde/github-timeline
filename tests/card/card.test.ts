@@ -1,10 +1,7 @@
+import { CountingImageFetcher } from '../fakes/counting-image-fetcher.js';
 import { describe, expect, it } from 'vitest';
 import { cardLayout, headlineSize, type CardImages } from '../../src/card/card-layout.js';
-import {
-  createImageFetcher,
-  SatoriCardRenderer,
-  type ImageFetcher,
-} from '../../src/card/card-renderer.js';
+import { createImageFetcher, SatoriCardRenderer } from '../../src/card/card-renderer.js';
 import type { CardNode } from '../../src/card/element.js';
 import { loadCardFonts } from '../../src/card/fonts.js';
 import { deriveSnapshot } from '../../src/domain/snapshot.js';
@@ -54,6 +51,18 @@ describe('cardLayout', () => {
     );
   });
 
+  it('localizes both variants and indicator labels in English', () => {
+    const headline = texts(cardLayout(snapshot, 'escuro', 'headline', images, 'en'));
+    expect(headline.join(' ')).toContain('9 years of code.');
+    expect(headline).toContain('repositories');
+    expect(headline).toContain('languages');
+    const number = texts(cardLayout(snapshot, 'claro', 'numero', images, 'en'));
+    expect(number).toContain('repositories in 9 years');
+    expect(texts(cardLayout(snapshot, 'escuro', 'headline', images)).join(' ')).toContain(
+      snapshot.headline.short,
+    );
+  });
+
   it('reduz o corpo da manchete em frases longas', () => {
     expect(headlineSize('8 anos de código. De HTML a React.')).toBe(76);
     expect(headlineSize('16 anos de código. 11 linguagens, Python primeiro.')).toBe(60);
@@ -63,21 +72,21 @@ describe('cardLayout', () => {
 
 describe('SatoriCardRenderer', () => {
   it('gera PNG 1200×630 e reaproveita o cache', async () => {
-    let fetches = 0;
-    const fetchImage: ImageFetcher = async () => {
-      fetches += 1;
-      return null;
-    };
+    const images = new CountingImageFetcher();
     const renderer = new SatoriCardRenderer({
       fonts: await loadCardFonts(),
-      fetchImage,
+      fetchImage: images.fetch,
     });
     const png = await renderer.render(snapshot, 'escuro', 'headline');
     const view = new DataView(png.buffer);
     expect([...png.slice(1, 4)].map((byte) => String.fromCharCode(byte)).join('')).toBe('PNG');
     expect([view.getUint32(16), view.getUint32(20)]).toEqual([1200, 630]);
     await renderer.render(snapshot, 'escuro', 'headline');
-    expect(fetches).toBe(1);
+    expect(images.calls).toBe(1);
+    const english = await renderer.render(snapshot, 'escuro', 'headline', 'en');
+    expect(english).not.toEqual(png);
+    await renderer.render(snapshot, 'escuro', 'headline', 'en');
+    expect(images.calls).toBe(2);
   }, 15_000);
 });
 

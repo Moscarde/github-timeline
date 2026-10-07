@@ -1,3 +1,6 @@
+import type { Locale } from '../../i18n/locale.js';
+import { localizeSnapshot } from '../../i18n/snapshot.js';
+import { localizedHtml, localeOf } from '../locale.js';
 import type { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { isSelfComparison, parseComparePair } from '../../domain/compare.js';
@@ -57,9 +60,15 @@ export async function profilePage(c: Context, deps: AppDeps) {
 function renderProfile(c: Context, deps: AppDeps, theme: ThemePreference, main: ReadyLookup) {
   deps.visits.record(main.snapshot.account.username, clientIp(c));
   const shareTheme = parseTheme(c.req.query('tema')) ?? (theme === 'auto' ? 'escuro' : theme);
-  const stale = staleOf(deps, [main]);
-  return c.html(
-    <ProfilePage snapshot={main.snapshot} theme={theme} shareTheme={shareTheme} stale={stale} />,
+  const stale = staleOf(c, deps, [main]);
+  return localizedHtml(
+    c,
+    <ProfilePage
+      snapshot={localizeSnapshot(main.snapshot, localeOf(c))}
+      theme={theme}
+      shareTheme={shareTheme}
+      stale={stale}
+    />,
   );
 }
 
@@ -71,14 +80,22 @@ function renderComparison(
   a: ReadyLookup,
   b: ReadyLookup,
 ) {
-  const stale = staleOf(deps, [a, b]);
-  return c.html(<ComparePage a={a.snapshot} b={b.snapshot} theme={theme} stale={stale} />);
+  const stale = staleOf(c, deps, [a, b]);
+  return localizedHtml(
+    c,
+    <ComparePage
+      a={localizeSnapshot(a.snapshot, localeOf(c))}
+      b={localizeSnapshot(b.snapshot, localeOf(c))}
+      theme={theme}
+      stale={stale}
+    />,
+  );
 }
 
 /** Aviso do primeiro snapshot vencido, só enquanto a cota está baixa (§6). */
-function staleOf(deps: AppDeps, lookups: ReadyLookup[]): StaleNotice | undefined {
+function staleOf(c: Context, deps: AppDeps, lookups: ReadyLookup[]): StaleNotice | undefined {
   const old = lookups.find((lookup) => lookup.stale);
-  return old && deps.quota.isLow() ? staleNotice(deps, old.snapshot) : undefined;
+  return old && deps.quota.isLow() ? staleNotice(c, deps, old.snapshot) : undefined;
 }
 
 function pendingState(
@@ -89,15 +106,16 @@ function pendingState(
   theme: ThemePreference,
 ) {
   if (lookup.status === 'collecting')
-    return c.html(<CollectingPage username={username} theme={theme} />, 202);
+    return localizedHtml(c, <CollectingPage username={username} theme={theme} />, 202);
   if (lookup.status === 'not_found') return notFound(c, deps, username, theme);
   const resetAt = lookup.status === 'unavailable' ? lookup.resetAt : null;
-  return c.html(
+  return localizedHtml(
+    c,
     <UnavailablePage
       username={username}
       theme={theme}
       reason="cota"
-      retryAt={formatTime(resetAt)}
+      retryAt={formatTime(resetAt, localeOf(c))}
       retryInSeconds={retryIn(deps, resetAt)}
     />,
     503,
@@ -121,12 +139,13 @@ function rateLimited(
 ) {
   const retryAt = new Date(deps.now().getTime() + blocked.retryInSeconds * 1000);
   c.header('Retry-After', String(blocked.retryInSeconds));
-  return c.html(
+  return localizedHtml(
+    c,
     <UnavailablePage
       username={blocked.username}
       theme={theme}
       reason="limite-ip"
-      retryAt={formatTime(retryAt)}
+      retryAt={formatTime(retryAt, localeOf(c))}
       retryInSeconds={retryIn(deps, retryAt)}
     />,
     429,
@@ -135,7 +154,11 @@ function rateLimited(
 
 async function notFound(c: Context, deps: AppDeps, username: string, theme: ThemePreference) {
   const suggestion = isValidUsername(username) ? await deps.suggester.suggest(username) : null;
-  return c.html(<NotFoundPage username={username} theme={theme} suggestion={suggestion} />, 404);
+  return localizedHtml(
+    c,
+    <NotFoundPage username={username} theme={theme} suggestion={suggestion} />,
+    404,
+  );
 }
 
 /** Perfil novo: espera um pouco pela coleta; se demorar, a página acompanha por SSE. */
@@ -146,11 +169,11 @@ function lookupWithin(deps: AppDeps, username: string, waitMs: number): Promise<
   return Promise.race([deps.profiles.getProfile(username), timeout]);
 }
 
-function staleNotice(deps: AppDeps, snapshot: ProfileSnapshot): StaleNotice {
+function staleNotice(c: Context, deps: AppDeps, snapshot: ProfileSnapshot): StaleNotice {
   const reading = deps.quota.current();
   return {
-    age: formatAge(new Date(snapshot.generatedAt), deps.now()),
-    retryAt: formatTime(reading ? new Date(reading.resetAt) : null),
+    age: formatAge(new Date(snapshot.generatedAt), deps.now(), localeOf(c)),
+    retryAt: formatTime(reading ? new Date(reading.resetAt) : null, localeOf(c)),
   };
 }
 
@@ -168,9 +191,9 @@ export function themeOf(c: Context): ThemePreference {
   return resolveThemePreference(c.req.query('tema'), getCookie(c, THEME_COOKIE));
 }
 
-function formatTime(date: Date | null): string | null {
+function formatTime(date: Date | null, locale: Locale): string | null {
   if (!date) return null;
-  return date.toLocaleTimeString('pt-BR', {
+  return date.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'America/Sao_Paulo',
