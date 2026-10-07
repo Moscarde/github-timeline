@@ -73,7 +73,6 @@ function onClick(event) {
   else if (target.dataset.copyText) copyText(target, target.dataset.copyText);
   else if (target.dataset.tab) selectTab(target);
   else if (target.matches('[data-toggle-repos]')) toggleRepos(target);
-  else if (target.matches('[data-more-eras]')) showAllEras(target);
 }
 
 /** Abas da galeria (WAI-ARIA tabs): um painel visível por vez. */
@@ -93,14 +92,6 @@ function toggleRepos(button) {
   button.setAttribute('aria-expanded', String(!more.hidden));
   button.dataset.label ??= button.textContent;
   button.textContent = more.hidden ? button.dataset.label : clientText('Mostrar menos');
-}
-
-/** @param {HTMLElement} button */
-function showAllEras(button) {
-  const hidden = [...document.querySelectorAll('[data-era][hidden]')];
-  hidden.forEach((era) => (era.hidden = false));
-  hidden[0]?.querySelector('.mo')?.focus();
-  button.closest('.more-eras-row')?.remove();
 }
 
 /** Perfil novo: acompanha a coleta por SSE e recarrega quando o snapshot fica pronto (§6). */

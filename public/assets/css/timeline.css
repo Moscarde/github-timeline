@@ -234,16 +234,6 @@
 .btn.more {
   margin-top: 12px;
 }
-.more-eras-row {
-  display: flex;
-  justify-content: center;
-  padding: 0 0 32px 208px;
-}
-.more-eras {
-  padding: 8px 18px;
-  font-size: 14px;
-}
-
 /* ---------- celular ---------- */
 @media (max-width: 720px) {
   .timeline-section {
@@ -342,12 +332,8 @@
     padding: 14px;
     gap: 8px;
   }
-  .btn.more,
-  .more-eras {
+  .btn.more {
     width: 100%;
     min-height: 44px;
-  }
-  .more-eras-row {
-    padding: 0 0 8px;
   }
 }

@@ -8,14 +8,11 @@ import type { MonthlyContributions, Repo } from '../../domain/types.js';
 import { eraLead } from '../era-text.js';
 import { Icon } from '../icons.js';
 
-/** Anos exibidos antes do botão "Ver AAAA – AAAA" (§4.3). */
-export const VISIBLE_ERAS = 4;
 const HIGHLIGHTS_PER_YEAR = 6;
 
 /** Linha do tempo: capítulos por ano, grade mensal de contribuições e destaques. */
 export const Timeline: FC<{ eras: Era[]; months: MonthlyContributions }> = ({ eras, months }) => {
   const max = maxMonth(months);
-  const hidden = eras.slice(VISIBLE_ERAS);
   return (
     <section class="timeline-section wrap" aria-labelledby="linha-do-tempo">
       <div class="sec-head">
@@ -30,18 +27,10 @@ export const Timeline: FC<{ eras: Era[]; months: MonthlyContributions }> = ({ er
         )}
       </p>
       <ol class="timeline">
-        {eras.map((era, index) => (
-          <EraBlock era={era} row={months[era.year]} max={max} hidden={index >= VISIBLE_ERAS} />
+        {eras.map((era) => (
+          <EraBlock era={era} row={months[era.year]} max={max} />
         ))}
       </ol>
-      {hidden.length > 0 && (
-        <div class="more-eras-row">
-          <button class="btn more-eras" type="button" data-more-eras>
-            {viewText('Ver ')}
-            {hidden[0]?.year} – {hidden[hidden.length - 1]?.year}
-          </button>
-        </div>
-      )}
     </section>
   );
 };
@@ -56,12 +45,10 @@ const ContributionScale: FC = () => (
   </div>
 );
 
-const EraBlock: FC<{ era: Era; row: number[] | undefined; max: number; hidden: boolean }> = (
-  props,
-) => {
+const EraBlock: FC<{ era: Era; row: number[] | undefined; max: number }> = (props) => {
   const { era } = props;
   return (
-    <li class={era.isRecord ? 'era record' : 'era'} hidden={props.hidden} data-era>
+    <li class={era.isRecord ? 'era record' : 'era'} data-era>
       <div class="era-year">
         <div class="year">{era.year}</div>
         <div class="mono muted era-count">
