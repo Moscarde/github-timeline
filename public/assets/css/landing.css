@@ -94,6 +94,8 @@
   text-wrap: pretty;
 }
 .hero-search {
+  /* Respiro herdado do quirks mode; o margin negativo de .form-error conta com ele. */
+  margin: 0 0 16px;
   display: flex;
   align-items: center;
   background: var(--bg);
@@ -152,6 +154,7 @@
   font-size: 14px;
 }
 .compare-form {
+  margin: 0 0 16px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px 18px;

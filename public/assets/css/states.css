@@ -217,6 +217,7 @@
 }
 .state-search {
   display: none;
+  margin: 0 0 16px;
 }
 .state-actions {
   display: flex;

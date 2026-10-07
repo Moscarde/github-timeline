@@ -83,6 +83,16 @@ describe('páginas', () => {
     expect(html).not.toContain('<span class="mark"');
   });
 
+  it('toda página começa com doctype para não cair em quirks mode', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile());
+    harness.addProfile(profile('ana'));
+    for (const path of ['/', '/u/dev', '/u/novo', '/u/dev...ana']) {
+      const html = await (await harness.app.request(path)).text();
+      expect(html, path).toMatch(/^<!doctype html><html /);
+    }
+  });
+
   it('/buscar normaliza a entrada e redireciona', async () => {
     const { app } = createAppHarness();
     const response = await app.request(

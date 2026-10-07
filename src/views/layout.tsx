@@ -1,6 +1,7 @@
 import { LanguageSelector } from './language-selector.js';
 import { clientMessages } from '../i18n/client.js';
 import { viewText, useLocale } from '../i18n/view.js';
+import { raw } from 'hono/html';
 import type { Child, FC } from 'hono/jsx';
 import { PROJECT_URL } from '../config.js';
 import { formatCompact } from '../i18n/view-format.js';
@@ -31,8 +32,20 @@ const DATA_THEME: Record<ThemePreference, string | undefined> = {
 
 const STYLESHEETS = ['base', 'landing', 'profile', 'compare', 'timeline', 'states'];
 
-/** Documento base: tema já resolvido no servidor (cookie) para não piscar. */
+/**
+ * Documento base: tema já resolvido no servidor (cookie) para não piscar.
+ * O doctype mantém o navegador em standards mode; sem ele, forms ganham margem extra.
+ */
 export const Layout: FC<LayoutProps> = ({ meta, theme, topbar = {}, children }) => (
+  <>
+    {raw('<!doctype html>')}
+    <Document meta={meta} theme={theme} topbar={topbar}>
+      {children}
+    </Document>
+  </>
+);
+
+const Document: FC<LayoutProps> = ({ meta, theme, topbar = {}, children }) => (
   <html lang={useLocale()} data-theme={DATA_THEME[theme]}>
     <head>
       <meta charset="utf-8" />
