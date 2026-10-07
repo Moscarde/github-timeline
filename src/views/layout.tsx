@@ -128,7 +128,7 @@ const Topbar: FC<TopbarProps> = ({ owner, rival, landing, actions, searchValue }
       </span>
     </a>
     <span class="spacer" />
-    {landing ? <LandingNav stars={landing.stars} /> : <TopSearch value={searchValue} />}
+    {landing ? <StarButton stars={landing.stars} /> : <TopSearch value={searchValue} />}
     <LanguageSelector />
     <ThemeButton />
     {actions}
@@ -145,17 +145,10 @@ const CrumbOwner: FC<Pick<TopbarProps, 'owner' | 'rival'>> = ({ owner, rival }) 
   );
 };
 
-const LandingNav: FC<{ stars: number | null }> = ({ stars }) => (
-  <>
-    <nav class="topnav" aria-label={viewText('Seções')}>
-      <a href="#explorar">{viewText('Explorar')}</a>
-      <a href="#comparar">{viewText('Comparar')}</a>
-      <a href="#badge">Badge</a>
-    </nav>
-    <a class="btn star-btn" href={PROJECT_URL} rel="noopener">
-      ★ Star{stars !== null && <span class="star-count">{formatCompact(stars)}</span>}
-    </a>
-  </>
+const StarButton: FC<{ stars: number | null }> = ({ stars }) => (
+  <a class="btn star-btn" href={PROJECT_URL} rel="noopener">
+    ★ Star{stars !== null && <span class="star-count">{formatCompact(stars)}</span>}
+  </a>
 );
 
 const TopSearch: FC<{ value?: string }> = ({ value }) => (

@@ -18,8 +18,6 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Digite um usuário do GitHub e veja a trajetória ano a ano: linguagens, topics, stars e marcos dos repositórios públicos.':
     'Enter a GitHub username and explore their journey year by year: languages, topics, stars, and public repository milestones.',
   'GitHub Timeline, página inicial': 'GitHub Timeline, home',
-  Seções: 'Sections',
-  Explorar: 'Explore',
   'Buscar usuário do GitHub': 'Search for a GitHub user',
   'buscar usuário…': 'search for a user…',
   'Buscar usuário': 'Search for a user',

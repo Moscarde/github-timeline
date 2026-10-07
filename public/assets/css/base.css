@@ -319,18 +319,6 @@ img {
 .spacer {
   flex: 1;
 }
-.topnav {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-}
-.topnav a {
-  color: var(--muted);
-}
-.topnav a:hover {
-  color: var(--fg);
-  text-decoration: none;
-}
 .star-btn {
   padding: 5px 12px;
 }
@@ -427,7 +415,6 @@ img {
     height: 22px;
   }
   .topbar > .spacer,
-  .topnav,
   .star-btn,
   .top-search,
   .footer-long {
