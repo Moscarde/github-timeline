@@ -45,13 +45,13 @@ describe('comparison year tabs', () => {
     expect(html.match(/class="year-row"/g)).toHaveLength(2);
   });
 
-  it('reuses each full profile timeline, including independent repository expansion and scale', async () => {
+  it('reuses each full profile chapter, including independent repository expansion and scale', async () => {
     const html = String(await (<YearByYear a={left} b={right} />));
     for (const snapshot of [left, right]) {
-      const timeline = String(
-        await (<TimelineYears eras={snapshot.timeline} months={snapshot.months} />),
-      );
-      expect(html).toContain(timeline);
+      for (const era of snapshot.timeline) {
+        const chapter = String(await (<TimelineYears eras={[era]} months={snapshot.months} />));
+        expect(html).toContain(chapter);
+      }
       expect(html).toContain(`href="/u/${snapshot.account.username}"`);
     }
     expect(html).toContain('TypeScript');
@@ -64,18 +64,30 @@ describe('comparison year tabs', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it('aligns detailed chapters by year, leaving the side without a chapter empty', async () => {
+    const html = String(await (<YearByYear a={left} b={right} />));
+    const detailed = html.split('id="anos-detalhada"')[1] ?? '';
+    const rows = detailed.split('class="year-detail-row"').slice(1);
+    expect(rows).toHaveLength(2);
+    const [first, second] = rows.map((row) => row.split('class="year-profile side-b"'));
+    expect(first?.[0]).toContain('<div class="year">2020</div>');
+    expect(first?.[1]).toContain('class="year-empty"><div class="year faint">2020</div>');
+    expect(second?.[0]).toContain('class="year-empty"><div class="year faint">2021</div>');
+    expect(second?.[1]).toContain('<div class="year">2021</div>');
+  });
+
   it('keeps both profiles within the available width at every breakpoint', () => {
     const stylesheet = readFileSync(
       new URL('../../public/assets/css/compare-years.css', import.meta.url),
       'utf8',
     );
-    const layoutRules = [...stylesheet.matchAll(/\.year-details\s*\{([^}]+)\}/g)];
+    const layoutRules = [...stylesheet.matchAll(/\.year-detail-row\s*\{([^}]+)\}/g)];
     expect(layoutRules.length).toBeGreaterThan(0);
     for (const rule of layoutRules) {
       expect(rule[1]).not.toMatch(/grid-template-columns:\s*1fr\s*;/);
     }
     expect(stylesheet).toMatch(
-      /\.year-details\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s,
+      /\.year-detail-row\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s,
     );
   });
 

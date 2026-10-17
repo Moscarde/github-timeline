@@ -1,13 +1,26 @@
-/* As duas trajetórias compartilham a largura disponível, inclusive no celular. */
-.year-details {
+/* As duas trajetórias compartilham a largura disponível, inclusive no celular.
+   Cada ano é uma linha da grade, para os dois lados ficarem na mesma altura. */
+.year-details-head,
+.year-detail-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 32px;
+}
+.year-detail-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.year-detail-row {
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
 }
 .year-profile {
   min-width: 0;
 }
 .year-profile-heading {
+  min-width: 0;
   margin: 0 0 24px;
   padding-bottom: 12px;
   border-bottom: 2px solid var(--side);
@@ -21,9 +34,13 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 24px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--line);
+}
+.year-empty .year {
+  opacity: 0.35;
+}
+.year-empty p {
+  margin: 8px 0 0;
+  font-size: 13px;
 }
 .year-profile .era-year {
   display: flex;
@@ -78,8 +95,13 @@
 
 /* A síntese no celular preserva a comparação simultânea sem comprimir textos longos. */
 @media (max-width: 720px) {
-  .year-details {
+  .year-details-head,
+  .year-detail-row {
     gap: 12px;
+  }
+  .year-detail-row {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
   }
   .year-profile-heading {
     margin-bottom: 16px;
@@ -87,8 +109,9 @@
   }
   .year-profile .era {
     gap: 8px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+  }
+  .year-empty p {
+    font-size: 11px;
   }
   .year-profile .year {
     font-size: 28px;

@@ -32,10 +32,7 @@ const YearPanels: FC<ProfilePair> = ({ a, b }) => (
       <YearSummary a={a} b={b} />
     </YearPanel>
     <YearPanel name="detalhada">
-      <div class="year-details">
-        <DetailedProfile snapshot={a} side="a" />
-        <DetailedProfile snapshot={b} side="b" />
-      </div>
+      <YearDetails a={a} b={b} />
     </YearPanel>
   </>
 );
@@ -92,18 +89,48 @@ const YearSummary: FC<ProfilePair> = ({ a, b }) => (
   </ol>
 );
 
-const DetailedProfile: FC<{ snapshot: ProfileSnapshot; side: CompareSide }> = ({
+/**
+ * Capítulos completos lado a lado, uma linha por ano do eixo comum: o ano em que só um
+ * perfil criou repositórios aparece vazio do outro lado, mantendo os dois alinhados.
+ */
+const YearDetails: FC<ProfilePair> = ({ a, b }) => (
+  <div class="year-details">
+    <div class="year-details-head">
+      <DetailedHeading snapshot={a} side="a" />
+      <DetailedHeading snapshot={b} side="b" />
+    </div>
+    <ol class="year-detail-rows">
+      {alignYears(a, b).map((row) => (
+        <li class="year-detail-row">
+          <DetailedSide side="a" year={row.year} cell={row.a} snapshot={a} />
+          <DetailedSide side="b" year={row.year} cell={row.b} snapshot={b} />
+        </li>
+      ))}
+    </ol>
+  </div>
+);
+
+const DetailedHeading: FC<{ snapshot: ProfileSnapshot; side: CompareSide }> = ({
   snapshot,
   side,
 }) => (
-  <section class={`year-profile side-${side}`} aria-labelledby={`anos-perfil-${side}`}>
-    <h3 class="year-profile-heading side-ink" id={`anos-perfil-${side}`}>
-      <a href={`/u/${encodeURIComponent(snapshot.account.username)}`}>
-        @{snapshot.account.username}
-      </a>
-    </h3>
-    <TimelineYears eras={snapshot.timeline} months={snapshot.months} />
-  </section>
+  <h3 class={`year-profile-heading side-${side} side-ink`}>
+    <a href={`/u/${encodeURIComponent(snapshot.account.username)}`}>@{snapshot.account.username}</a>
+  </h3>
+);
+
+/** A escala dos meses continua sendo a do perfil inteiro, não a do ano isolado. */
+const DetailedSide: FC<YearSideProps> = ({ side, year, cell, snapshot }) => (
+  <div class={`year-profile side-${side}`}>
+    {cell.era ? (
+      <TimelineYears eras={[cell.era]} months={snapshot.months} />
+    ) : (
+      <div class="year-empty">
+        <div class="year faint">{year}</div>
+        <p class="muted">{viewText('sem repositórios novos')}</p>
+      </div>
+    )}
+  </div>
 );
 
 interface YearSideProps {
