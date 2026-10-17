@@ -7,19 +7,18 @@ import { CompareForm } from '../compare-form.js';
 const GRID_COLUMNS = 34;
 const GRID_ROWS = 7;
 
-/** Hero da landing (§2.1): contador semanal, busca e atalho para comparar. */
-export const Hero: FC<{ weeklyCount: number; error?: string }> = ({ weeklyCount, error }) => (
+/** Hero da landing (§2.1): contador acumulado, busca e atalho para comparar. */
+export const Hero: FC<{ totalCount: number; error?: string }> = ({ totalCount, error }) => (
   <section class="hero">
     <HeroGrid />
     <div class="hero-fade" aria-hidden="true" />
     <div class="hero-body wrap">
-      {weeklyCount > 0 && (
+      {totalCount > 0 && (
         <p class="live-pill">
           <span class="live-dot" aria-hidden="true" />
           <span>
-            {formatInteger(weeklyCount)}
+            {formatInteger(totalCount)}
             <span class="live-long">{viewText(' timelines geradas')}</span>
-            {viewText(' esta semana')}
           </span>
         </p>
       )}

@@ -389,7 +389,6 @@
     padding: 3px 10px 3px 7px;
     background: color-mix(in srgb, var(--brand) 10%, var(--canvas));
   }
-  .live-long,
   .hero-lead-long {
     display: none;
   }

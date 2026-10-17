@@ -1,3 +1,4 @@
+import { usageEvents } from './usage-events.js';
 import { localeOf } from './locale.js';
 import { translate } from '../i18n/translate.js';
 import { Hono } from 'hono';
@@ -39,6 +40,7 @@ const CONTENT_SECURITY_POLICY = {
 export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
   app.use('*', secureHeaders({ contentSecurityPolicy: CONTENT_SECURITY_POLICY }));
+  app.use('*', usageEvents(deps));
   app.route('/', systemRoutes(deps));
   app.route('/', apiRoutes(deps));
   app.route('/', badgeRoutes(deps));

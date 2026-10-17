@@ -29,6 +29,6 @@ describe('SqliteSnapshotStore', () => {
 
   it('aplica migrações de forma idempotente', () => {
     const db = openDatabase(':memory:');
-    expect(db.pragma('user_version', { simple: true })).toBe(8);
+    expect(db.pragma('user_version', { simple: true })).toBe(11);
   });
 });

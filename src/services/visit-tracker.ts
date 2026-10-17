@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { VisitStore } from '../storage/visit-store.js';
+import type { UsageEvent, VisitStore } from '../storage/visit-store.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_DAYS = 7;
@@ -13,8 +13,8 @@ export interface VisitTrackerDeps {
 }
 
 /**
- * Registra visitas com hash diário do IP e responde o contador semanal e "Em alta" (§2.1, §8).
- * @example tracker.record('torvalds', '203.0.113.7'); tracker.weeklyCount();
+ * Registra visitas com hash diário do IP e responde o contador acumulado e "Em alta" (§2.1, §8).
+ * @example tracker.record('torvalds', '203.0.113.7'); tracker.totalCount();
  */
 export class VisitTracker {
   private purgedDay = '';
@@ -28,9 +28,15 @@ export class VisitTracker {
     this.purgeOncePerDay(day);
   }
 
-  /** "N timelines geradas esta semana": janela móvel de 7 dias, incluindo hoje. */
-  weeklyCount(): number {
-    return this.deps.store.countSince(this.daysAgo(WEEK_DAYS - 1));
+  /** Total de aberturas bem-sucedidas. @example tracker.totalCount() // 42 */
+  totalCount(): number {
+    return this.deps.store.totalCount();
+  }
+
+  /** Registra uso por dia UTC. @example tracker.recordEvent('search', 302, 'en') */
+  recordEvent(event: string, status: number, locale: string): void {
+    const usage: UsageEvent = { day: dayOf(this.deps.now()), event, status, locale };
+    this.deps.store.recordEvent(usage);
   }
 
   /** Usernames mais visitados na janela de 7 dias. */

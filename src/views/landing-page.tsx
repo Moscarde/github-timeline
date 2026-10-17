@@ -11,7 +11,7 @@ import { Layout } from './layout.js';
 export interface LandingPageProps {
   theme: ThemePreference;
   tabs: GalleryTab[];
-  weeklyCount: number;
+  totalCount: number;
   projectStars: number | null;
   error?: string;
 }
@@ -29,7 +29,7 @@ export const LandingPage: FC<LandingPageProps> = (props) => (
       canonicalUrl: `${CANONICAL_ORIGIN}/`,
     }}
   >
-    <Hero weeklyCount={props.weeklyCount} error={props.error} />
+    <Hero totalCount={props.totalCount} error={props.error} />
     <Gallery tabs={props.tabs} />
     <BadgeSection />
   </Layout>

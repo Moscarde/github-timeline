@@ -1,13 +1,24 @@
 import { usernameKey } from '../../src/domain/username.js';
-import type { Visit, VisitStore } from '../../src/storage/visit-store.js';
+import type { UsageEvent, Visit, VisitStore } from '../../src/storage/visit-store.js';
 
 /** Visitas em memória, com a mesma deduplicação da chave primária do SQLite. */
 export class InMemoryVisitStore implements VisitStore {
+  private openings = 0;
+  readonly events: UsageEvent[] = [];
   readonly rows = new Map<string, Visit>();
 
   record(visit: Visit): void {
+    this.openings++;
     const key = `${usernameKey(visit.username)}|${visit.day}|${visit.visitor}`;
     if (!this.rows.has(key)) this.rows.set(key, visit);
+  }
+
+  totalCount(): number {
+    return this.openings;
+  }
+
+  recordEvent(event: UsageEvent): void {
+    this.events.push(event);
   }
 
   countSince(day: string): number {

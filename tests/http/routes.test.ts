@@ -287,12 +287,50 @@ describe('features do redesign', () => {
     expect(html).toContain('1.234 commits');
   });
 
-  it('visitas alimentam o contador semanal e "Em alta"', async () => {
+  it('conta dez visitantes do mesmo perfil e novas aberturas do cache', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile());
+    for (let visitor = 0; visitor < 10; visitor++) {
+      await harness.app.request('/u/dev', {
+        headers: { 'x-forwarded-for': `203.0.113.${visitor}` },
+      });
+    }
+    await harness.app.request('/u/Dev', { headers: { 'x-forwarded-for': '203.0.113.0' } });
+    await harness.app.request('/u/dev', { method: 'HEAD' });
+    const html = await (await harness.app.request('/')).text();
+    expect(html).toContain('11<span class="live-long"> timelines geradas</span>');
+    expect(html).not.toContain('esta semana');
+    expect(harness.visitStore.rows.size).toBe(10);
+    expect(harness.collector.calls).toBe(1);
+  });
+
+  it('separa buscas, erros, comparações e imagens do contador de timelines', async () => {
+    const harness = createAppHarness();
+    harness.addProfile(profile('dev'));
+    harness.addProfile(profile('ana'));
+    await harness.app.request('/buscar?q=dev');
+    await harness.app.request('/buscar?q=');
+    await harness.app.request('/u/missing');
+    await harness.app.request('/u/dev...ana');
+    await harness.app.request('/u/dev/card.png');
+    await harness.app.request('/badge/dev.svg');
+    expect(harness.visitStore.totalCount()).toBe(0);
+    expect(harness.visitStore.events.map(({ event, status }) => ({ event, status }))).toEqual([
+      { event: 'search', status: 302 },
+      { event: 'search', status: 400 },
+      { event: 'timeline', status: 404 },
+      { event: 'comparison', status: 200 },
+      { event: 'card', status: 200 },
+      { event: 'badge', status: 200 },
+    ]);
+  });
+
+  it('visitas alimentam o contador acumulado e "Em alta"', async () => {
     const harness = createAppHarness();
     harness.addProfile(profile());
     await harness.app.request('/u/dev', { headers: { 'x-forwarded-for': '203.0.113.7' } });
     const html = await (await harness.app.request('/')).text();
-    expect(html).toContain('1<span class="live-long"> timelines geradas</span> esta semana');
+    expect(html).toContain('1<span class="live-long"> timelines geradas</span>');
     expect(html).toContain('href="/u/dev"');
   });
 });

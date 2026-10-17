@@ -36,7 +36,7 @@ function landing(c: Context, deps: AppDeps, error?: string, status: 200 | 400 = 
     <LandingPage
       theme={themeOf(c)}
       tabs={deps.gallery.tabs()}
-      weeklyCount={deps.visits.weeklyCount()}
+      totalCount={deps.visits.totalCount()}
       projectStars={deps.projectStars.current()}
       error={error}
     />,

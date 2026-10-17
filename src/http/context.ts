@@ -13,10 +13,11 @@ export interface GallerySource {
   warmCurated(): void;
 }
 
-/** Contador semanal e registro de visitas (§2.1, §8). */
+/** Contador acumulado e registro de visitas (§2.1, §8). */
 export interface VisitCounter {
   record(username: string, ip: string): void;
-  weeklyCount(): number;
+  totalCount(): number;
+  recordEvent(event: string, status: number, locale: string): void;
 }
 
 /** Dependências das rotas, injetadas em `createApp`. */

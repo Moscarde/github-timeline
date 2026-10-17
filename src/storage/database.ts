@@ -25,6 +25,22 @@ const MIGRATIONS: string[] = [
   `ALTER TABLE snapshots RENAME COLUMN login TO username`,
   `ALTER TABLE visits RENAME COLUMN login_key TO username_key`,
   `ALTER TABLE visits RENAME COLUMN login TO username`,
+  `CREATE TABLE timeline_daily (
+     day TEXT NOT NULL,
+     username_key TEXT NOT NULL,
+     total INTEGER NOT NULL,
+     PRIMARY KEY (day, username_key)
+   )`,
+  `INSERT INTO timeline_daily (day, username_key, total)
+   SELECT day, username_key, COUNT(*) FROM visits GROUP BY day, username_key`,
+  `CREATE TABLE event_daily (
+     day TEXT NOT NULL,
+     event TEXT NOT NULL,
+     status INTEGER NOT NULL,
+     locale TEXT NOT NULL,
+     total INTEGER NOT NULL,
+     PRIMARY KEY (day, event, status, locale)
+   )`,
 ];
 
 /**

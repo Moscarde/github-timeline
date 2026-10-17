@@ -122,7 +122,28 @@ username ─▶ coleta (REST + GraphQL) ─▶ snapshot no SQLite ─▶ página
 - Só dados **públicos**: repositórios privados nunca aparecem.
 - No máximo 3 coletas simultâneas e 10 timelines novas por IP a cada 10 minutos. Perfis já salvos não contam.
 - Com menos de 10% da cota do GitHub, o servidor serve só snapshots salvos e avisa quando o dado está antigo.
-- Visitas guardam apenas username, dia e um hash diário do IP, por 30 dias. Servem para a seção "Em alta".
+- O indicador **"X timelines geradas"** acumula cada abertura bem-sucedida de uma timeline, inclusive acessos repetidos ao mesmo perfil e perfis em cache. Dez visitantes abrindo o mesmo perfil somam dez; uma nova abertura também conta. Requisições HEAD, buscas, comparações, imagens, API, páginas em coleta e erros não incrementam esse indicador.
+- Para "Em alta", visitas guardam apenas username, dia UTC e um hash diário do IP por 30 dias. O ranking mantém um visitante por perfil/dia na janela de 7 dias; redes com IP compartilhado podem agrupar visitantes.
+- Agregados diários de aberturas por perfil e de eventos HTTP por tipo, status e idioma são preservados, sem IP, hash de visitante ou query string. Health checks, arquivos estáticos e rotas desconhecidas não entram nos eventos.
+
+### Estatísticas de uso
+
+As migrações do SQLite criam `timeline_daily` e `event_daily` automaticamente. O histórico de visitas ainda disponível é incorporado uma única vez; acessos antigos já apagados ou deduplicados não podem ser reconstruídos. A partir da atualização, os agregados persistem entre reinícios e após a limpeza dos hashes.
+
+Consulte o banco configurado em `DATABASE_PATH` para analisar as estatísticas:
+
+```sql
+-- Total exibido na página inicial.
+SELECT COALESCE(SUM(total), 0) AS timelines FROM timeline_daily;
+
+-- Aberturas por dia e perfil, incluindo repetições.
+SELECT day, username_key, total FROM timeline_daily ORDER BY day DESC, total DESC;
+
+-- Buscas, comparações, timelines, imagens e API por resultado e idioma.
+SELECT day, event, status, locale, total FROM event_daily ORDER BY day DESC, total DESC;
+```
+
+Os eventos são `landing`, `search`, `comparison_search`, `timeline`, `comparison`, `card`, `badge`, `api_profile`, `api_status` e `language_change`. O status permite distinguir buscas válidas (302), entradas inválidas (400), páginas em coleta (202), perfis ausentes (404), limites (429) e indisponibilidade (503). A captura mede requisições GET atendidas pelo servidor, incluindo robôs; cards e badges servidos pelo cache do navegador ou de proxies não geram um novo evento. Uma falha na gravação de eventos HTTP gera o log JSON `usage.record_failed`.
 
 ## ✦ Stack
 

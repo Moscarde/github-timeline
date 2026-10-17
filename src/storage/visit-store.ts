@@ -8,11 +8,23 @@ export interface Visit {
   visitor: string;
 }
 
+/** Agregado HTTP sem IP, query string ou identificador de visitante. */
+export interface UsageEvent {
+  day: string;
+  event: string;
+  status: number;
+  locale: string;
+}
+
 /** Eventos de visita (§8, "Privacidade"): nunca guarda o IP bruto. */
 export interface VisitStore {
-  /** Idempotente: o mesmo visitante conta uma vez por username e dia. */
+  /** Conta cada abertura; visitantes distintos ficam separados para o ranking. */
   record(visit: Visit): void;
-  /** Visitas a partir do dia informado, inclusive. */
+  /** Total acumulado de aberturas, inclusive após a retenção dos hashes. */
+  totalCount(): number;
+  /** Incrementa o agregado diário de um evento HTTP. */
+  recordEvent(event: UsageEvent): void;
+  /** Visitantes distintos por perfil/dia a partir do dia informado, inclusive. */
   countSince(day: string): number;
   /** Usernames mais visitados a partir do dia informado, do maior para o menor. */
   topSince(day: string, limit: number): string[];
@@ -21,19 +33,44 @@ export interface VisitStore {
 }
 
 /**
- * Visitas em SQLite, deduplicadas pela chave primária (username, dia, visitante).
+ * Aberturas acumuladas em SQLite e visitantes deduplicados para "Em alta".
  * @example new SqliteVisitStore(db).topSince('2026-09-23', 6)
  */
 export class SqliteVisitStore implements VisitStore {
   constructor(private readonly db: Database.Database) {}
 
   record(visit: Visit): void {
+    this.db.transaction(() => {
+      this.db
+        .prepare(
+          `INSERT OR IGNORE INTO visits (username_key, username, day, visitor)
+         VALUES (@key, @username, @day, @visitor)`,
+        )
+        .run({ key: usernameKey(visit.username), ...visit });
+      this.db
+        .prepare(
+          `INSERT INTO timeline_daily (day, username_key, total) VALUES (?, ?, 1)
+         ON CONFLICT (day, username_key) DO UPDATE SET total = total + 1`,
+        )
+        .run(visit.day, usernameKey(visit.username));
+    })();
+  }
+
+  totalCount(): number {
+    const row = this.db
+      .prepare('SELECT COALESCE(SUM(total), 0) AS total FROM timeline_daily')
+      .get() as { total: number };
+    return row.total;
+  }
+
+  recordEvent(event: UsageEvent): void {
     this.db
       .prepare(
-        `INSERT OR IGNORE INTO visits (username_key, username, day, visitor)
-         VALUES (@key, @username, @day, @visitor)`,
+        `INSERT INTO event_daily (day, event, status, locale, total)
+       VALUES (@day, @event, @status, @locale, 1)
+       ON CONFLICT (day, event, status, locale) DO UPDATE SET total = total + 1`,
       )
-      .run({ key: usernameKey(visit.username), ...visit });
+      .run(event);
   }
 
   countSince(day: string): number {

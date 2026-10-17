@@ -58,7 +58,7 @@ export async function profilePage(c: Context, deps: AppDeps) {
 }
 
 function renderProfile(c: Context, deps: AppDeps, theme: ThemePreference, main: ReadyLookup) {
-  deps.visits.record(main.snapshot.account.username, clientIp(c));
+  if (c.req.method === 'GET') deps.visits.record(main.snapshot.account.username, clientIp(c));
   const shareTheme = parseTheme(c.req.query('tema')) ?? (theme === 'auto' ? 'escuro' : theme);
   const stale = staleOf(c, deps, [main]);
   return localizedHtml(

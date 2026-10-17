@@ -6,7 +6,7 @@ interface NodeBindings {
 
 /**
  * IP do visitante para o hash diário de visitas. Atrás do proxy (§7), vale o primeiro
- * endereço de `X-Forwarded-For`; sem nada, "desconhecido" (todas as visitas contam como uma).
+ * endereço de `X-Forwarded-For`; sem nada, "desconhecido" (visitantes distintos ficam agrupados no ranking).
  * @example clientIp(c) // "203.0.113.7"
  */
 export function clientIp(c: Context): string {

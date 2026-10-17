@@ -53,7 +53,7 @@ Todas as telas têm tema claro e escuro, e funcionam de 390px a 1280px ou mais.
 
 - Topbar: marca, navegação (Explorar · Comparar · Badge), contagem de stars do repositório do projeto, alternância de tema.
 - Hero: título, campo `github.com/<username>` com ação "Gerar timeline", atalho para comparar dois perfis. Ao fundo, uma grade de contribuições decorativa.
-- Contador "N timelines geradas esta semana" (janela móvel de 7 dias).
+- Contador acumulado "N timelines geradas": cada abertura bem-sucedida de um perfil conta, inclusive repetições e perfis em cache; agregados diários persistem sem expirar.
 - Galeria "Perfis para explorar", com abas:
   - **Em alta**: perfis mais visitados em 7 dias;
   - **Lendas**, **Brasil**, **Criadores de linguagem**: listas curadas em `data/curated.json` (§2.3).
