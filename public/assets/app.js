@@ -75,13 +75,28 @@ function onClick(event) {
   else if (target.matches('[data-toggle-repos]')) toggleRepos(target);
 }
 
-/** Abas da galeria (WAI-ARIA tabs): um painel visível por vez. */
+/** Abas da galeria e da comparação (WAI-ARIA): um painel visível por vez. */
 function selectTab(tab) {
   for (const other of tab.parentElement.querySelectorAll('[role="tab"]')) {
     const selected = other === tab;
     other.setAttribute('aria-selected', String(selected));
+    other.setAttribute('tabindex', selected ? '0' : '-1');
     document.getElementById(other.getAttribute('aria-controls')).hidden = !selected;
   }
+}
+
+/** Setas, Home e End mantêm o foco dentro do grupo de abas ativo. */
+function onTabKeydown(event) {
+  const tab = event.target.closest?.('[role="tab"]');
+  if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  const tabs = [...tab.parentElement.querySelectorAll('[role="tab"]')];
+  const step = event.key === 'ArrowLeft' ? -1 : 1;
+  let index = (tabs.indexOf(tab) + step + tabs.length) % tabs.length;
+  if (event.key === 'Home') index = 0;
+  if (event.key === 'End') index = tabs.length - 1;
+  event.preventDefault();
+  selectTab(tabs[index]);
+  tabs[index].focus();
 }
 
 /** @param {HTMLElement} button */
@@ -162,6 +177,7 @@ function scheduleRetry(element) {
 }
 
 document.addEventListener('click', onClick);
+document.addEventListener('keydown', onTabKeydown);
 syncShareTheme(effectiveTheme());
 const collecting = document.querySelector('[data-collecting]');
 if (collecting) watchCollection(collecting);

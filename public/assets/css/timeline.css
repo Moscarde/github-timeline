@@ -337,3 +337,86 @@
     min-height: 44px;
   }
 }
+
+/* Os capítulos completos precisam caber em duas colunas na comparação. */
+.year-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+.year-profile {
+  min-width: 0;
+}
+.year-profile-heading {
+  margin: 0 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--side);
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.year-profile-heading a {
+  color: inherit;
+}
+.year-profile .era {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.year-profile .era-year {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  padding: 0;
+}
+.year-profile .year {
+  font-size: 40px;
+}
+.year-profile .era-count {
+  margin: 0;
+}
+.year-profile .era-rail,
+.year-profile .era-body {
+  padding: 0;
+}
+.year-profile .era-rail::before {
+  display: none;
+}
+.year-profile .months,
+.year-profile .month-initials {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+}
+.year-profile .mo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.year-profile .month-initials {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 10px;
+}
+.year-profile .era-body h3 {
+  font-size: 22px;
+}
+.year-profile .repos {
+  grid-template-columns: 1fr;
+}
+.year-profile.side-b {
+  --lv1: var(--b-lv1);
+  --lv2: var(--b-lv2);
+  --lv3: var(--b-lv3);
+  --lv4: var(--b-lv4);
+  --brand: var(--b);
+  --brand-ink: var(--b-ink);
+}
+@media (max-width: 720px) {
+  .year-details {
+    grid-template-columns: 1fr;
+  }
+}

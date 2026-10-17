@@ -101,6 +101,8 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'não dá pra comparar.': 'cannot be compared.',
   'Ver @': 'View @',
   'Ano a ano': 'Year by year',
+  Resumo: 'Summary',
+  Detalhada: 'Detailed',
   'um quadrado por mês, na escala de cada perfil': 'one square per month, scaled for each profile',
   '{0}: {1} em {2}': '{0}: {1} in {2}',
   'sem repositórios novos': 'no new repositories',

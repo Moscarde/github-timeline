@@ -12,7 +12,6 @@ const HIGHLIGHTS_PER_YEAR = 6;
 
 /** Linha do tempo: capítulos por ano, grade mensal de contribuições e destaques. */
 export const Timeline: FC<{ eras: Era[]; months: MonthlyContributions }> = ({ eras, months }) => {
-  const max = maxMonth(months);
   return (
     <section class="timeline-section wrap" aria-labelledby="linha-do-tempo">
       <div class="sec-head">
@@ -26,12 +25,23 @@ export const Timeline: FC<{ eras: Era[]; months: MonthlyContributions }> = ({ er
           'Um quadrado por mês: contribuições públicas no GitHub, incluindo repositórios de organizações.',
         )}
       </p>
-      <ol class="timeline">
-        {eras.map((era) => (
-          <EraBlock era={era} row={months[era.year]} max={max} />
-        ))}
-      </ol>
+      <TimelineYears eras={eras} months={months} />
     </section>
+  );
+};
+
+/** Reutiliza os capítulos completos de um perfil. @example <TimelineYears eras={eras} months={months} /> */
+export const TimelineYears: FC<{ eras: Era[]; months: MonthlyContributions }> = ({
+  eras,
+  months,
+}) => {
+  const max = maxMonth(months);
+  return (
+    <ol class="timeline">
+      {eras.map((era) => (
+        <EraBlock era={era} row={months[era.year]} max={max} />
+      ))}
+    </ol>
   );
 };
 
