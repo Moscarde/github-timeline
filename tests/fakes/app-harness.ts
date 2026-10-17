@@ -1,3 +1,5 @@
+import { StatisticsService } from '../../src/services/statistics-service.js';
+import { InMemoryStatisticsStore } from './in-memory-statistics-store.js';
 import { QuotaTracker } from '../../src/github/quota.js';
 import { createApp } from '../../src/http/app.js';
 import { FixedWindowRateLimiter } from '../../src/lib/rate-limiter.js';
@@ -35,9 +37,10 @@ export function createAppHarness(collectWaitMs = 50, newCollectionsPerIp = 100) 
     windowMs: 10 * 60 * 1000,
     now,
   });
+  const statistics = new StatisticsService(new InMemoryStatisticsStore(visitStore), now);
   const app = createApp({
     ...{ profiles, progress, cards, quota, logger, collectWaitMs },
-    ...{ gallery, visits, suggester, projectStars, collectLimiter, now },
+    ...{ gallery, visits, statistics, suggester, projectStars, collectLimiter, now },
   });
   const addProfile = (profile: CollectedProfile) =>
     collector.profiles.set(profile.account.username.toLowerCase(), profile);

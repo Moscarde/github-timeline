@@ -4,6 +4,7 @@ import { localeOf } from './locale.js';
 
 const USAGE_ROUTES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^\/$/, 'landing'],
+  [/^\/estatisticas$/, 'statistics'],
   [/^\/buscar$/, 'search'],
   [/^\/comparar$/, 'comparison_search'],
   [/^\/u\/[^/]+\/card\.png$/, 'card'],

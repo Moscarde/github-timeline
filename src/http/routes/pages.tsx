@@ -1,3 +1,5 @@
+import { statisticsPeriod } from '../../services/statistics-service.js';
+import { StatisticsPage } from '../../views/statistics-page.js';
 import { localizedHtml, changeLanguage } from '../locale.js';
 import { Hono, type Context } from 'hono';
 import { comparePath } from '../../domain/compare.js';
@@ -13,6 +15,15 @@ const COMPARE_ERROR = 'Para comparar, digite dois usernames do GitHub.';
 export function pageRoutes(deps: AppDeps): Hono {
   const app = new Hono();
   app.get('/idioma', changeLanguage);
+  app.get('/estatisticas', (c) =>
+    localizedHtml(
+      c,
+      <StatisticsPage
+        theme={themeOf(c)}
+        report={deps.statistics.report(statisticsPeriod(c.req.query('dias')))}
+      />,
+    ),
+  );
   app.get('/', (c) => landing(c, deps));
   app.get('/buscar', (c) => {
     const username = parseUsernameInput(c.req.query('q') ?? '');

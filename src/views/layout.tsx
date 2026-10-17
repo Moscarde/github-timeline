@@ -30,7 +30,7 @@ const DATA_THEME: Record<ThemePreference, string | undefined> = {
   auto: undefined,
 };
 
-const STYLESHEETS = ['base', 'landing', 'profile', 'compare', 'timeline', 'states'];
+const STYLESHEETS = ['base', 'landing', 'profile', 'compare', 'timeline', 'states', 'statistics'];
 
 /**
  * Documento base: tema já resolvido no servidor (cookie) para não piscar.
@@ -193,6 +193,9 @@ const Footer: FC = () => (
   <footer class="footer">
     <div class="wrap">
       <span>{viewText('Dados da API pública do GitHub.')}</span>
+      <a class="stats-nav-link" href="/estatisticas">
+        {viewText('Estatísticas')}
+      </a>
       <span class="footer-long">
         {viewText('Feito por ')}
         <a href="https://github.com/Moscarde">@Moscarde</a> ·{' '}

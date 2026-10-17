@@ -3,18 +3,18 @@ import type { UsageEvent, Visit, VisitStore } from '../../src/storage/visit-stor
 
 /** Visitas em memória, com a mesma deduplicação da chave primária do SQLite. */
 export class InMemoryVisitStore implements VisitStore {
-  private openings = 0;
+  readonly openings: Visit[] = [];
   readonly events: UsageEvent[] = [];
   readonly rows = new Map<string, Visit>();
 
   record(visit: Visit): void {
-    this.openings++;
+    this.openings.push(visit);
     const key = `${usernameKey(visit.username)}|${visit.day}|${visit.visitor}`;
     if (!this.rows.has(key)) this.rows.set(key, visit);
   }
 
   totalCount(): number {
-    return this.openings;
+    return this.openings.length;
   }
 
   recordEvent(event: UsageEvent): void {

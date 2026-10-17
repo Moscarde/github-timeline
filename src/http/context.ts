@@ -1,3 +1,4 @@
+import type { StatisticsService } from '../services/statistics-service.js';
 import type { CardRenderer } from '../card/card-renderer.js';
 import type { UsernameSuggester } from '../github/username-suggester.js';
 import type { QuotaTracker } from '../github/quota.js';
@@ -29,6 +30,7 @@ export interface AppDeps {
   logger: Logger;
   gallery: GallerySource;
   visits: VisitCounter;
+  statistics: StatisticsService;
   suggester: UsernameSuggester;
   /** Stars do repositório do projeto; `null` enquanto a primeira leitura não chega. */
   projectStars: { current(): number | null };

@@ -1,5 +1,52 @@
 /** Portuguese source messages and their English equivalents. */
 export const ENGLISH: Readonly<Record<string, string>> = {
+  'Gráfico de aberturas por dia': 'Daily views chart',
+  Estatísticas: 'Statistics',
+  'Estatísticas · GitHub Timeline': 'Statistics · GitHub Timeline',
+  'O uso do GitHub Timeline em números: timelines, evolução diária e perfis mais acessados.':
+    'GitHub Timeline usage in numbers: timelines, daily activity, and most viewed profiles.',
+  'Estatísticas de uso': 'Usage statistics',
+  'Cada timeline,': 'Every timeline,',
+  'uma nova história.': 'a new story.',
+  '{0} timelines geradas no total.': '{0} timelines created in total.',
+  'Dados agregados de uso. Nenhum IP, identificador de visitante ou busca individual é exibido.':
+    'Aggregated usage. No IP addresses, visitor identifiers, or individual searches are shown.',
+  'Período das estatísticas': 'Statistics period',
+  '{0} dias': '{0} days',
+  'Indicadores do período': 'Period metrics',
+  'Timelines geradas': 'Timelines created',
+  'Aberturas no período': 'Views during the period',
+  'Perfis explorados': 'Profiles explored',
+  'Perfis distintos no período': 'Distinct profiles during the period',
+  'Buscas realizadas': 'Searches made',
+  'Buscas válidas no período': 'Valid searches during the period',
+  'Comparações vistas': 'Comparisons viewed',
+  'Comparações abertas no período': 'Comparisons opened during the period',
+  'Timelines ao longo do tempo': 'Timelines over time',
+  'Aberturas por dia · período selecionado · UTC': 'Daily views · selected period · UTC',
+  'Nenhuma abertura registrada neste período.': 'No views recorded during this period.',
+  'Ver valores por dia': 'View daily values',
+  'Aberturas por dia': 'Daily views',
+  'Dia (UTC)': 'Day (UTC)',
+  'Timelines geradas por dia': 'Timelines created per day',
+  'Evolução diária das aberturas. Os valores exatos estão na tabela abaixo do gráfico.':
+    'Daily views over time. Exact values are in the table below the chart.',
+  '{0}: {1} timelines': '{0}: {1} timelines',
+  'Perfis mais acessados': 'Most viewed profiles',
+  'Top 10 por aberturas no período': 'Top 10 by views during the period',
+  'O próximo perfil pode ser o primeiro.': 'The next profile could be the first.',
+  aberturas: 'views',
+  'Página inicial': 'Home page',
+  'Cards de compartilhamento': 'Share cards',
+  Badges: 'Badges',
+  'Consultas à API': 'API requests',
+  'Outras formas de explorar': 'Other ways to explore',
+  'Respostas bem-sucedidas no período': 'Successful responses during the period',
+  'Imagens servidas pelo cache de navegadores ou proxies não geram um novo registro.':
+    'Images served from browser or proxy caches do not create a new record.',
+  'Cada abertura de timeline conta, inclusive repetições e perfis em cache. Os totais incluem apenas o histórico registrado e podem incluir robôs. O dia atual está em andamento; datas em UTC.':
+    'Every timeline view counts, including repeat views and cached profiles. Totals include only recorded history and may include bots. The current day is in progress; dates use UTC.',
+
   'Idioma inválido: recebido "{0}"; esperado pt-BR, en ou auto.':
     'Invalid language: received "{0}"; expected pt-BR, en, or auto.',
   'username inválido: recebido "{0}"; esperado username do GitHub com letras, números e hífens, sem hífen nas extremidades.':

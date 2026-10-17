@@ -1,3 +1,5 @@
+import { StatisticsService } from './services/statistics-service.js';
+import { SqliteStatisticsStore } from './storage/statistics-store.js';
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { serve } from '@hono/node-server';
@@ -65,6 +67,7 @@ async function buildDeps(config: AppConfig, logger: JsonLogger): Promise<AppDeps
   const visits = buildVisits(config, db, now);
   return {
     ...{ profiles, progress, quota, logger, visits, now },
+    statistics: new StatisticsService(new SqliteStatisticsStore(db), now),
     gallery: await buildGallery(profiles, visits, logger, now),
     cards: new SatoriCardRenderer({
       fonts: await loadCardFonts(),

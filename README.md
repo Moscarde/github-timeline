@@ -128,6 +128,20 @@ username ─▶ coleta (REST + GraphQL) ─▶ snapshot no SQLite ─▶ página
 
 ### Estatísticas de uso
 
+A página pública **`/estatisticas`**, acessível pelo rodapé, mostra o total acumulado,
+indicadores de timelines, perfis distintos, buscas válidas e comparações abertas;
+um gráfico de aberturas por dia com tabela acessível; um ranking dos dez perfis
+mais acessados; e totais de uso da home, cards, badges e API. Os filtros de 7, 30 e
+90 dias atualizam todas as métricas do período. As datas usam UTC e o dia atual
+é parcial. A página segue os temas e idiomas do projeto.
+
+A leitura usa exclusivamente `timeline_daily` e `event_daily`. Nenhum IP, hash,
+identificador de visitante ou termo de busca é consultado ou enviado à página.
+Somente usernames públicos de perfis gerados e contagens agregadas aparecem no ranking.
+As buscas contam redirecionamentos válidos (302); comparações e demais recursos
+contam respostas bem-sucedidas (200). Visitas ao dashboard são registradas como
+`statistics` e não incrementam o contador de timelines.
+
 As migrações do SQLite criam `timeline_daily` e `event_daily` automaticamente. O histórico de visitas ainda disponível é incorporado uma única vez; acessos antigos já apagados ou deduplicados não podem ser reconstruídos. A partir da atualização, os agregados persistem entre reinícios e após a limpeza dos hashes.
 
 Consulte o banco configurado em `DATABASE_PATH` para analisar as estatísticas:
