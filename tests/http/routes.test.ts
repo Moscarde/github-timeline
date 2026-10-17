@@ -361,4 +361,26 @@ describe('limite de coletas novas por IP', () => {
     expect(response.status).toBe(200);
     expect(harness.collector.calls).toBe(1);
   });
+
+  it('ignora endereços forjados antes do IP acrescentado pelo proxy', async () => {
+    const harness = createAppHarness(50, 1);
+    harness.addProfile(profile('ana'));
+    harness.addProfile(profile('bia'));
+    const spoofed = (fake: string) => ({
+      headers: { 'x-forwarded-for': `${fake}, 203.0.113.7` },
+    });
+    expect((await harness.app.request('/u/ana', spoofed('1.1.1.1'))).status).toBe(200);
+    expect((await harness.app.request('/u/bia', spoofed('2.2.2.2'))).status).toBe(429);
+  });
+});
+
+describe('coleta disparada pelo badge', () => {
+  it('registra falha inesperada sem rejeição não tratada', async () => {
+    const harness = createAppHarness();
+    harness.collector.failure = new Error('falha inesperada');
+    const response = await harness.app.request('/badge/ghost.svg');
+    expect(response.status).toBe(200);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(harness.logger.events()).toContain('badge.collection_failed');
+  });
 });

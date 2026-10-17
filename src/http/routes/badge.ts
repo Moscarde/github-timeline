@@ -16,7 +16,7 @@ export function badgeRoutes(deps: AppDeps): Hono {
     const username = c.req.param('file').replace(/\.svg$/i, '');
     const snapshot = isValidUsername(username) ? deps.profiles.findStored(username) : null;
     if (!snapshot && isValidUsername(username) && mayCollect(c, deps, username).allowed)
-      void deps.profiles.getProfile(username);
+      collectInBackground(deps, username);
     const svg = renderBadge(snapshot, localeOf(c));
     return c.body(svg, 200, {
       'Content-Type': 'image/svg+xml; charset=utf-8',
@@ -26,4 +26,11 @@ export function badgeRoutes(deps: AppDeps): Hono {
     });
   });
   return app;
+}
+
+/** Sem o `catch`, um erro que não é do GitHub vira unhandled rejection e derruba o processo. */
+function collectInBackground(deps: AppDeps, username: string): void {
+  deps.profiles.getProfile(username).catch((error: unknown) => {
+    deps.logger.log('error', 'badge.collection_failed', { username, error: String(error) });
+  });
 }
