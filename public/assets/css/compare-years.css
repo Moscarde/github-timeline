@@ -1,0 +1,160 @@
+/* As duas trajetórias compartilham a largura disponível, inclusive no celular. */
+.year-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+.year-profile {
+  min-width: 0;
+}
+.year-profile-heading {
+  margin: 0 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--side);
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.year-profile-heading a {
+  color: inherit;
+}
+.year-profile .era {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.year-profile .era-year {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  padding: 0;
+}
+.year-profile .year {
+  font-size: 40px;
+}
+.year-profile .era-count {
+  margin: 0;
+}
+.year-profile .era-rail,
+.year-profile .era-body {
+  padding: 0;
+}
+.year-profile .era-rail::before {
+  display: none;
+}
+.year-profile .months,
+.year-profile .month-initials {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+}
+.year-profile .mo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.year-profile .month-initials {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 10px;
+}
+.year-profile .era-body h3 {
+  font-size: 22px;
+}
+.year-profile .repos {
+  grid-template-columns: 1fr;
+}
+.year-profile.side-b {
+  --lv1: var(--b-lv1);
+  --lv2: var(--b-lv2);
+  --lv3: var(--b-lv3);
+  --lv4: var(--b-lv4);
+  --brand: var(--b);
+  --brand-ink: var(--b-ink);
+}
+
+/* A síntese no celular preserva a comparação simultânea sem comprimir textos longos. */
+@media (max-width: 720px) {
+  .year-details {
+    gap: 12px;
+  }
+  .year-profile-heading {
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .year-profile .era {
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+  }
+  .year-profile .year {
+    font-size: 28px;
+  }
+  .year-profile .era-count {
+    font-size: 10px;
+  }
+  .year-profile .months,
+  .year-profile .month-initials {
+    gap: 2px;
+  }
+  .year-profile .month-initials {
+    font-size: 8px;
+  }
+  .year-profile .mo {
+    position: static;
+  }
+  .year-profile .mo:hover,
+  .year-profile .mo:focus-visible {
+    transform: none;
+  }
+  .year-profile .tip {
+    left: 0;
+    right: 0;
+    transform: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .year-profile .era-body h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .year-profile .lead,
+  .year-profile .topic-skill,
+  .year-profile .lang-skill:nth-child(n + 3),
+  .year-profile .repo .desc,
+  .year-profile .repo .topics,
+  .year-profile .repo .repo-meta,
+  .year-profile .repo .tag,
+  .year-profile .repo-head > .icon {
+    display: none;
+  }
+  .year-profile .skills {
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .year-profile .skill {
+    max-width: 100%;
+    padding: 2px 4px;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+  }
+  .year-profile .repos {
+    gap: 6px;
+  }
+  .year-profile .repo {
+    padding: 8px;
+  }
+  .year-profile .repo-head .name {
+    font-size: 12px;
+  }
+  .year-profile .btn.more {
+    padding-inline: 4px;
+    font-size: 11px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

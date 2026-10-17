@@ -30,7 +30,16 @@ const DATA_THEME: Record<ThemePreference, string | undefined> = {
   auto: undefined,
 };
 
-const STYLESHEETS = ['base', 'landing', 'profile', 'compare', 'timeline', 'states', 'statistics'];
+const STYLESHEETS = [
+  'base',
+  'landing',
+  'profile',
+  'compare',
+  'timeline',
+  'compare-years',
+  'states',
+  'statistics',
+];
 
 /**
  * Documento base: tema já resolvido no servidor (cookie) para não piscar.
