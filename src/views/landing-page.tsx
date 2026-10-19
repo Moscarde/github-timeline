@@ -3,7 +3,7 @@ import type { FC } from 'hono/jsx';
 import { CANONICAL_ORIGIN } from '../config.js';
 import type { ThemePreference } from '../lib/theme.js';
 import type { GalleryTab } from '../services/gallery-service.js';
-import { BadgeSection } from './landing/badge-section.js';
+import { ReadmeSection } from './readme/readme-section.js';
 import { Gallery } from './landing/gallery.js';
 import { Hero } from './landing/hero.js';
 import { Layout } from './layout.js';
@@ -16,7 +16,7 @@ export interface LandingPageProps {
   error?: string;
 }
 
-/** Landing (§2.1): hero, galeria e badge. */
+/** Landing (§2.1): hero, galeria e formatos para o README (badge e embeds). */
 export const LandingPage: FC<LandingPageProps> = (props) => (
   <Layout
     theme={props.theme}
@@ -31,6 +31,6 @@ export const LandingPage: FC<LandingPageProps> = (props) => (
   >
     <Hero totalCount={props.totalCount} error={props.error} />
     <Gallery tabs={props.tabs} />
-    <BadgeSection />
+    <ReadmeSection />
   </Layout>
 );

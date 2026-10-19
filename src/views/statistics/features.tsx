@@ -8,6 +8,7 @@ const FEATURE_LABELS: ReadonlyArray<readonly [string, string]> = [
   ['landing', 'Página inicial'],
   ['card', 'Cards de compartilhamento'],
   ['badge', 'Badges'],
+  ['embed', 'Embeds para README'],
   ['api_profile', 'Consultas à API'],
 ];
 type FeatureTotal = { label: string; total: number };

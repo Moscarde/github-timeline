@@ -204,7 +204,7 @@
   margin-bottom: 24px;
 }
 .gallery-head h2,
-.badge-copy h2 {
+.readme-head h2 {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
@@ -287,27 +287,7 @@
   color: var(--fg);
 }
 
-/* ---------- badge ---------- */
-.badge-section {
-  padding-block: 48px;
-  border-top: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 48px;
-  align-items: center;
-  max-width: none;
-}
-.badge-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
-}
-.badge-copy p {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.55;
-}
+/* ---------- badge (seção README em readme.css) ---------- */
 .badge-html {
   display: inline-flex;
   margin-top: 8px;
@@ -363,9 +343,6 @@
   }
   .gallery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .badge-section {
-    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 720px) {
@@ -465,12 +442,8 @@
   .profile-card-meta {
     display: none;
   }
-  .badge-section {
-    padding-block: 28px;
-    gap: 20px;
-  }
   .gallery-head h2,
-  .badge-copy h2 {
+  .readme-head h2 {
     font-size: 20px;
   }
 }

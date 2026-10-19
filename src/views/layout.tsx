@@ -33,6 +33,7 @@ const DATA_THEME: Record<ThemePreference, string | undefined> = {
 const STYLESHEETS = [
   'base',
   'landing',
+  'readme',
   'profile',
   'compare',
   'timeline',

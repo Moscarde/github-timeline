@@ -250,9 +250,6 @@
   padding: 7px 12px;
   overflow-wrap: anywhere;
 }
-.share-cta .badge-html {
-  margin-top: 0;
-}
 
 /* ---------- celular ---------- */
 @media (max-width: 1100px) {

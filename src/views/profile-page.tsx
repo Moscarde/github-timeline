@@ -9,9 +9,10 @@ import { Layout, type PageMeta } from './layout.js';
 import { Achievements } from './profile/achievements.js';
 import { CompareForm } from './compare-form.js';
 import { ProfileHeader, ShareActions } from './profile/header.js';
-import { CopyLinkButton, ShareCta } from './profile/share-cta.js';
+import { CopyLinkButton } from './profile/copy-link-button.js';
 import { Summary } from './profile/summary.js';
 import { Timeline } from './profile/timeline.js';
+import { ReadmeSection } from './readme/readme-section.js';
 import { shareLinks, type ShareLinks } from './share-links.js';
 import {
   EmptyHistory,
@@ -92,7 +93,9 @@ const ProfileBody: FC<ProfilePageProps & { share: ShareLinks }> = (props) => {
       </section>
       <Achievements achievements={snapshot.achievements} />
       <Timeline eras={snapshot.timeline} months={snapshot.months} />
-      <ShareCta share={share} stats={snapshot.stats} />
+      <ReadmeSection
+        profile={{ username: snapshot.account.username, version: snapshot.generatedAt }}
+      />
     </>
   );
 };

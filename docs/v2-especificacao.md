@@ -28,16 +28,17 @@ O endereço canônico da v2 é `https://github-timeline.frangolab.com`.
 
 ## 1. Rotas
 
-| Rota                      | Conteúdo                                                        |
-| ------------------------- | --------------------------------------------------------------- |
-| `/`                       | landing                                                         |
-| `/u/<username>`           | timeline do perfil. Aceita `?tema=escuro\|claro`                |
-| `/u/<a>...<b>`            | comparação entre dois perfis                                    |
-| `/u/<username>/card.png`  | imagem 1200×630. Aceita `?tema=` e `?variante=headline\|numero` |
-| `/badge/<username>.svg`   | badge para README                                               |
-| `/api/profile/<username>` | snapshot derivado, em JSON                                      |
-| `/api/status/<username>`  | progresso de coleta (Server-Sent Events)                        |
-| `/healthz`                | verificação de saúde                                            |
+| Rota                            | Conteúdo                                                        |
+| ------------------------------- | --------------------------------------------------------------- |
+| `/`                             | landing                                                         |
+| `/u/<username>`                 | timeline do perfil. Aceita `?tema=escuro\|claro`                |
+| `/u/<a>...<b>`                  | comparação entre dois perfis                                    |
+| `/u/<username>/card.png`        | imagem 1200×630. Aceita `?tema=` e `?variante=headline\|numero` |
+| `/badge/<username>.svg`         | badge para README                                               |
+| `/embed/<username>/<embed>.svg` | embeds para profile README (§5.4)                               |
+| `/api/profile/<username>`       | snapshot derivado, em JSON                                      |
+| `/api/status/<username>`        | progresso de coleta (Server-Sent Events)                        |
+| `/healthz`                      | verificação de saúde                                            |
 
 O prefixo `/u/` separa os usernames das rotas do sistema: existem contas no GitHub chamadas `api`, `badge` etc.
 
@@ -60,7 +61,7 @@ Todas as telas têm tema claro e escuro, e funcionam de 390px a 1280px ou mais.
 
   Cada card mostra avatar, nome, `@username · desde AAAA`, uma minigrade de atividade, a linguagem principal, o nº de repositórios e as stars. Os cards são servidos de snapshots, sem consultar o GitHub a cada visita.
 
-- Seção do badge: prévia e snippet Markdown copiável.
+- Seção "Leve sua timeline para o README": instrução curta e opções comuns (`tema`, `lang`) no topo; depois trilha, rio, conquistas e badge em sequência, cada um com título em cima e prévia e código lado a lado. Acima de cada código, um campo de usuário (todos sincronizados): o snippet muda na hora e, quando `/api/profile/<username>` responde, as prévias passam do perfil de exemplo para o perfil real. Em conquistas, os ids são botões liga/desliga (ao menos um ligado) que mudam prévia e snippet para `/conquistas/<ids>.svg`. O servidor entrega os modelos em atributos `data-*` com o placeholder, e `public/assets/readme-builder.js` só os preenche. Sem usuário, as prévias vêm de `/exemplos/<embed>.svg` e `/exemplos/conquistas/<ids>.svg`, com um perfil fictício.
 - Rodapé: "Dados da API pública do GitHub.", crédito e link do código.
 
 ### 2.2 Perfil
@@ -70,8 +71,8 @@ Todas as telas têm tema claro e escuro, e funcionam de 390px a 1280px ou mais.
 - **Resumo**: manchete (§4.1); quatro indicadores (anos de atividade, repositórios públicos com próprios · forks, stars nos próprios com o repo de destaque, ano recorde); barra de linguagens com percentuais.
 - **Conquistas** (§4.2).
 - **Linha do tempo** (§4.3).
+- **Leve sua timeline para o README**, logo abaixo da linha do tempo: a mesma seção da landing (§2.1, §5.4), já preenchida com o usuário da página. Prévias reais desde o primeiro quadro (com `?v=` da coleta), snippets com o username e campo editável para trocar de perfil. Fica fora de organizações (sem linha do tempo) e da comparação.
 - Abaixo do resumo, "Comparar com outro perfil": o username aberto fica fixo e leva a `/u/<username>...<outro>` (§2.4).
-- Chamada para compartilhar: URL canônica, botão de copiar e badge.
 
 No mobile, os indicadores ficam em grade 2×2, as conquistas viram um carrossel horizontal e os 12 meses de cada ano formam uma faixa horizontal.
 
@@ -240,6 +241,18 @@ Mantém as regras da v1, com estas mudanças:
 - `GET /badge/<username>.svg` → dois segmentos, "github timeline" (cinza `#30363d`) e "AAAA–AAAA · N repos" (verde `#238636`), em JetBrains Mono (§5.3).
 - `Content-Type: image/svg+xml`, `Cache-Control: max-age=3600`, servido do snapshot.
 - Username inexistente gera o segmento direito cinza "não encontrado" com status 200, porque o proxy de imagens do GitHub não exibe respostas de erro.
+
+### 5.4 Embeds para profile README
+
+- Rotas: `/embed/<username>/trilha.svg`, `/embed/<username>/linguagens.svg`, `/embed/<username>/conquistas.svg` e `/embed/<username>/conquistas/<ids>.svg`, com ids de §4.2 separados por vírgula ou `+` (repetidos são ignorados e a ordem da URL é mantida).
+- Aceitam `?tema=escuro|claro` (padrão escuro) e `?lang=`. Trilha e rio aceitam `?paleta=`; valor desconhecido usa a padrão. Trilha: `roxo` (marca), `verde` (o do GitHub), `azul`, `ambar`, `rosa`, com escala própria para cada tema. Rio: `linguagens` (Linguist), `aurora`, `por-do-sol`, por posição da faixa, com "Outras" sempre cinza; ordem validada para daltonismo (vizinhas com ΔE ≥ 10). A trilha aceita `?estilo=completo|compacto` (padrão completo): o compacto tira total e descrição de cada ano e encurta a imagem. Na landing, cada ajuste (paleta, estilo) é um select na coluna do código que muda prévia e snippet; valores padrão ficam fora do endereço. Largura fixa de 840 px, a largura útil de um README.
+- **Trilha da carreira:** uma coluna de quadrados por mês, em escala log₂ relativa ao pico do perfil (até 9). Um cometa percorre a grade e acende as colunas, com as eras de §4.3 sob cada ano. Carreiras com mais de 7 anos agrupam meses por coluna e escondem os títulos das eras.
+- **Rio de linguagens:** streamgraph simétrico dos repositórios próprios criados por linguagem em cada ano. As 6 maiores linguagens têm faixa própria e o resto vai para "Outras". Usa as cores do Linguist e é revelado da esquerda para a direita.
+- **Conquistas:** medalhas de §4.2. As bloqueadas aparecem tracejadas, com o progresso.
+- Animação só com CSS dentro do SVG, começando no meio do ciclo para que o primeiro quadro (miniaturas, carregamento) já mostre tudo aceso, que o GitHub mantém em imagens servidas por `<img>`. Há regra `prefers-reduced-motion` no SVG, mas nem todo navegador repassa essa preferência para imagens.
+- Fontes do sistema: dentro de `<img>` o SVG não baixa fontes.
+- Cabeçalhos próprios em `/badge`, `/embed` e `/exemplos`: CSP `default-src 'none'; style-src 'unsafe-inline'; img-src data:`, porque a CSP das páginas bloquearia o `<style>` da animação, e `Cross-Origin-Resource-Policy: cross-origin`, para que funcionem fora do GitHub.
+- Servido do snapshot (`Cache-Control: max-age=3600`). Sem snapshot, dispara a coleta (com o limite por IP) e responde 200 com um aviso e `max-age=60`. Username ou seleção inválidos respondem 400 com um aviso em SVG que mostra o valor recebido e o formato esperado. Organizações recebem um aviso no lugar da trilha e do rio.
 
 ### 5.3 Marca própria
 

@@ -78,6 +78,12 @@ const RULES: AchievementRule[] = [
 ];
 
 /**
+ * Ids de todas as conquistas, na ordem de exibição.
+ * @example ACHIEVEMENT_IDS[0] // "primeiro-repo"
+ */
+export const ACHIEVEMENT_IDS: readonly AchievementId[] = RULES.map((rule) => rule.id);
+
+/**
  * Conquistas calculadas só com os dados da coleta, sem chamadas extras.
  * @example buildAchievements(repos, new Date()).filter((a) => a.unlocked)
  */

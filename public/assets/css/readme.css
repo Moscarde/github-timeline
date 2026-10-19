@@ -1,0 +1,248 @@
+/* ---------- landing: "Leve sua timeline para o README" ---------- */
+/* Um bloco por formato. O último perde a borda: `:last-of-type`, porque o `<script>` vem depois. */
+.readme-section {
+  padding-block: 48px;
+  border-top: 1px solid var(--line);
+  display: grid;
+}
+.readme-head {
+  display: grid;
+  gap: 12px;
+  max-width: 72ch;
+  padding-bottom: 8px;
+}
+.readme-head p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.readme-head .readme-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+}
+.readme-head .readme-options div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.readme-item {
+  display: grid;
+  gap: 14px;
+  padding-block: 32px;
+  border-bottom: 1px solid var(--line);
+}
+.readme-item:last-of-type {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+/* Prévia no tamanho mais próximo do natural (840 px); o código fica numa coluna estreita. */
+.readme-item-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 20px;
+  align-items: start;
+}
+
+/* Prévia: as duas versões vêm prontas e o CSS mostra a do tema ativo. */
+.readme-preview {
+  min-width: 0;
+}
+/* Tamanho natural do SVG, encolhendo só quando não cabe: a faixa com poucas conquistas e o
+   badge real não podem ser esticados até a largura da coluna. */
+.readme-preview img {
+  vertical-align: top;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+}
+.readme-preview-badge {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--canvas);
+}
+.readme-preview-badge .badge-html {
+  margin-top: 0;
+}
+.only-light {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .only-light {
+    display: inline;
+  }
+  :root:not([data-theme='dark']) .only-dark {
+    display: none;
+  }
+}
+:root[data-theme='light'] .only-light {
+  display: inline;
+}
+:root[data-theme='light'] .only-dark {
+  display: none;
+}
+
+.readme-panel-copy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  max-width: 72ch;
+}
+.readme-panel-copy h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.readme-panel-copy p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.readme-options {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.readme-options div {
+  display: grid;
+  gap: 2px;
+}
+.readme-options dd {
+  margin: 0;
+  font-size: 13px;
+}
+.readme-options code {
+  font-size: 12px;
+  color: var(--str);
+}
+/* Conquistas como caixas de seleção: a caixa com ✓ deixa claro que dá para desmarcar. */
+.readme-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.readme-ids legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.readme-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.readme-id:hover {
+  border-color: var(--hover);
+}
+.readme-id:has(input:checked) {
+  border-color: color-mix(in srgb, var(--str) 45%, var(--border));
+  background: color-mix(in srgb, var(--str) 8%, transparent);
+  color: var(--fg);
+}
+.readme-id:has(input:focus-visible),
+.readme-field input:focus-visible,
+.readme-field select:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.readme-check {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--hover);
+  border-radius: 4px;
+}
+.readme-id input:checked + .readme-check {
+  border-color: var(--str);
+  background: var(--str);
+}
+.readme-id input:checked + .readme-check::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 0.5px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--canvas);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Coluna do código: campo de usuário em cima, painel embaixo. */
+.readme-code-column {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.readme-field {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+.readme-field label {
+  color: var(--muted);
+}
+.readme-field input,
+.readme-field select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--canvas);
+  color: var(--fg);
+  font-size: 13px;
+  caret-color: var(--brand);
+}
+.readme-field select {
+  font-family: inherit;
+  cursor: pointer;
+}
+.readme-user input::placeholder {
+  color: var(--faint);
+}
+.readme-status {
+  margin: 0;
+  font-size: 12px;
+}
+.readme-status:empty {
+  display: none;
+}
+
+/* Código estreito: quebra em várias linhas, com o cabeçalho e o botão do painel padrão. */
+.readme-code-panel .readme-code {
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+@media (max-width: 960px) {
+  .readme-item-body {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+@media (max-width: 720px) {
+  .readme-section {
+    padding-block: 28px;
+  }
+  .readme-item {
+    padding-block: 24px;
+  }
+}

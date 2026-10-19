@@ -11,6 +11,7 @@ const USAGE_ROUTES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^\/u\/[^/]+\.\.\.[^/]+$/, 'comparison'],
   [/^\/u\/[^/]+$/, 'timeline'],
   [/^\/badge\/[^/]+$/, 'badge'],
+  [/^\/embed\/[^/]+\/.+$/, 'embed'],
   [/^\/api\/profile\/[^/]+$/, 'api_profile'],
   [/^\/api\/status\/[^/]+$/, 'api_status'],
   [/^\/idioma$/, 'language_change'],

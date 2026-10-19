@@ -31,12 +31,13 @@ Nada é escrito à mão nem inventado. Cada frase sai dos dados públicos do Git
 
 Não precisa instalar nada. Troque `<username>` pelo perfil que quiser:
 
-| Quero…                       | Endereço                                                      |
-| ---------------------------- | ------------------------------------------------------------- |
-| ver a timeline de alguém     | `https://github-timeline.frangolab.com/u/<username>`          |
-| comparar dois perfis         | `https://github-timeline.frangolab.com/u/<a>...<b>`           |
-| uma imagem para compartilhar | `https://github-timeline.frangolab.com/u/<username>/card.png` |
-| um badge para o README       | `https://github-timeline.frangolab.com/badge/<username>.svg`  |
+| Quero…                        | Endereço                                                            |
+| ----------------------------- | ------------------------------------------------------------------- |
+| ver a timeline de alguém      | `https://github-timeline.frangolab.com/u/<username>`                |
+| comparar dois perfis          | `https://github-timeline.frangolab.com/u/<a>...<b>`                 |
+| uma imagem para compartilhar  | `https://github-timeline.frangolab.com/u/<username>/card.png`       |
+| um badge para o README        | `https://github-timeline.frangolab.com/badge/<username>.svg`        |
+| embeds animados para o README | `https://github-timeline.frangolab.com/embed/<username>/trilha.svg` |
 
 A primeira visita a um perfil dispara a coleta, e a página mostra o progresso ao vivo. Daí em diante o snapshot fica salvo e abre na hora.
 
@@ -91,6 +92,34 @@ Um selo que se atualiza sozinho e leva quem clicar direto para a sua timeline:
 ```
 
 O badge mostra o intervalo de anos e o total de repositórios, por exemplo `2019–2026 · 83 repos`.
+
+### Embeds
+
+Imagens maiores, em SVG, para colar no profile README. A trilha e o rio são animados só com CSS e rodam em loop.
+
+| Embed              | Endereço                                     | Mostra                                                            |
+| ------------------ | -------------------------------------------- | ----------------------------------------------------------------- |
+| Trilha da carreira | `/embed/<username>/trilha.svg`               | contribuições mês a mês da carreira toda, com as eras de cada ano |
+| Rio de linguagens  | `/embed/<username>/linguagens.svg`           | repositórios criados por linguagem em cada ano                    |
+| Conquistas         | `/embed/<username>/conquistas.svg`           | as 9 conquistas, com as bloqueadas e o que falta                  |
+| Conquistas à mão   | `/embed/<username>/conquistas/<id>,<id>.svg` | só as conquistas escolhidas, na ordem da URL                      |
+
+Ids das conquistas: `primeiro-repo`, `estrelado`, `stars-100`, `stars-1000`, `primeiro-fork`, `poliglota`, `ano-recorde`, `uma-decada`, `topics-50`.
+
+Todos aceitam `?tema=escuro|claro` e `?lang=pt-BR|en`. A trilha e o rio aceitam também `?paleta=`: na trilha, `roxo` (padrão), `verde`, `azul`, `ambar` ou `rosa`; no rio, `linguagens` (padrão, cores do Linguist), `aurora` ou `por-do-sol`. A trilha aceita ainda `?estilo=compacto`, que deixa só os anos sob a grade, sem total nem descrição. Para seguir o tema de quem visita o seu perfil:
+
+```html
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://github-timeline.frangolab.com/embed/seu-username/trilha.svg?tema=escuro"
+  />
+  <img
+    alt="Trilha da carreira"
+    src="https://github-timeline.frangolab.com/embed/seu-username/trilha.svg?tema=claro"
+  />
+</picture>
+```
 
 ## ✦ API
 

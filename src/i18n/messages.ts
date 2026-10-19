@@ -138,10 +138,6 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'no GitHub desde {0}': 'on GitHub since {0}',
   'Compartilhar no': 'Share on',
   'Baixar card': 'Download card',
-  'Mostre sua trajetória': 'Share your journey',
-  'Card pronto para redes, no tema que você está usando, e badge para o README.':
-    'A social card in your current theme and a badge for your README.',
-  'Copiar badge': 'Copy badge',
   'Seu GitHub em resumo': 'Your GitHub at a glance',
   'anos de atividade': 'years of activity',
   'repositórios públicos': 'public repositories',
@@ -281,4 +277,62 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'perfil não encontrado': 'profile not found',
   'GitHub indisponível': 'GitHub unavailable',
   'não encontrado': 'not found',
+  'Embeds para README': 'README embeds',
+  'Trilha da carreira de {0}: {1} contribuições de {2} a {3}':
+    'Career trail of {0}: {1} contributions from {2} to {3}',
+  'trilha no GitHub': 'GitHub trail',
+  '{0} contribuições · {1}': '{0} contributions · {1}',
+  '{0} contribuições': '{0} contributions',
+  'pico · {0} em {1}': 'peak · {0} in {1}',
+  'Rio de linguagens': 'Language river',
+  'Rio de linguagens de {0}: repositórios criados por linguagem de {1} a {2}':
+    'Language river of {0}: repositories created per language from {1} to {2}',
+  'repositórios criados por ano': 'repositories created per year',
+  '{0} repos': '{0} repos',
+  'Conquistas de {0}: {1}': 'Achievements of {0}: {1}',
+  '{0} de {1} desbloqueadas': '{0} of {1} unlocked',
+  'Gerando a timeline de @{0}. Recarregue em alguns minutos.':
+    'Building the timeline for @{0}. Reload in a few minutes.',
+  'Muitas timelines novas a partir deste endereço. Tente @{0} mais tarde.':
+    'Too many new timelines from this address. Try @{0} again later.',
+  '@{0} não tem linha do tempo: organizações e perfis sem repositórios públicos ficam de fora.':
+    '@{0} has no timeline: organizations and profiles without public repositories are left out.',
+  'conquistas inválidas: recebido "{0}"; esperado ids separados por vírgula entre {1}.':
+    'invalid achievements: received "{0}"; expected comma-separated ids among {1}.',
+  'Trilha da carreira': 'Career trail',
+  'Um selo pequeno com os anos e o total de repositórios, que leva direto para a sua timeline.':
+    'A small badge with your years and repository count that links straight to your timeline.',
+  'A carreira inteira, mês a mês: um cometa percorre os anos e acende as contribuições, com o nome de cada fase.':
+    'Your whole career, month by month: a comet sweeps through the years and lights up your contributions, with the name of each phase.',
+  'Como a sua stack mudou: cada faixa é uma linguagem, e a largura é quantos repositórios você criou nela em cada ano.':
+    'How your stack changed: each band is a language, and its width is how many repositories you created in it each year.',
+  'idioma dos textos': 'text language',
+  'cores da imagem; o padrão é escuro': 'image colors; dark by default',
+  'Digite seu usuário para ver as prévias com os seus dados, copie o código e cole no seu README. As imagens se atualizam sozinhas.':
+    'Type your username to preview with your own data, then copy the code into your README. The images update automatically.',
+  'As conquistas da sua timeline, com as que faltam e o progresso.':
+    'Your timeline achievements, including the locked ones and your progress.',
+  'Seu usuário do GitHub': 'Your GitHub username',
+  'Marque as conquistas que entram no embed:': 'Check the achievements to include in the embed:',
+  'Username inválido: "{0}".': 'Invalid username: "{0}".',
+  'Gerando a timeline de @{0}…': 'Building the timeline for @{0}…',
+  'Perfil @{0} não encontrado.': 'Profile @{0} not found.',
+  'Muitas timelines novas daqui. Tente de novo em alguns minutos.':
+    'Too many new timelines from here. Try again in a few minutes.',
+  'GitHub indisponível agora. Tente de novo em alguns minutos.':
+    'GitHub is unavailable right now. Try again in a few minutes.',
+  'Paleta de cores': 'Color palette',
+  Roxo: 'Purple',
+  Verde: 'Green',
+  Azul: 'Blue',
+  Âmbar: 'Amber',
+  Rosa: 'Pink',
+  'Cores das linguagens': 'Language colors',
+  Aurora: 'Aurora',
+  'Pôr do sol': 'Sunset',
+  'Descrição dos anos': 'Year descriptions',
+  Mostrar: 'Show',
+  'Ocultar (versão compacta)': 'Hide (compact version)',
+  'Prévias com os dados de @{0}. Copie o código e cole no seu README; as imagens se atualizam sozinhas.':
+    'Previews with @{0}’s data. Copy the code into your README; the images update automatically.',
 };

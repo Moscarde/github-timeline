@@ -6,6 +6,11 @@ const CLIENT_MESSAGES = [
   'Selecione e copie',
   'Mostrar menos',
   'A coleta não terminou. Recarregue a página para tentar de novo.',
+  'Username inválido: "{0}".',
+  'Gerando a timeline de @{0}…',
+  'Perfil @{0} não encontrado.',
+  'Muitas timelines novas daqui. Tente de novo em alguns minutos.',
+  'GitHub indisponível agora. Tente de novo em alguns minutos.',
 ] as const;
 
 /** Supply client feedback from the same catalog as SSR. @example clientMessages('en')['Mostrar menos'] */

@@ -70,6 +70,13 @@ describe('shared client catalog', () => {
       'Mostrar menos': 'Show less',
       'A coleta não terminou. Recarregue a página para tentar de novo.':
         'Collection did not finish. Reload the page to try again.',
+      'Username inválido: "{0}".': 'Invalid username: "{0}".',
+      'Gerando a timeline de @{0}…': 'Building the timeline for @{0}…',
+      'Perfil @{0} não encontrado.': 'Profile @{0} not found.',
+      'Muitas timelines novas daqui. Tente de novo em alguns minutos.':
+        'Too many new timelines from here. Try again in a few minutes.',
+      'GitHub indisponível agora. Tente de novo em alguns minutos.':
+        'GitHub is unavailable right now. Try again in a few minutes.',
     });
     expect(clientMessages('pt-BR')['Copiado ✓']).toBe('Copiado ✓');
   });

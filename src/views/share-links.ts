@@ -9,8 +9,6 @@ export interface ShareLinks {
   card: string;
   x: string;
   linkedin: string;
-  badge: string;
-  badgeMarkdown: string;
 }
 
 /**
@@ -26,14 +24,11 @@ export function shareLinks(
   const language = locale ? `&lang=${locale}` : '';
   const path = `/u/${encodeURIComponent(username)}`;
   const page = `${CANONICAL_ORIGIN}${path}?tema=${theme}${language}`;
-  const badge = `${CANONICAL_ORIGIN}/badge/${encodeURIComponent(username)}.svg${locale ? `?lang=${locale}` : ''}`;
   return {
     page,
     card: `${path}/card.png?tema=${theme}${language}`,
     x: `https://x.com/intent/post?${new URLSearchParams({ text: headline, url: page })}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?${new URLSearchParams({ url: page })}`,
-    badge,
-    badgeMarkdown: `[![Timeline](${badge})](${CANONICAL_ORIGIN}${path}${locale ? `?lang=${locale}` : ''})`,
   };
 }
 
